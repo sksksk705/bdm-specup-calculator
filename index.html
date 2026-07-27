@@ -247,6 +247,17 @@
   <!-- ============ TAB 1: CURRENT STATE (all user input) ============ -->
   <section class="panel active" id="panel-state">
     <div class="card">
+      <h2>복구 기준 시세</h2>
+      <div class="desc">강화 실패 시 복구에 쓰이는 <b>돌파 복구권 1개를 은화로 환산하면 얼마인지</b> 정해두면, 아래 모든 항목의 복구 비용 계산에 공통으로 쓰입니다. 기본적으로 <b>복구는 은화(인게임 재화)로 하는 것으로 가정</b>하고, 복구권 사용이 강제되는 항목(예: 공허 유물 계열 돌파)만 개별적으로 복구권 개수를 따로 입력합니다.</div>
+      <div class="field-row" style="margin-bottom:0;">
+        <div class="field">
+          <label>돌파 복구권 1개 = 은화</label>
+          <input type="number" id="recoveryTicketPrice" min="0">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
       <h2>장비 &amp; 장신구</h2>
       <div class="desc">인게임 장비 화면과 같은 배치입니다 — 왼쪽 위부터 휘장·고리, 오른쪽은 주무기/보조무기부터 순서대로. 등급이 있는 항목은 등급+단계를, 그 외에는 현재 레벨(단계)만 입력하세요.</div>
       <div class="gear-grid">
@@ -316,7 +327,7 @@
       <li>실비아 여신상(+20/레벨), 휘장(+20/단계)은 사용자가 제공한 수치입니다. 균형의 돌(+10/레벨), 조화의 연금석 공허 등급(+10/단계, 공격력+5·방어력+5)은 공식 문서 수치와 일치합니다. 그 외 광원석·토템·조화의 연금석 혼돈 등급·유물·장신구는 전투력 수치 정보가 없어 직접 입력이 필요합니다.</li>
       <li>태고 이하 등급(일반~태고)은 요즘 거의 쓰이지 않아 계산 대상에서 제외했습니다. 다만 <b>토템(균열의 토템)은 태고 등급부터</b> 존재해 그대로 포함했고, <b>조화의 연금석은 태고 등급 없이 혼돈부터 시작</b>하는 별도 아이템이라 혼돈·공허만 다룹니다.</li>
       <li>반지·목걸이·허리띠·귀걸이·팔찌·휘장·유물1/2은 <b>태고→혼돈, 혼돈→공허</b>, 토템은 <b>태고→혼돈(+40 태고 달성 시), 혼돈→공허(+20 혼돈 달성 시)</b>, 조화의 연금석은 <b>혼돈→공허(+40 혼돈 달성 시)</b> 등급업(제작) 경로를 함께 계산합니다. 출처: 공식 가이드(장신구 wikiNo=4004, 토템 wikiNo=4006, 연금석 wikiNo=4007, 유물 wikiNo=4005, 휘장 wikiNo=4008), 2026-07-27 확인. 등급업 시 재료로 소모되는 “자기 자신(이전 등급 아이템)”은 은화로 값을 매기지 않았고, 그 등급업으로 얻는 전투력 증가치는 공식 문서에 없어 직접 입력해야 합니다. 각 등급업 칸의 “선행조건”은 재료로만 표시되며 실제 게임에서 그 단계까지 별도로 도달해야 합니다. 토템의 태고→혼돈 등급업은 <b>50억 은화</b>가 직접 소모되는 등 매우 큰 비용이 드는 경우가 있으니 주의하세요.</li>
-      <li>복구 방식은 항목마다 다릅니다. <b>장신구·유물 기본 잠재력 돌파</b>는 실패 시 은화와 돌파 복구권을 함께 소모해야 복구됩니다. <b>조화의 연금석·광원석</b>은 은화 또는 돌파 복구권 중 하나만 있으면 복구됩니다(정확한 필요 개수는 공식 문서에 없어 직접 입력). <b>균열의 토템</b>은 아예 다른 재화(결정화된 토템 등)로 복구합니다. 정확한 개수가 공개된 유일한 경우는 <b>공허 유물 계열 돌파</b>로, 실패 시 <b>차원의 조각 250개 또는 돌파 복구권 25,000개</b> 중 선택해 복구할 수 있습니다(공식 가이드 wikiNo=4005, 2026-07-27 확인).</li>
+      <li>복구 방식은 항목마다 다릅니다. <b>장신구·유물 기본 잠재력 돌파</b>는 실패 시 은화와 돌파 복구권을 함께 소모해야 복구됩니다. <b>조화의 연금석·광원석</b>은 은화 또는 돌파 복구권 중 하나만 있으면 복구됩니다(정확한 필요 개수는 공식 문서에 없어 직접 입력). <b>균열의 토템</b>은 아예 다른 재화(결정화된 토템 등)로 복구합니다. 이 계산기는 <b>복구를 기본적으로 은화(인게임 재화)로 하는 것으로 가정</b>하고, 복구권 사용이 강제되는 항목만 개별적으로 복구권 개수를 따로 입력하도록 했습니다 — 돌파 복구권 1개를 은화 얼마로 볼지는 «① 현재 상태» 탭 맨 위 “복구 기준 시세” 칸에서 한 번만 입력하면 전체 계산에 반영됩니다. 정확한 개수가 공개된 유일한 경우는 <b>공허 유물 계열 돌파</b>로, 실패 시 <b>차원의 조각 250개 또는 돌파 복구권 25,000개</b> 중 선택해 복구할 수 있습니다(공식 가이드 wikiNo=4005, 2026-07-27 확인).</li>
       <li><b>공허 유물 계열 돌파</b>(2026-05-12부터 “유물 마력 각인”으로 명칭 변경)는 공허 등급 유물에서만 가능한 별도 시스템으로, 유물1/2 각각 +20단계까지 돌파할 수 있어 추가했습니다. 시도 자체에 소모되는 재료는 공식 문서에 없어 0으로 가정했고(복구 비용만 계산), +11단계부터는 단계당 공격력+24·방어력+24(전투력 근사 48)·최대 생명력+150이 공식 수치로 확인돼 자동으로 채웠습니다. 그 이전 단계의 전투력 증가치는 공개되어 있지 않아 직접 입력이 필요합니다.</li>
     </ul>
   </footer>
@@ -514,10 +525,10 @@
   // wikiNo=4007 "은화 또는 돌파 복구권", 공허 유물 계열 돌파 wikiNo=4005 "차원의 조각 250개
   // 혹은 돌파 복구권 25,000개"), 2026-07-27 확인.
   var RECOVERY_NOTES = {
-    accessory: "실패 시 은화 + 돌파 복구권을 함께 소모해야 복구됩니다(정확한 개수는 미공개 — 아래 두 칸에 직접 입력).",
-    relic: "실패 시 은화 + 돌파 복구권을 함께 소모해야 복구됩니다(정확한 개수는 미공개 — 아래 두 칸에 직접 입력).",
-    harmonyAlchemy: "실패 시 은화 또는 돌파 복구권 중 하나만 있으면 복구됩니다(정확한 개수는 미공개 — 실제 쓰실 방법 한 칸만 채우세요).",
-    lightstone: "실패 시 은화 또는 돌파 복구권 중 하나만 있으면 복구됩니다(정확한 개수는 미공개 — 실제 쓰실 방법 한 칸만 채우세요)."
+    accessory: "실패 시 은화 + 돌파 복구권을 함께 소모해야 복구됩니다(정확한 개수는 미공개). 기본은 은화만 반영해뒀고, 복구권도 실제로 필요하니 아신다면 개수를 추가로 입력하세요.",
+    relic: "실패 시 은화 + 돌파 복구권을 함께 소모해야 복구됩니다(정확한 개수는 미공개). 기본은 은화만 반영해뒀고, 복구권도 실제로 필요하니 아신다면 개수를 추가로 입력하세요.",
+    harmonyAlchemy: "실패 시 은화 또는 돌파 복구권 중 하나만 있으면 복구됩니다(정확한 개수는 미공개). 기본은 은화 사용으로 가정했습니다 — 복구권으로만 복구하실 거면 은화 칸을 0으로 지우고 복구권 칸에 입력하세요.",
+    lightstone: "실패 시 은화 또는 돌파 복구권 중 하나만 있으면 복구됩니다(정확한 개수는 미공개). 기본은 은화 사용으로 가정했습니다 — 복구권으로만 복구하실 거면 은화 칸을 0으로 지우고 복구권 칸에 입력하세요."
   };
 
   // 전승의 고리: 등급별 잠재력 각성 단계당 필요 수량(봉인된 전승의 고리)과
@@ -665,12 +676,14 @@
     var savedFam = saved && saved.family ? saved.family[item.id] : null;
     var fam = savedFam || {
       level: 0, material: item.defaultMaterial, qtyPerLevel: 1, cpPerLevel: item.cpPerLevel,
-      grade: familyGradeOptions(item)[0], gradeUpGain: 10, recoveryQty: 1, recoverySilver: 0,
+      grade: familyGradeOptions(item)[0], gradeUpGain: 10, recoveryQty: 0, recoverySilver: 100000,
       seriesGain: 10
     };
     fam.gradeUpGain = healZero(fam.gradeUpGain, 10);
-    fam.recoveryQty = healZero(fam.recoveryQty, 1);
-    if (fam.recoverySilver === undefined) fam.recoverySilver = 0; // 0이 정상값(복구권만 쓰는 경우)이라 힐링 대상 아님
+    // 복구는 기본적으로 은화(인게임 재화)를 쓰는 것으로 가정합니다 — 복구권 개수는 0이 정상 기본값이고,
+    // 복구권 사용이 강제되는 항목만 개별적으로 채워 넣습니다. 은화 쪽만 더미로 채웁니다.
+    if (fam.recoveryQty === undefined) fam.recoveryQty = 0;
+    fam.recoverySilver = healZero(fam.recoverySilver, 100000);
     if (fam.seriesLevel === undefined) fam.seriesLevel = 0;
     fam.seriesGain = healZero(fam.seriesGain, 10);
     if (fam.seriesRecoveryMethod === undefined) fam.seriesRecoveryMethod = "돌파 복구권";
@@ -740,6 +753,7 @@
       input.addEventListener("input", function () {
         state.prices[m.name] = parseFloat(input.value) || 0;
         persist();
+        if (m.name === "돌파 복구권") syncRecoveryTicketInput();
         renderSpecTable();
       });
       tdPrice.appendChild(input);
@@ -770,6 +784,18 @@
 
   document.getElementById("priceSearch").addEventListener("input", function (e) {
     renderPriceTable(e.target.value);
+  });
+
+  // 상단 "복구 기준 시세" 입력칸 — 재료 시세 표의 "돌파 복구권" 행과 같은 값을 공유합니다.
+  var recoveryTicketInput = document.getElementById("recoveryTicketPrice");
+  function syncRecoveryTicketInput() {
+    recoveryTicketInput.value = state.prices["돌파 복구권"] || 0;
+  }
+  recoveryTicketInput.addEventListener("input", function () {
+    state.prices["돌파 복구권"] = parseFloat(recoveryTicketInput.value) || 0;
+    persist();
+    renderPriceTable(document.getElementById("priceSearch").value);
+    renderSpecTable();
   });
 
   document.getElementById("addMaterialBtn").addEventListener("click", function () {
@@ -1212,14 +1238,14 @@
                 }
                 var wrap = document.createElement("div");
                 wrap.style.cssText = "display:flex;align-items:center;gap:4px;margin-top:4px;flex-wrap:wrap;";
-                var label1 = document.createElement("span");
-                label1.style.cssText = "color:var(--text-faint);font-size:10px;"; label1.textContent = "실패당 복구권";
-                wrap.appendChild(label1);
-                wrap.appendChild(buildNumberInput(fam.recoveryQty, function (v) { fam.recoveryQty = v; persist(); renderSpecTable(); }, "55px"));
                 var label2 = document.createElement("span");
-                label2.style.cssText = "color:var(--text-faint);font-size:10px;"; label2.textContent = "은화(복구권 대신 직접)";
+                label2.style.cssText = "color:var(--text-faint);font-size:10px;"; label2.textContent = "실패당 은화(기본)";
                 wrap.appendChild(label2);
                 wrap.appendChild(buildNumberInput(fam.recoverySilver, function (v) { fam.recoverySilver = v; persist(); renderSpecTable(); }, "70px"));
+                var label1 = document.createElement("span");
+                label1.style.cssText = "color:var(--text-faint);font-size:10px;"; label1.textContent = "복구권(강제인 경우만)";
+                wrap.appendChild(label1);
+                wrap.appendChild(buildNumberInput(fam.recoveryQty, function (v) { fam.recoveryQty = v; persist(); renderSpecTable(); }, "55px"));
                 td.appendChild(wrap);
               }
             };
@@ -1355,6 +1381,7 @@
    * 8. INIT
    * ------------------------------------------------------------- */
   renderPriceTable("");
+  syncRecoveryTicketInput();
   renderGearGrid();
   renderGearExtra();
   renderSpecTable();
