@@ -326,11 +326,12 @@
       <li>반지·목걸이·허리띠·귀걸이·팔찌(장신구), 유물1/2, 조화의 연금석, 광원석은 정확한 성공확률 대신 <b>고대의 모루</b>(공식 가이드 wikiNo=4021, 2026-07-27 확인) 천장 수치를 사용합니다 — 강화 실패마다 “기운”이 쌓이고 표에 정해진 최대치에 도달하면 다음 시도가 확정 성공하는데, <b>그 최대치를 그대로 “확정 성공까지 필요한 시도 횟수”로 가정</b>했습니다(운이 좋으면 그보다 적게 들 수 있는 보수적 상한치). 실패한 (횟수-1)번은 “실패당 복구권/은화” 칸에 입력한 값만큼 복구 비용이 추가로 곱해집니다. 회당 재료 소모량은 장신구의 경우 공식 문서에 명시된 대로, 그 외 항목은 같은 방식일 것이라는 가정으로 1개로 계산합니다. 토템(균열의 토템 태고/혼돈/공허 등급)·균형의 돌은 고대의 모루 표가 없어(신화/심연 등급에만 적용) 이 방식 없이 직접 입력을 유지합니다.</li>
       <li>밤·달빛 영혼석은 모든 단계 성공확률 51%로 공식 확률표에 나와 있어 자동 계산했지만, 소모 재료의 정확한 명칭·개당 소모량은 공식 문서에 없어 직접 입력이 필요합니다.</li>
       <li>실비아 여신상(+20/레벨)은 사용자가 제공한 수치입니다. 균형의 돌(+10/레벨), 조화의 연금석 공허 등급(+10/단계, 공격력+5·방어력+5)은 공식 문서 수치와 일치합니다. 그 외 광원석·조화의 연금석 혼돈 등급·유물은 전투력 수치 정보가 없어 직접 입력이 필요합니다.</li>
-      <li>반지·목걸이·허리띠·귀걸이·팔찌(장신구)·휘장·토템(균열의 토템)의 <b>태고·혼돈·공허 등급</b> 잠재력 돌파 단계별 전투력 증가치는 공식 포럼 모험가 가이드 23편 “장비 등급 그리고 장비 잠재력 돌파 및 각성 수치에 관한 모든 것 2편”(forum.blackdesertm.com, boardNo=17, contentNo=611130, 2026-07-27 확인)의 단계별 스탯표를 그대로 옮긴 근사값입니다. 이 항목들도 더 이상 직접 입력칸이 없고 자동 계산됩니다. 장신구는 원자료의 “각성 추가 수치”(별도로 표시된 두 번째 스탯)를 본스탯과 합산했고, 휘장·토템은 원자료가 “공격력=방어력 동일 수치”라고 명시해 값을 2배 했습니다. <b>토템은 혼돈 등급부터 단계당 생명력도 대량으로(혼돈 +200/단계, 공허 +250/단계) 함께 오르지만, 공격력류 스탯과 단위 차이가 너무 커서(40~50배) 전투력 근사에 합산하면 왜곡이 심해 생명력 증가분은 제외했습니다</b> — 그만큼 토템의 실제 효율은 표시된 값보다 더 좋습니다. 휘장은 태고 등급이 +30단계, 혼돈·공허는 +50단계가 상한(그 이상은 원자료 미공개)입니다.</li>
+      <li>반지·목걸이·허리띠·귀걸이·팔찌(장신구)·휘장·토템(균열의 토템)의 <b>태고·혼돈·공허 등급</b> 잠재력 돌파 단계별 전투력 증가치는 공식 포럼 모험가 가이드 23편 “장비 등급 그리고 장비 잠재력 돌파 및 각성 수치에 관한 모든 것 2편”(forum.blackdesertm.com, boardNo=17, contentNo=611130, 2026-07-27 확인)의 단계별 스탯표를 그대로 옮긴 근사값입니다. 이 항목들도 더 이상 직접 입력칸이 없고 자동 계산됩니다. 장신구 원자료에 함께 실린 “각성 추가 수치”(별도로 표시된 두 번째 스탯)는 매 단계 자동으로 붙는 게 아니라 별도의 “각성” 액션 수치라 이 표에서는 빼고 본스탯 증가치만 담았습니다(아래 “각성” 항목 참고). 휘장·토템은 원자료가 “공격력=방어력 동일 수치”라고 명시해 값을 2배 했습니다. <b>토템은 혼돈 등급부터 단계당 생명력도 대량으로(혼돈 +200/단계, 공허 +250/단계) 함께 오르지만, 공격력류 스탯과 단위 차이가 너무 커서(40~50배) 전투력 근사에 합산하면 왜곡이 심해 생명력 증가분은 제외했습니다</b> — 그만큼 토템의 실제 효율은 표시된 값보다 더 좋습니다. 휘장은 태고 등급이 +30단계, 혼돈·공허는 +50단계가 상한(그 이상은 원자료 미공개)입니다.</li>
       <li>태고 이하 등급(일반~태고)은 요즘 거의 쓰이지 않아 계산 대상에서 제외했습니다. 다만 <b>토템(균열의 토템)은 태고 등급부터</b> 존재해 그대로 포함했고, <b>조화의 연금석은 태고 등급 없이 혼돈부터 시작</b>하는 별도 아이템이라 혼돈·공허만 다룹니다.</li>
       <li>반지·목걸이·허리띠·귀걸이·팔찌·휘장·유물1/2은 <b>태고→혼돈, 혼돈→공허</b>, 토템은 <b>태고→혼돈(+40 태고 달성 시), 혼돈→공허(+20 혼돈 달성 시)</b>, 조화의 연금석은 <b>혼돈→공허(+40 혼돈 달성 시)</b> 등급업(제작) 경로를 함께 계산합니다. 출처: 공식 가이드(장신구 wikiNo=4004, 토템 wikiNo=4006, 연금석 wikiNo=4007, 유물 wikiNo=4005, 휘장 wikiNo=4008), 2026-07-27 확인. 등급업 시 재료로 소모되는 “자기 자신(이전 등급 아이템)”은 은화로 값을 매기지 않았고, 그 등급업으로 얻는 전투력 증가치는 공식 문서에 없어 직접 입력해야 합니다. 각 등급업 칸의 “선행조건”은 재료로만 표시되며 실제 게임에서 그 단계까지 별도로 도달해야 합니다. 토템의 태고→혼돈 등급업은 <b>50억 은화</b>가 직접 소모되는 등 매우 큰 비용이 드는 경우가 있으니 주의하세요.</li>
       <li>복구 방식은 항목마다 다릅니다. <b>장신구·유물 기본 잠재력 돌파</b>는 실패 시 은화와 돌파 복구권을 함께 소모해야 복구됩니다. <b>조화의 연금석·광원석</b>은 은화 또는 돌파 복구권 중 하나만 있으면 복구됩니다(정확한 필요 개수는 공식 문서에 없어 직접 입력). <b>균열의 토템</b>은 아예 다른 재화(결정화된 토템 등)로 복구합니다. 이 계산기는 <b>복구를 기본적으로 은화(인게임 재화)로 하는 것으로 가정</b>하고, 복구권 사용이 강제되는 항목만 개별적으로 복구권 개수를 따로 입력하도록 했습니다 — 돌파 복구권 1개를 은화 얼마로 볼지는 «① 현재 상태» 탭 맨 위 “복구 기준 시세” 칸에서 한 번만 입력하면 전체 계산에 반영됩니다. 정확한 개수가 공개된 유일한 경우는 <b>공허 유물 계열 돌파</b>로, 실패 시 <b>차원의 조각 250개 또는 돌파 복구권 25,000개</b> 중 선택해 복구할 수 있습니다(공식 가이드 wikiNo=4005, 2026-07-27 확인).</li>
       <li><b>공허 유물 계열 돌파</b>(2026-05-12부터 “유물 마력 각인”으로 명칭 변경)는 공허 등급 유물에서만 가능한 별도 시스템으로, 유물1/2 각각 +20단계까지 돌파할 수 있어 추가했습니다. 시도 자체에 소모되는 재료는 공식 문서에 없어 0으로 가정했고(복구 비용만 계산), +11단계부터는 단계당 공격력+24·방어력+24(전투력 근사 48)·최대 생명력+150이 공식 수치로 확인돼 자동으로 채웠습니다. 그 이전 단계의 전투력 증가치는 공개되어 있지 않아 직접 입력이 필요합니다.</li>
+      <li><b>각성</b>은 장비 6부위와 반지·목걸이·허리띠·귀걸이·팔찌(장신구)에만 있는 별도의 1회성 시스템으로, 잠재력 돌파를 해당 등급의 최고 단계(10)까지 마쳐야 진행할 수 있고 완료하면 다시 할 수 없습니다. ① 탭 각 부위 타일의 “OO 각성완료” 체크박스로 직접 표시해야 ②에서 그 등급의 각성 액션이 더 이상 추천되지 않습니다(체크를 미리 하지 않으면 실제로는 이미 끝난 각성이 계속 추천 목록에 남을 수 있으니 실제 진행 상황과 맞춰 주세요). 소모 재료·은화는 공식 가이드 “각성 시스템”(wikiNo=3049, 2026-07-27 확인), 전투력 증가치는 위 22·23편 원자료의 “각성 추가 수치/각성총합”에서 가져왔습니다. <b>검은별 등급 장비는 재료(공허 등급과 동일)만 공개돼 있고 전투력 증가치가 없어</b> 직접 입력이 필요합니다. 태고 이하 등급 장비, 토템·휘장·유물·조화의 연금석은 이 wikiNo=3049 문서에 별도 각성 시스템이 없어(또는 재료 수량이 공개되지 않아) 포함하지 않았습니다.</li>
     </ul>
   </footer>
 </div>
@@ -549,9 +550,10 @@
   // 출처: forum.blackdesertm.com 모험가 가이드 23편(boardNo=17, contentNo=611130), 2026-07-27 확인.
   // 원자료는 스탯 수치(공격력·방어력 등)이며, 전투력 근사값으로 그대로/합산해 사용합니다.
   //
-  // 장신구: 원자료의 "각성 추가 수치"(별도 표시된 두 번째 스탯, 최종값에 함께 더해짐)를 매 단계의
-  // 본스탯 증가치와 합산했습니다. 태고·혼돈 등급은 원자료 표가 동일(각성 추가 수치는 0단계에 이미
-  // 고정으로 포함돼 있어 단계별 증가에는 기여하지 않음)이라 두 등급이 같은 값을 씁니다.
+  // 장신구: 원자료에는 잠재력 돌파의 본스탯 증가치 외에 "각성 추가 수치"(별도 표시된 두 번째 스탯)가
+  // 함께 실려 있는데, 이는 매 단계 자동으로 붙는 게 아니라 별도의 "각성" 액션(아래 ACCESSORY_AWAKEN,
+  // wikiNo=3049)으로 1회만 진행되는 수치라 여기서는 제외하고 본스탯 증가치만 담았습니다. 태고·혼돈
+  // 등급은 원자료 표가 동일해 두 등급이 같은 값을 씁니다.
   var ACCESSORY_CP_TABLE = {
     "태고": {
       ring1: [30, 40, 50, 55, 55, 63, 84, 88, 92, 96],
@@ -568,11 +570,67 @@
       necklace: [35, 45, 55, 55, 60, 76, 95, 99, 104, 109]
     },
     "공허": {
-      ring1: [33, 47, 57, 62, 63, 73, 96, 101, 105, 109],
-      bracelet: [33, 47, 57, 62, 63, 73, 96, 101, 105, 109],
-      earring: [34, 34, 40, 46, 51, 61, 77, 84, 89, 98],
-      belt: [35, 45, 46, 57, 57, 70, 89, 95, 101, 107],
-      necklace: [40, 52, 63, 63, 68, 87, 109, 114, 118, 125]
+      ring1: [32, 44, 55, 59, 60, 69, 92, 96, 100, 104],
+      bracelet: [32, 44, 55, 59, 60, 69, 92, 96, 100, 104],
+      earring: [33, 32, 38, 44, 49, 58, 73, 80, 85, 93],
+      belt: [33, 43, 44, 54, 55, 66, 85, 91, 96, 102],
+      necklace: [38, 49, 60, 60, 65, 83, 104, 108, 113, 119]
+    }
+  };
+
+  // 각성 — 장비/장신구 전용 시스템. 잠재력 돌파를 해당 등급의 최고 단계(10)까지 마친 뒤 1회만
+  // 진행할 수 있고, 완료하면 다시 할 수 없습니다(① 탭의 "각성완료" 체크박스로 직접 표시). 재료·은화는
+  // 공식 가이드(wikiNo=3049 "각성 시스템", 2026-07-27 확인), 전투력 증가치는 위 22·23편 원자료의
+  // "각성 추가 수치/각성총합"에서 가져왔습니다.
+  var EQUIP_AWAKEN = {
+    "혼돈": {
+      mainhand: { materials: { "차원의 조각": 60 }, silver: 12000, cpGain: 150 },
+      offhand: { materials: { "차원의 조각": 52 }, silver: 10000, cpGain: 87 },
+      armor: { materials: { "차원의 조각": 40 }, silver: 8000, cpGain: 100 },
+      helmet: { materials: { "차원의 조각": 20 }, silver: 4000, cpGain: 90 },
+      gloves: { materials: { "차원의 조각": 20 }, silver: 4000, cpGain: 50 },
+      shoes: { materials: { "차원의 조각": 20 }, silver: 4000, cpGain: 50 }
+    },
+    "공허": {
+      mainhand: { materials: { "홍익의 불꽃": 5, "혼돈의 축": 10, "아크라드": 30 }, silver: 120000, cpGain: 400 },
+      offhand: { materials: { "홍익의 불꽃": 4, "혼돈의 축": 8, "아크라드": 30 }, silver: 100000, cpGain: 294 },
+      armor: { materials: { "홍익의 불꽃": 3, "혼돈의 축": 6, "아크라드": 30 }, silver: 80000, cpGain: 190 },
+      helmet: { materials: { "홍익의 불꽃": 2, "혼돈의 축": 5, "아크라드": 30 }, silver: 40000, cpGain: 180 },
+      gloves: { materials: { "홍익의 불꽃": 2, "혼돈의 축": 4, "아크라드": 30 }, silver: 40000, cpGain: 190 },
+      shoes: { materials: { "홍익의 불꽃": 2, "혼돈의 축": 4, "아크라드": 30 }, silver: 40000, cpGain: 190 }
+    },
+    // 검은별은 재료가 "새벽/검은별" 표에 공허와 동일하게 공개돼 있지만, 전투력 증가치는 22편에
+    // 실려 있지 않아 직접 입력이 필요합니다(cpGain: null → 직접입력 처리).
+    "검은별": {
+      mainhand: { materials: { "홍익의 불꽃": 5, "혼돈의 축": 10, "아크라드": 30 }, silver: 120000, cpGain: null },
+      offhand: { materials: { "홍익의 불꽃": 4, "혼돈의 축": 8, "아크라드": 30 }, silver: 100000, cpGain: null },
+      armor: { materials: { "홍익의 불꽃": 3, "혼돈의 축": 6, "아크라드": 30 }, silver: 80000, cpGain: null },
+      helmet: { materials: { "홍익의 불꽃": 2, "혼돈의 축": 5, "아크라드": 30 }, silver: 40000, cpGain: null },
+      gloves: { materials: { "홍익의 불꽃": 2, "혼돈의 축": 4, "아크라드": 30 }, silver: 40000, cpGain: null },
+      shoes: { materials: { "홍익의 불꽃": 2, "혼돈의 축": 4, "아크라드": 30 }, silver: 40000, cpGain: null }
+    }
+  };
+  var ACCESSORY_AWAKEN = {
+    "태고": {
+      ring1: { materials: {}, silver: 4400, cpGain: 121 },
+      bracelet: { materials: {}, silver: 4400, cpGain: 121 },
+      earring: { materials: {}, silver: 3600, cpGain: 99 },
+      belt: { materials: {}, silver: 4200, cpGain: 116 },
+      necklace: { materials: {}, silver: 4800, cpGain: 132 }
+    },
+    "혼돈": {
+      ring1: { materials: { "혼돈의 축": 4 }, silver: 308000, cpGain: 121 },
+      bracelet: { materials: { "혼돈의 축": 4 }, silver: 308000, cpGain: 121 },
+      earring: { materials: { "혼돈의 축": 5 }, silver: 252000, cpGain: 99 },
+      belt: { materials: { "혼돈의 축": 6 }, silver: 294000, cpGain: 116 },
+      necklace: { materials: { "혼돈의 축": 7 }, silver: 336000, cpGain: 132 }
+    },
+    "공허": {
+      ring1: { materials: { "공허의 눈": 55, "혼돈의 축": 8, "아크라드": 20 }, silver: 4620000, cpGain: 615 },
+      bracelet: { materials: { "공허의 눈": 55, "혼돈의 축": 8, "아크라드": 20 }, silver: 4620000, cpGain: 615 },
+      earring: { materials: { "공허의 눈": 60, "혼돈의 축": 10, "아크라드": 20 }, silver: 3780000, cpGain: 501 },
+      belt: { materials: { "공허의 눈": 70, "혼돈의 축": 12, "아크라드": 20 }, silver: 4410000, cpGain: 577 },
+      necklace: { materials: { "공허의 눈": 95, "혼돈의 축": 15, "아크라드": 20 }, silver: 5040000, cpGain: 422 }
     }
   };
 
@@ -728,6 +786,8 @@
     rec.cpGain = healZero(rec.cpGain, 10);
     if (GRADE_ORDER.indexOf(rec.grade) === -1) rec.grade = "혼돈";
     if (materialNames.indexOf(rec.material) === -1) rec.material = "순도 높은 흑결정";
+    if (!rec.awakened) rec.awakened = {};
+    rec.awakenGain = healZero(rec.awakenGain, 200);
     state.status[p.id] = rec;
   });
 
@@ -775,6 +835,8 @@
     if (!item.cpEditable) fam.cpPerLevel = item.cpPerLevel;
     if (item.materialOptions.indexOf(fam.material) === -1) fam.material = item.defaultMaterial;
     if (familyGradeOptions(item).indexOf(fam.grade) === -1) fam.grade = familyGradeOptions(item)[0];
+    var hasAwakenData = Object.keys(ACCESSORY_AWAKEN).some(function (g) { return !!ACCESSORY_AWAKEN[g][item.id]; });
+    if (hasAwakenData && !fam.awakened) fam.awakened = {};
     state.family[item.id] = fam;
   });
 
@@ -945,6 +1007,46 @@
     return { label: "데이터 없음", cost: 0, gain: 0, maxed: true, editable: {} };
   }
 
+  // 각성 — 해당 등급의 잠재력 돌파를 10단계까지 마쳤고, 아직 그 등급에서 각성하지 않았을 때만
+  // 액션으로 제시합니다(1회성, 완료하면 ① 탭의 체크박스로 표시 후 다시 나타나지 않습니다).
+  function computeEquipAwaken(part, rec) {
+    var grade = rec.grade;
+    var table = EQUIP_AWAKEN[grade] && EQUIP_AWAKEN[grade][part.id];
+    if (!table) return null;
+    if (rec.step < 10) return null;
+    if (rec.awakened && rec.awakened[grade]) return null;
+    var matTotal = 0, matParts = [];
+    Object.keys(table.materials).forEach(function (m) {
+      matTotal += table.materials[m] * (state.prices[m] || 0);
+      matParts.push(m + " ×" + table.materials[m]);
+    });
+    var hasRealCp = table.cpGain !== null && table.cpGain !== undefined;
+    return {
+      label: grade + " 각성",
+      materialLabel: (matParts.length ? matParts.join(", ") + ", " : "") + "직접 은화 " + fmt(table.silver),
+      cost: matTotal + table.silver, gain: hasRealCp ? table.cpGain : (rec.awakenGain || 0),
+      editable: { cp: !hasRealCp }
+    };
+  }
+
+  function computeAccessoryAwaken(item, fam) {
+    var grade = fam.grade;
+    var table = ACCESSORY_AWAKEN[grade] && ACCESSORY_AWAKEN[grade][item.id];
+    if (!table) return null;
+    if (fam.level < familyMaxLevel(item, grade)) return null;
+    if (fam.awakened && fam.awakened[grade]) return null;
+    var matTotal = 0, matParts = [];
+    Object.keys(table.materials).forEach(function (m) {
+      matTotal += table.materials[m] * (state.prices[m] || 0);
+      matParts.push(m + " ×" + table.materials[m]);
+    });
+    return {
+      label: grade + " 각성",
+      materialLabel: (matParts.length ? matParts.join(", ") + ", " : "") + "직접 은화 " + fmt(table.silver),
+      cost: matTotal + table.silver, gain: table.cpGain
+    };
+  }
+
   function computeRingNextAction(rec) {
     var grade = rec.grade, step = rec.step;
     var qtyTable = RING_QTY_PER_STEP[grade], statTable = RING_STAT_AT_STEP[grade];
@@ -1052,6 +1154,25 @@
     return { tile: tile, controls: controls };
   }
 
+  // 각성은 1회성이라 "이미 각성함"을 사용자가 직접 표시해야 다시 추천되지 않습니다.
+  // awakenedObj는 등급별로 따로 저장하므로(rec.awakened[grade]) 등급을 바꾸면 자동으로 그 등급의
+  // 체크 상태를 보여줍니다.
+  function appendAwakenCheckbox(controls, awakenedObj, grade) {
+    var wrap = document.createElement("label");
+    wrap.style.cssText = "display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-faint);margin-top:3px;cursor:pointer;";
+    var cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.checked = !!awakenedObj[grade];
+    cb.addEventListener("change", function () {
+      awakenedObj[grade] = cb.checked;
+      persist(); renderSpecTable();
+    });
+    wrap.appendChild(cb);
+    var span = document.createElement("span"); span.textContent = grade + " 각성완료";
+    wrap.appendChild(span);
+    controls.appendChild(wrap);
+  }
+
   function gradeStepTile(name, gradeOptions, rec, onGradeChange, onStepChange, maxStepFor) {
     var built = buildTile(name);
     var gradeSel = document.createElement("select");
@@ -1073,6 +1194,7 @@
     }
     stepSel.addEventListener("change", function () { onStepChange(parseInt(stepSel.value, 10)); });
     built.controls.appendChild(stepSel);
+    if (rec.awakened) appendAwakenCheckbox(built.controls, rec.awakened, rec.grade);
     return built.tile;
   }
 
@@ -1114,6 +1236,7 @@
     input.type = "number"; input.min = "0"; input.max = String(maxLevel); input.value = fam.level;
     input.addEventListener("input", function () { onLevelChange(Math.max(0, parseFloat(input.value) || 0)); });
     built.controls.appendChild(input);
+    if (fam.awakened) appendAwakenCheckbox(built.controls, fam.awakened, fam.grade);
     return built.tile;
   }
 
@@ -1248,15 +1371,26 @@
     PARTS.forEach(function (part) {
       var rec = state.status[part.id];
       var action = computeEquipNextAction(part, rec);
-      if (action.maxed) return;
-      rows.push({
-        item: part.name, action: action.label, cost: action.cost, gain: action.gain, qty: action.qty, isDummyQty: action.isDummyQty,
-        buildMaterialCell: action.editable.material
-          ? function (rec) { return function (td) { td.appendChild(buildMaterialSelect(["순도 높은 흑결정"], rec.material, function (v) { rec.material = v; persist(); renderSpecTable(); })); }; }(rec)
-          : staticLabelCell(action.materialLabel),
-        buildQtyCell: null,
-        buildGainCell: action.editable.cp ? function (rec) { return function (td) { td.appendChild(buildNumberInput(rec.cpGain, function (v) { rec.cpGain = v; persist(); renderSpecTable(); })); }; }(rec) : null
-      });
+      if (!action.maxed) {
+        rows.push({
+          item: part.name, action: action.label, cost: action.cost, gain: action.gain, qty: action.qty, isDummyQty: action.isDummyQty,
+          buildMaterialCell: action.editable.material
+            ? function (rec) { return function (td) { td.appendChild(buildMaterialSelect(["순도 높은 흑결정"], rec.material, function (v) { rec.material = v; persist(); renderSpecTable(); })); }; }(rec)
+            : staticLabelCell(action.materialLabel),
+          buildQtyCell: null,
+          buildGainCell: action.editable.cp ? function (rec) { return function (td) { td.appendChild(buildNumberInput(rec.cpGain, function (v) { rec.cpGain = v; persist(); renderSpecTable(); })); }; }(rec) : null
+        });
+      }
+
+      var awaken = computeEquipAwaken(part, rec);
+      if (awaken) {
+        rows.push({
+          item: part.name, action: awaken.label, cost: awaken.cost, gain: awaken.gain,
+          buildMaterialCell: staticLabelCell(awaken.materialLabel),
+          buildQtyCell: null,
+          buildGainCell: awaken.editable.cp ? function (rec) { return function (td) { td.appendChild(buildNumberInput(rec.awakenGain, function (v) { rec.awakenGain = v; persist(); renderSpecTable(); })); }; }(rec) : null
+        });
+      }
     });
 
     var ringAction = computeRingNextAction(state.ring);
@@ -1339,6 +1473,16 @@
           }(item, fam, totalQty),
           buildQtyCell: null,
           buildGainCell: (item.cpEditable && !hasRealCp) ? function (fam) { return function (td) { td.appendChild(buildNumberInput(fam.cpPerLevel, function (v) { fam.cpPerLevel = v; persist(); renderSpecTable(); })); }; }(fam) : null
+        });
+      }
+
+      var accAwaken = ACCESSORY_AWAKEN[fam.grade] ? computeAccessoryAwaken(item, fam) : null;
+      if (accAwaken) {
+        rows.push({
+          item: item.name, action: accAwaken.label, cost: accAwaken.cost, gain: accAwaken.gain,
+          buildMaterialCell: staticLabelCell(accAwaken.materialLabel),
+          buildQtyCell: null,
+          buildGainCell: null
         });
       }
 
