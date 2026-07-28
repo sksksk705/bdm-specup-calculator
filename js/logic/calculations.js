@@ -4,11 +4,11 @@
 // 을 쓰든 그대로 재사용할 수 있습니다.
 
 import {
-  GRADE_ORDER, BREAKTHROUGH_GRADES, EQUIP_BREAKTHROUGH_CURVE, EQUIP_CP_TABLE, GRADE_UP_RECIPES,
+  GRADE_ORDER, BREAKTHROUGH_GRADES, EQUIP_CP_TABLE, GRADE_UP_RECIPES,
   EQUIP_AWAKEN, ACCESSORY_AWAKEN, ACCESSORY_GRADE_UP, ACCESSORY_GRADE_NEXT,
   RING_QTY_PER_STEP, RING_STAT_AT_STEP, RING_GRADE_UP,
   SOUL_BREAKTHROUGH_CURVE, ANCIENT_ANVIL, RELIC_SERIES_CP_GAIN, RELIC_SERIES_RECOVERY_QTY,
-  FAMILY_ITEMS
+  FAMILY_ITEMS, RISKY_STEPS
 } from "../data/gameData.js";
 
 export function familyItem(id) { return FAMILY_ITEMS.filter(function (x) { return x.id === id; })[0]; }
@@ -64,20 +64,60 @@ export function recipeCostForPart(recipe, partId, prices) {
   return { total: total, label: parts.join(", ") };
 }
 
+// 장비 돌파 7→8, 8→9(위 RISKY_STEPS)는 실패 시 확률적으로 1단계 하락할 수 있는데, 고대의 모루는
+// "실패 시 기운 +1, 성공 시 그 단계만 초기화되고 그보다 아래 단계는 유지"라 하락 여부와 무관하다고
+// 확인돼(사용자 확인), 하락하면 그 아래 단계까지 같은 방어 정책으로 다시 돌파해야 한다고 가정해
+// 기댓값을 재귀적으로 계산합니다. 정확히 몇 단계까지 떨어지는지는 공식 문서에 없어 1단계 하락으로
+// 가정했습니다. method: "plain"(그냥 강화, 50% 방어) 또는 "shadow"(그림자 장비 사용, 100% 방어).
+export function equipStepCost(step, method, materialPrice, ticketPrice) {
+  const attempts = ANCIENT_ANVIL.equip[step];
+  const failures = attempts - 1;
+  const base = attempts * materialPrice;
+  const risky = RISKY_STEPS[step];
+  if (!risky) return base;
+  const protectCost = method === "shadow"
+    ? risky.shadowTicket * ticketPrice + risky.shadowSilver
+    : risky.plainTicket * ticketPrice + risky.plainSilver;
+  const dropChance = method === "shadow" ? 0 : 0.5;
+  const reclimbCost = dropChance > 0 ? equipStepCost(step - 1, method, materialPrice, ticketPrice) : 0;
+  return base + failures * protectCost + failures * dropChance * reclimbCost;
+}
+
 export function computeEquipNextAction(part, rec, prices) {
   const grade = rec.grade, step = rec.step;
   if (BREAKTHROUGH_GRADES[grade] && step < 10) {
-    const p = EQUIP_BREAKTHROUGH_CURVE[step] / 100;
-    const attempts = p > 0 ? 1 / p : Infinity;
+    const cpTable = EQUIP_CP_TABLE[grade] && EQUIP_CP_TABLE[grade][part.id];
+    const hasRealCp = !!cpTable;
+    const gain = hasRealCp ? cpTable[step] : (rec.cpGain || 0);
+    if (RISKY_STEPS[step]) {
+      const risky = RISKY_STEPS[step];
+      const materialPrice = prices[rec.material] || 0;
+      const ticketPrice = prices["돌파 복구권"] || 0;
+      return {
+        variants: [
+          {
+            label: grade + " 돌파 " + step + " → " + (step + 1) + "단계 (그냥 강화, 하락 50% 방어)",
+            materialLabel: rec.material + " × 기대값 " + fmt(ANCIENT_ANVIL.equip[step]) + " + 실패당 돌파 복구권 200개·은화 500(하락 방어, 하락 시 재돌파 비용 포함)",
+            cost: equipStepCost(step, "plain", materialPrice, ticketPrice), gain: gain, maxed: false,
+            editable: { material: false, qty: false, cp: !hasRealCp }
+          },
+          {
+            label: grade + " 돌파 " + step + " → " + (step + 1) + "단계 (" + risky.label + " 사용, 하락 100% 방어)",
+            materialLabel: rec.material + " × 기대값 " + fmt(ANCIENT_ANVIL.equip[step]) + " + 실패당 " + risky.label + "(돌파 복구권 1050개·은화 5000 제작)",
+            cost: equipStepCost(step, "shadow", materialPrice, ticketPrice), gain: gain, maxed: false,
+            editable: { material: false, qty: false, cp: !hasRealCp }
+          }
+        ]
+      };
+    }
+    const attempts = ANCIENT_ANVIL.equip[step];
     const qtyPerAttempt = dummyQtyPerAttempt(step);
     const qty = attempts * qtyPerAttempt;
     const cost = qty * (prices[rec.material] || 0);
-    const cpTable = EQUIP_CP_TABLE[grade] && EQUIP_CP_TABLE[grade][part.id];
-    const hasRealCp = !!cpTable;
     return {
       label: grade + " 돌파 " + step + " → " + (step + 1) + "단계",
       materialLabel: rec.material + " × 기대값 " + fmt(qty),
-      cost: cost, gain: hasRealCp ? cpTable[step] : (rec.cpGain || 0), maxed: false, qty: qtyPerAttempt, isDummyQty: true,
+      cost: cost, gain: gain, maxed: false, qty: qtyPerAttempt, isDummyQty: true,
       editable: { material: true, qty: false, cp: !hasRealCp }
     };
   }

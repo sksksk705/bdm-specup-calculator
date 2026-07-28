@@ -20,7 +20,18 @@ export function renderSpecTable() {
   PARTS.forEach(function (part) {
     const rec = state.status[part.id];
     const action = computeEquipNextAction(part, rec, state.prices);
-    if (!action.maxed) {
+    if (action.variants) {
+      action.variants.forEach(function (v) {
+        rows.push({
+          item: part.name, action: v.label, cost: v.cost, gain: v.gain, qty: v.qty, isDummyQty: v.isDummyQty,
+          buildMaterialCell: v.editable.material
+            ? function (rec) { return function (td) { td.appendChild(buildMaterialSelect(["순도 높은 흑결정"], rec.material, function (v) { rec.material = v; persist(); renderSpecTable(); })); }; }(rec)
+            : staticLabelCell(v.materialLabel),
+          buildQtyCell: null,
+          buildGainCell: v.editable.cp ? function (rec) { return function (td) { td.appendChild(buildNumberInput(rec.cpGain, function (v) { rec.cpGain = v; persist(); renderSpecTable(); })); }; }(rec) : null
+        });
+      });
+    } else if (!action.maxed) {
       rows.push({
         item: part.name, action: action.label, cost: action.cost, gain: action.gain, qty: action.qty, isDummyQty: action.isDummyQty,
         buildMaterialCell: action.editable.material
