@@ -101,7 +101,9 @@ export function renderSpecTable() {
     if (!skipBreakthrough && fam.level < familyMaxLevel(item, fam.grade)) {
       const qtyPerAttempt = item.qtyPerAttemptTable ? item.qtyPerAttemptTable[fam.level]
         : (item.qtyPerAttempt || dummyQtyPerAttempt(fam.level));
-      const attempts = item.anvilTable ? item.anvilTable[fam.level] : 1;
+      // anvilTable 값 = 허용되는 최대 실패 횟수라, 총 시도 횟수 상한은 그 값+1(실패를 다 채운
+      // 다음 시도가 확정 성공)입니다.
+      const attempts = item.anvilTable ? item.anvilTable[fam.level] + 1 : 1;
       const totalQty = attempts * qtyPerAttempt;
       const materialCost = totalQty * priceOf(fam.material, state.prices);
       const failures = attempts - 1;

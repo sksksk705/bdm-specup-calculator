@@ -81,11 +81,13 @@ export function equipBoostedProbability(step) {
 }
 
 // 상승권을 쓴 확률로, 고대의 모루 확정 시도 횟수(N)를 상한으로 하는 기대 시도 횟수.
-// 절단 기하분포 기댓값 공식 E = (1-(1-p)^N)/p 을 씁니다 — N번째는 모루로 확정 성공하고,
-// 그 전에 보정 확률 p로 먼저 성공할 수도 있어 기댓값은 항상 N 이하입니다.
+// ANCIENT_ANVIL 값은 "허용되는 최대 실패 횟수"라 총 시도 횟수 상한 N은 그 값+1(실패를 다
+// 채운 다음 시도가 확정 성공, 사용자 확인 2026-07-28)입니다. 절단 기하분포 기댓값 공식
+// E = (1-(1-p)^N)/p 을 씁니다 — N번째는 모루로 확정 성공하고, 그 전에 보정 확률 p로 먼저
+// 성공할 수도 있어 기댓값은 항상 N 이하입니다.
 export function equipExpectedAttempts(step) {
   const p = equipBoostedProbability(step);
-  const n = ANCIENT_ANVIL.equip[step];
+  const n = ANCIENT_ANVIL.equip[step] + 1;
   if (p <= 0) return n;
   return (1 - Math.pow(1 - p, n)) / p;
 }
@@ -343,7 +345,7 @@ export function computeRelicSeriesAction(fam, prices) {
   const step = fam.seriesLevel;
   const table = ANCIENT_ANVIL.relicSeries;
   if (step >= table.length) return { maxed: true, label: "최고 단계 도달", cost: 0, gain: 0 };
-  const attempts = table[step];
+  const attempts = table[step] + 1; // 모루 값 = 허용 실패 횟수, +1번째 시도가 확정 성공
   const failures = attempts - 1;
   const recoveryQtyEach = RELIC_SERIES_RECOVERY_QTY[fam.seriesRecoveryMethod][step];
   const cost = failures * recoveryQtyEach * priceOf(fam.seriesRecoveryMethod, prices);
