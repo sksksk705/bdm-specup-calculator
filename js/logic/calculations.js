@@ -7,7 +7,7 @@ import {
   GRADE_ORDER, BREAKTHROUGH_GRADES, EQUIP_BREAKTHROUGH_CURVE, EQUIP_CP_TABLE, GRADE_UP_RECIPES,
   EQUIP_AWAKEN, ACCESSORY_AWAKEN, ACCESSORY_GRADE_UP, ACCESSORY_GRADE_NEXT,
   RING_QTY_PER_STEP, RING_STAT_AT_STEP, RING_GRADE_UP,
-  SOUL_BREAKTHROUGH_CURVE, ANCIENT_ANVIL, RELIC_SERIES_CP_GAIN, RELIC_SERIES_RECOVERY_QTY,
+  SOUL_BREAKTHROUGH_CURVE, ANCIENT_ANVIL, RELIC_SERIES_CP_GAIN, RELIC_SERIES_RECOVERY_QTY, RELIC_SERIES_ATTEMPT_COST,
   FAMILY_ITEMS, EQUIP_DROP_PROTECT, EQUIP_SHADOW_PROTECT, EQUIP_PROBABILITY_BOOST, EQUIP_PROBABILITY_BOOST_ITEM,
   UNPRICED_MATERIALS, MATERIAL_PRICE_SUBSTITUTE, LIGHTSTONE_GRADE_UP_TABLE, EMBLEM_DECORATION_UNLOCK
 } from "../data/gameData.js";
@@ -336,10 +336,11 @@ export function emblemDecorationGain(minV, maxV, fromLevel) {
 }
 
 // 공허 유물 계열 돌파(2026-05-12부터 "유물 마력 각인") — 공허 등급 유물에서만 가능, +20 한도.
-// 시도 자체에 소모되는 재료는 공식 문서에 없어 0으로 두고, 고대의 모루 확정까지의 실패
-// (attempts-1)번에 대해서만 차원의 조각 또는 돌파 복구권(둘 다 실수치, 10강부터 고정) 중
-// 선택한 방식으로 복구 비용을 계산합니다. 단계별 전투력 증가치(공격력=방어력, 2배 근사)도
-// 0~19단계 전부 실수치입니다(최대 생명력 증가분은 단위가 달라 제외 — 위 토템과 같은 이유).
+// 시도 1회당(성공/실패 모두) 아크라드 1개+차원의 조각 90개가 고정 소모되고(RELIC_SERIES_ATTEMPT_COST,
+// 사용자 제공값), 고대의 모루 확정까지의 실패(attempts-1)번에 대해서는 별도로 차원의 조각 또는
+// 돌파 복구권(둘 다 실수치, 10강부터 고정) 중 선택한 방식으로 복구 비용도 계산합니다. 단계별
+// 전투력 증가치(공격력=방어력, 2배 근사)도 0~19단계 전부 실수치입니다(최대 생명력 증가분은 단위가
+// 달라 제외 — 위 토템과 같은 이유).
 export function computeRelicSeriesAction(fam, prices) {
   if (fam.grade !== "공허") return null;
   const step = fam.seriesLevel;
@@ -347,13 +348,17 @@ export function computeRelicSeriesAction(fam, prices) {
   if (step >= table.length) return { maxed: true, label: "최고 단계 도달", cost: 0, gain: 0 };
   const attempts = table[step] + 1; // 모루 값 = 허용 실패 횟수, +1번째 시도가 확정 성공
   const failures = attempts - 1;
+  const attemptCostEach = RELIC_SERIES_ATTEMPT_COST["아크라드"] * priceOf("아크라드", prices)
+    + RELIC_SERIES_ATTEMPT_COST["차원의 조각"] * priceOf("차원의 조각", prices);
+  const attemptCost = attempts * attemptCostEach;
   const recoveryQtyEach = RELIC_SERIES_RECOVERY_QTY[fam.seriesRecoveryMethod][step];
-  const cost = failures * recoveryQtyEach * priceOf(fam.seriesRecoveryMethod, prices);
+  const recoveryCost = failures * recoveryQtyEach * priceOf(fam.seriesRecoveryMethod, prices);
+  const cost = attemptCost + recoveryCost;
   const gain = RELIC_SERIES_CP_GAIN[step];
   return {
     maxed: false,
     label: "공허 유물 계열 돌파(마력각인) " + step + " → " + (step + 1) + " (고대의 모루 확정까지 최대 " + attempts + "회)",
-    materialLabel: "시도 자체 소모 재료 미공개(0으로 가정) · 실패 " + fmt(failures) + "회 × " + fam.seriesRecoveryMethod + " " + fmt(recoveryQtyEach) + "개",
+    materialLabel: "시도당 아크라드 " + RELIC_SERIES_ATTEMPT_COST["아크라드"] + "개·차원의 조각 " + RELIC_SERIES_ATTEMPT_COST["차원의 조각"] + "개 × 기대값 " + fmt(attempts) + "회 · 실패 " + fmt(failures) + "회 × " + fam.seriesRecoveryMethod + " " + fmt(recoveryQtyEach) + "개",
     cost: cost, gain: gain,
     gainFixed: true
   };
