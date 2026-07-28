@@ -31,7 +31,7 @@ function loadRaw() {
 export const state = {
   prices: {},   // name -> price
   status: {},   // partId -> { grade, step, material, qtyPerAttempt, cpGain }
-  ring: null,   // { grade, step, extraSilver }
+  ring: null,   // { grade, step }
   soul: {},     // soulId -> { step, material, qtyPerAttempt, cpGain }
   family: {}    // itemId -> { level, material, qtyPerLevel, cpPerLevel }
 };
@@ -56,8 +56,8 @@ export function initState(defaultPrices) {
     state.status[p.id] = rec;
   });
 
-  state.ring = (saved && saved.ring) || { grade: "혼돈", step: 0, extraSilver: 0 };
-  if (RING_GRADE_ORDER.indexOf(state.ring.grade) === -1) state.ring = { grade: "혼돈", step: 0, extraSilver: 0 };
+  state.ring = (saved && saved.ring) || { grade: "혼돈", step: 0 };
+  if (RING_GRADE_ORDER.indexOf(state.ring.grade) === -1) state.ring = { grade: "혼돈", step: 0 };
 
   SOUL_ITEMS.forEach(function (item) {
     const savedSoul = saved && saved.soul ? saved.soul[item.id] : null;

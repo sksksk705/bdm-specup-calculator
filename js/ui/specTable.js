@@ -2,7 +2,7 @@
 // 로직 계층(calculations.js)의 순수 함수로 계산한 뒤, 결과를 DOM에 그립니다.
 
 import {
-  PARTS, SOUL_ITEMS, FAMILY_ITEMS, ACCESSORY_AWAKEN, ACCESSORY_GRADE_UP, RECOVERY_NOTES, ANCIENT_ANVIL
+  PARTS, SOUL_ITEMS, FAMILY_ITEMS, ACCESSORY_AWAKEN, ACCESSORY_GRADE_UP, RECOVERY_NOTES
 } from "../data/gameData.js";
 import { state, persist } from "../data/userState.js";
 import {
@@ -59,18 +59,7 @@ export function renderSpecTable() {
     rows.push({
       item: "전승의 고리", action: ringAction.label, cost: ringAction.cost, gain: ringAction.gain,
       qty: ringAction.qty, isDummyQty: false,
-      buildMaterialCell: function (td) {
-        staticLabelCell(ringAction.materialLabel)(td);
-        if (ringAction.editable.extraSilver) {
-          const wrap = document.createElement("div");
-          wrap.style.cssText = "display:flex;align-items:center;gap:5px;margin-top:4px;";
-          const label = document.createElement("span");
-          label.style.cssText = "color:var(--text-faint);font-size:10px;"; label.textContent = "+ 회당 직접 은화";
-          wrap.appendChild(label);
-          wrap.appendChild(buildNumberInput(state.ring.extraSilver || 0, function (v) { state.ring.extraSilver = v; persist(); renderSpecTable(); }, "90px"));
-          td.appendChild(wrap);
-        }
-      },
+      buildMaterialCell: staticLabelCell(ringAction.materialLabel),
       buildQtyCell: null,
       buildGainCell: null
     });
@@ -203,20 +192,6 @@ export function renderSpecTable() {
               wrap.appendChild(label);
               wrap.appendChild(buildMaterialSelect(["돌파 복구권", "차원의 조각"], fam.seriesRecoveryMethod, function (v) { fam.seriesRecoveryMethod = v; persist(); renderSpecTable(); }));
               td.appendChild(wrap);
-              const wrap2 = document.createElement("div");
-              wrap2.style.cssText = "display:flex;align-items:center;gap:4px;margin-top:4px;";
-              const label2 = document.createElement("span");
-              label2.style.cssText = "color:var(--text-faint);font-size:10px;"; label2.textContent = "현재 계열돌파 단계";
-              wrap2.appendChild(label2);
-              const stepSel = document.createElement("select"); stepSel.style.width = "70px";
-              for (let i = 0; i < ANCIENT_ANVIL.relicSeries.length; i++) {
-                const o = document.createElement("option"); o.value = i; o.textContent = i + "단계";
-                if (i === fam.seriesLevel) o.selected = true;
-                stepSel.appendChild(o);
-              }
-              stepSel.addEventListener("change", function () { fam.seriesLevel = parseInt(stepSel.value, 10); persist(); renderSpecTable(); });
-              wrap2.appendChild(stepSel);
-              td.appendChild(wrap2);
             };
           }(item, fam, seriesAction),
           buildQtyCell: null,

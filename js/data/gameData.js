@@ -399,6 +399,9 @@ export const RING_GRADE_UP = {
   "태고": { requiredStep: 4, to: "혼돈", materials: { "용연향": 3, "혼돈의 축": 5, "아크라드": 10 } },
   "혼돈": { requiredStep: 10, to: "공허", materials: { "용연향": 5, "공허의 눈": 10, "아크라드": 30 } }
 };
+// 전승의 고리 각성 1회 시도마다 봉인된 전승의 고리 외에 직접 소모되는 은화(단계·등급 무관 고정).
+// 사용자 제공값, 2026-07-28 확인.
+export const RING_ATTEMPT_SILVER = 5000;
 
 // 밤·달빛 영혼석: 등급 없이 단일 곡선, 자동 계산.
 export const SOUL_ITEMS = [

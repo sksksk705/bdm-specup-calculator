@@ -1,7 +1,7 @@
 // 프레젠테이션 계층 — ① 탭 "장비 & 장신구"(인게임 화면과 같은 배치) 그리드와
 // "기타 가문 콘텐츠" 3칸을 그립니다.
 
-import { PARTS, RING_GRADE_ORDER, RING_QTY_PER_STEP, SOUL_ITEMS, SOUL_BREAKTHROUGH_CURVE, GRADE_ORDER } from "../data/gameData.js";
+import { PARTS, RING_GRADE_ORDER, RING_QTY_PER_STEP, SOUL_ITEMS, SOUL_BREAKTHROUGH_CURVE, GRADE_ORDER, ANCIENT_ANVIL } from "../data/gameData.js";
 import { state, persist } from "../data/userState.js";
 import { familyGradeOptions, familyMaxLevel, familyItem } from "../logic/calculations.js";
 import { gradeStepTile, stepOnlyTile, levelOnlyTile, levelWithGradeTile } from "./tiles.js";
@@ -71,7 +71,8 @@ export function renderGearGrid() {
     }(rec)));
   });
 
-  // 마지막 줄 3개: 조화의 연금석, 유물1, 유물2
+  // 마지막 줄 3개: 조화의 연금석, 유물1, 유물2. 유물1/2는 공허 등급 전용 "계열돌파"(마력각인)
+  // 단계도 함께 관리해 바로 아래에 타일을 추가합니다(다른 항목처럼 현재 상태는 ①에서 관리).
   ["alchemy", "relic1", "relic2"].forEach(function (id) {
     const item = familyItem(id), fam = state.family[id];
     triple.appendChild(levelWithGradeTile(item.name, familyGradeOptions(item), familyMaxLevel(item, fam.grade), fam,
@@ -82,6 +83,11 @@ export function renderGearGrid() {
         persist(); renderGearGrid(); renderSpecTable();
       }; }(item, fam)
     ));
+    if (item.hasSeries) {
+      triple.appendChild(stepOnlyTile(item.name + " 계열돌파", ANCIENT_ANVIL.relicSeries.length, { step: fam.seriesLevel },
+        function (fam) { return function (v) { fam.seriesLevel = v; persist(); renderSpecTable(); }; }(fam)
+      ));
+    }
   });
 }
 

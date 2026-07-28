@@ -6,7 +6,7 @@
 import {
   GRADE_ORDER, BREAKTHROUGH_GRADES, EQUIP_BREAKTHROUGH_CURVE, EQUIP_CP_TABLE, GRADE_UP_RECIPES,
   EQUIP_AWAKEN, ACCESSORY_AWAKEN, ACCESSORY_GRADE_UP, ACCESSORY_GRADE_NEXT,
-  RING_QTY_PER_STEP, RING_STAT_AT_STEP, RING_GRADE_UP,
+  RING_QTY_PER_STEP, RING_STAT_AT_STEP, RING_GRADE_UP, RING_ATTEMPT_SILVER,
   SOUL_BREAKTHROUGH_CURVE, ANCIENT_ANVIL, RELIC_SERIES_CP_GAIN, RELIC_SERIES_RECOVERY_QTY, RELIC_SERIES_ATTEMPT_COST,
   FAMILY_ITEMS, EQUIP_DROP_PROTECT, EQUIP_SHADOW_PROTECT, EQUIP_PROBABILITY_BOOST, EQUIP_PROBABILITY_BOOST_ITEM,
   UNPRICED_MATERIALS, MATERIAL_PRICE_SUBSTITUTE, LIGHTSTONE_GRADE_UP_TABLE, EMBLEM_DECORATION_UNLOCK
@@ -231,13 +231,13 @@ export function computeRingNextAction(rec, prices) {
   const maxStep = qtyTable.length;
   if (step < maxStep) {
     const qty = qtyTable[step];
-    const cost = qty * priceOf("봉인된 전승의 고리", prices) + (rec.extraSilver || 0);
+    const cost = qty * priceOf("봉인된 전승의 고리", prices) + RING_ATTEMPT_SILVER;
     const gain = statTable[step + 1] - statTable[step];
     return {
       label: grade + " 각성 " + step + " → " + (step + 1) + "단계",
-      materialLabel: "봉인된 전승의 고리 ×" + qty.toLocaleString("ko-KR"),
+      materialLabel: "봉인된 전승의 고리 ×" + qty.toLocaleString("ko-KR") + " + 직접 은화 " + fmt(RING_ATTEMPT_SILVER),
       cost: cost, gain: gain, maxed: false, qty: qty, isDummyQty: false,
-      editable: { extraSilver: true }
+      editable: {}
     };
   }
   const up = RING_GRADE_UP[grade];
