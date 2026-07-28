@@ -8,7 +8,7 @@ import {
   EQUIP_AWAKEN, ACCESSORY_AWAKEN, ACCESSORY_GRADE_UP, ACCESSORY_GRADE_NEXT,
   RING_QTY_PER_STEP, RING_STAT_AT_STEP, RING_GRADE_UP,
   SOUL_BREAKTHROUGH_CURVE, ANCIENT_ANVIL, RELIC_SERIES_CP_GAIN, RELIC_SERIES_RECOVERY_QTY,
-  FAMILY_ITEMS, RISKY_STEPS, EQUIP_PROBABILITY_BOOST, EQUIP_PROBABILITY_BOOST_ITEM,
+  FAMILY_ITEMS, EQUIP_DROP_PROTECT, EQUIP_SHADOW_PROTECT, EQUIP_PROBABILITY_BOOST, EQUIP_PROBABILITY_BOOST_ITEM,
   UNPRICED_MATERIALS, MATERIAL_PRICE_SUBSTITUTE, LIGHTSTONE_GRADE_UP_TABLE, EMBLEM_DECORATION_UNLOCK
 } from "../data/gameData.js";
 
@@ -102,21 +102,25 @@ export function equipAttemptCost(step, materialPrice, prices) {
   return { attempts: attempts, qtyPerAttempt: qtyPerAttempt, totalQty: totalQty, cost: totalQty * materialPrice + attempts * boostCost };
 }
 
-// 장비 돌파 7→8, 8→9(위 RISKY_STEPS)는 실패 시 확률적으로 1단계 하락할 수 있는데, 고대의 모루는
-// "실패 시 기운 +1, 성공 시 그 단계만 초기화되고 그보다 아래 단계는 유지"라 하락 여부와 무관하다고
-// 확인돼(사용자 확인), 하락하면 그 아래 단계까지 같은 방어 정책(및 같은 확률 상승권 전략)으로 다시
-// 돌파해야 한다고 가정해 기댓값을 재귀적으로 계산합니다. 정확히 몇 단계까지 떨어지는지는 공식
-// 문서에 없어 1단계 하락으로 가정했습니다. method: "plain"(그냥 강화, 50% 방어) 또는 "shadow"
-// (그림자 장비 사용, 100% 방어).
+// 장비 돌파는 "그냥 강화"로 진행하면 0강 초과 모든 단계에서 실패 시 50% 확률로 1단계 하락할 수
+// 있고, 돌파 복구권을 필수로 소모해 방어를 시도합니다(사용자 확인, 그래도 50%만 방어됨). 고대의
+// 모루는 "실패 시 기운 +1, 성공 시 그 단계만 초기화되고 그보다 아래 단계는 유지"라 하락 여부와
+// 무관하다고 확인돼(사용자 확인), 하락하면 그 아래 단계까지 같은 방어 정책(및 같은 확률 상승권
+// 전략)으로 다시 돌파해야 한다고 가정해 기댓값을 재귀적으로 계산합니다. 정확히 몇 단계까지
+// 떨어지는지는 공식 문서에 없어 1단계 하락으로 가정했습니다. 0강은 더 떨어질 곳이 없어 방어가
+// 필요 없습니다(하락 위험 자체가 없음). method: "plain"(그냥 강화, 50% 방어) 또는 "shadow"
+// (7·8강 전용 혼돈의 그림자 장비 사용, 100% 방어 — 그 외 단계는 100% 방어 수단이 없어 자동으로
+// plain 방식으로 처리됩니다).
 export function equipStepCost(step, method, materialPrice, ticketPrice, prices) {
   const { attempts, cost: attemptCost } = equipAttemptCost(step, materialPrice, prices);
   const failures = attempts - 1; // 회당 재료 소모량은 1로 가정하므로 attempts == totalQty
-  const risky = RISKY_STEPS[step];
-  if (!risky) return attemptCost;
-  const protectCost = method === "shadow"
-    ? risky.shadowTicket * ticketPrice + risky.shadowSilver
-    : risky.plainTicket * ticketPrice + risky.plainSilver;
-  const dropChance = method === "shadow" ? 0 : 0.5;
+  if (step <= 0) return attemptCost;
+  const shadow = EQUIP_SHADOW_PROTECT[step];
+  const useShadow = method === "shadow" && !!shadow;
+  const protectCost = useShadow
+    ? shadow.shadowTicket * ticketPrice + shadow.shadowSilver
+    : EQUIP_DROP_PROTECT.plainTicket * ticketPrice + EQUIP_DROP_PROTECT.plainSilver;
+  const dropChance = useShadow ? 0 : 0.5;
   const reclimbCost = dropChance > 0 ? equipStepCost(step - 1, method, materialPrice, ticketPrice, prices) : 0;
   return attemptCost + failures * protectCost + failures * dropChance * reclimbCost;
 }
@@ -133,34 +137,31 @@ export function computeEquipNextAction(part, rec, prices) {
     const hasRealCp = !!cpTable;
     const gain = hasRealCp ? cpTable[step] : (rec.cpGain || 0);
     const materialPrice = priceOf(rec.material, prices);
-    if (RISKY_STEPS[step]) {
-      const risky = RISKY_STEPS[step];
-      const ticketPrice = priceOf("돌파 복구권", prices);
-      const attempts = equipExpectedAttempts(step);
-      return {
-        variants: [
-          {
-            label: grade + " 돌파 " + step + " → " + (step + 1) + "단계 (그냥 강화, 하락 50% 방어)",
-            materialLabel: rec.material + " × 기대값 " + fmt(attempts) + equipBoostLabel(step) + " + 실패당 돌파 복구권 200개·은화 500(하락 방어, 하락 시 재돌파 비용 포함)",
-            cost: equipStepCost(step, "plain", materialPrice, ticketPrice, prices), gain: gain, maxed: false,
-            editable: { material: false, qty: false, cp: !hasRealCp }
-          },
-          {
-            label: grade + " 돌파 " + step + " → " + (step + 1) + "단계 (" + risky.label + " 사용, 하락 100% 방어)",
-            materialLabel: rec.material + " × 기대값 " + fmt(attempts) + equipBoostLabel(step) + " + 실패당 " + risky.label + "(돌파 복구권 1050개·은화 5000 제작)",
-            cost: equipStepCost(step, "shadow", materialPrice, ticketPrice, prices), gain: gain, maxed: false,
-            editable: { material: false, qty: false, cp: !hasRealCp }
-          }
-        ]
-      };
+    const ticketPrice = priceOf("돌파 복구권", prices);
+    const attempts = equipExpectedAttempts(step);
+    const shadow = EQUIP_SHADOW_PROTECT[step];
+    // 0강은 더 떨어질 곳이 없어 하락 위험·복구권 소모가 없습니다. 그 외 단계는 "그냥 강화"도
+    // 하락 50% 방어를 위해 돌파 복구권을 필수로 소모합니다(사용자 확인, 2026-07-28).
+    const plainSuffix = step > 0
+      ? " + 실패당 돌파 복구권 " + EQUIP_DROP_PROTECT.plainTicket + "개·은화 " + fmt(EQUIP_DROP_PROTECT.plainSilver) + "(하락 50% 방어, 하락 시 재돌파 비용 포함)"
+      : "";
+    const variants = [
+      {
+        label: grade + " 돌파 " + step + " → " + (step + 1) + "단계" + (step > 0 ? " (그냥 강화, 하락 50% 방어)" : ""),
+        materialLabel: rec.material + " × 기대값 " + fmt(attempts) + equipBoostLabel(step) + plainSuffix,
+        cost: equipStepCost(step, "plain", materialPrice, ticketPrice, prices), gain: gain, maxed: false,
+        editable: { material: false, qty: false, cp: !hasRealCp }
+      }
+    ];
+    if (shadow) {
+      variants.push({
+        label: grade + " 돌파 " + step + " → " + (step + 1) + "단계 (" + shadow.label + " 사용, 하락 100% 방어)",
+        materialLabel: rec.material + " × 기대값 " + fmt(attempts) + equipBoostLabel(step) + " + 실패당 " + shadow.label + "(돌파 복구권 " + shadow.shadowTicket + "개·은화 " + fmt(shadow.shadowSilver) + " 제작)",
+        cost: equipStepCost(step, "shadow", materialPrice, ticketPrice, prices), gain: gain, maxed: false,
+        editable: { material: false, qty: false, cp: !hasRealCp }
+      });
     }
-    const { qtyPerAttempt, totalQty, cost } = equipAttemptCost(step, materialPrice, prices);
-    return {
-      label: grade + " 돌파 " + step + " → " + (step + 1) + "단계",
-      materialLabel: rec.material + " × 기대값 " + fmt(totalQty) + equipBoostLabel(step),
-      cost: cost, gain: gain, maxed: false, qty: qtyPerAttempt, isDummyQty: true,
-      editable: { material: true, qty: false, cp: !hasRealCp }
-    };
+    return { variants: variants };
   }
   const nextGrade = nextGradeOf(grade);
   if (!nextGrade) return { label: "최고 단계 도달", cost: 0, gain: 0, maxed: true, editable: {} };
