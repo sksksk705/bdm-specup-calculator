@@ -8,7 +8,8 @@ import { state, persist } from "../data/userState.js";
 import {
   fmt, efficiencySortKey, dummyQtyPerAttempt, familyMaxLevel, familyCpGainArray, priceOf,
   computeEquipNextAction, computeEquipAwaken, computeAccessoryAwaken, computeRingNextAction,
-  computeSoulNextAction, computeAccessoryGradeUp, computeRelicSeriesAction, computeLightstoneGradeUp
+  computeSoulNextAction, computeAccessoryGradeUp, computeRelicSeriesAction, computeLightstoneGradeUp,
+  isEmblemDecorationUnlocked, emblemDecorationGain
 } from "../logic/calculations.js";
 import { buildMaterialSelect, buildNumberInput, staticLabelCell } from "./domHelpers.js";
 
@@ -87,28 +88,37 @@ export function renderSpecTable() {
     });
   });
 
+  const emblemFam = state.family["emblem"];
+  const emblemDecoIds = ["emblemDeco1", "emblemDeco2", "emblemDeco3", "emblemDeco4", "emblemDeco5"];
+  const decoLevelSum = emblemDecoIds.reduce(function (sum, id) { return sum + state.family[id].level; }, 0);
+
   FAMILY_ITEMS.forEach(function (item) {
     const fam = state.family[item.id];
     // 광원석 태고 등급은 강화(잠재력 돌파) 자체를 추천하지 않고, 아래 등급업(태고→혼돈)만 계산합니다.
-    const skipBreakthrough = item.id === "lightstone" && fam.grade === "태고";
+    // 휘장 장식은 해금 조건(EMBLEM_DECORATION_UNLOCK) 미충족 시 스펙업 수단으로 노출하지 않습니다.
+    const skipBreakthrough = (item.id === "lightstone" && fam.grade === "태고")
+      || (emblemDecoIds.indexOf(item.id) !== -1 && !isEmblemDecorationUnlocked(item.id, emblemFam, decoLevelSum));
     if (!skipBreakthrough && fam.level < familyMaxLevel(item, fam.grade)) {
-      const qtyPerAttempt = item.qtyPerAttempt || dummyQtyPerAttempt(fam.level);
+      const qtyPerAttempt = item.qtyPerAttemptTable ? item.qtyPerAttemptTable[fam.level]
+        : (item.qtyPerAttempt || dummyQtyPerAttempt(fam.level));
       const attempts = item.anvilTable ? item.anvilTable[fam.level] : 1;
       const totalQty = attempts * qtyPerAttempt;
       const materialCost = totalQty * priceOf(fam.material, state.prices);
       const failures = attempts - 1;
       const recTable = item.recoveryTable && item.recoveryTable[fam.grade];
       const hasRealRecovery = !!(recTable && recTable.silver[fam.level] !== undefined);
-      const recoveryCost = hasRealRecovery
+      const recoveryCost = item.noRecovery ? 0 : (hasRealRecovery
         ? failures * recTable.silver[fam.level]
-        : failures * (fam.recoveryQty * priceOf("돌파 복구권", state.prices) + fam.recoverySilver);
+        : failures * (fam.recoveryQty * priceOf("돌파 복구권", state.prices) + fam.recoverySilver));
       const cost = materialCost + recoveryCost;
       const actionLabel = fam.level + " → " + (fam.level + 1) + (item.anvilTable ? " (고대의 모루 확정까지 최대 " + attempts + "회)" : "");
       const cpArr = familyCpGainArray(item, fam.grade);
-      const hasRealCp = !!(cpArr && cpArr[fam.level] !== undefined);
-      const gain = hasRealCp ? cpArr[fam.level] : fam.cpPerLevel;
+      const hasRealCp = !!(cpArr && cpArr[fam.level] !== undefined) || item.cpMin !== undefined;
+      const gain = item.cpMin !== undefined ? emblemDecorationGain(item.cpMin, item.cpMax, fam.level)
+        : (hasRealCp ? cpArr[fam.level] : fam.cpPerLevel);
       rows.push({
-        item: item.name, action: actionLabel, cost: cost, gain: gain, qty: qtyPerAttempt, isDummyQty: !item.qtyPerAttempt,
+        item: item.name, action: actionLabel, cost: cost, gain: gain, qty: qtyPerAttempt,
+        isDummyQty: !item.qtyPerAttempt && !item.qtyPerAttemptTable,
         buildMaterialCell: function (item, fam, totalQty, hasRealRecovery, recTable) {
           return function (td) {
             td.appendChild(buildMaterialSelect(item.materialOptions, fam.material, function (v) { fam.material = v; persist(); renderSpecTable(); }));
@@ -123,7 +133,9 @@ export function renderSpecTable() {
                 recNote.textContent = RECOVERY_NOTES[item.recoveryKey];
                 td.appendChild(recNote);
               }
-              if (hasRealRecovery) {
+              if (item.noRecovery) {
+                // 실패해도 단계가 하락하지 않아 복구가 필요 없는 항목(휘장 장식) — 복구 UI 자체를 생략합니다.
+              } else if (hasRealRecovery) {
                 const realNote = document.createElement("div");
                 realNote.style.cssText = "color:var(--text-dim);font-size:10.5px;margin-top:4px;";
                 realNote.textContent = "실패당 은화 " + fmt(recTable.silver[fam.level]) + " (또는 돌파 복구권 " + fmt(recTable.ticket[fam.level]) + "장)";

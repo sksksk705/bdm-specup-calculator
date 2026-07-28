@@ -162,6 +162,30 @@ export const LIGHTSTONE_GRADE_UP_TABLE = [
   { oreQty: 1, resultStep: 13 }   // 20강
 ];
 
+// 휘장 장식 고대의 모루 + 투스의 숨결 소모량 — 사용자 제공 밴드표("강화 시작 단계 1~39: 모루
+// 불필요, 40~69: 2회, 70~89: 4회, 90~149: 10회" / 투스의 숨결 회당 1·3·5·7개)를 이 코드베이스의
+// 0-index 관례(배열 인덱스 = 시작 단계, 레벨 0부터 최대 150까지 총 150회 전환)에 맞춰 옮겼습니다.
+// 원자료의 "1~39"를 시작 단계 0~39(40개 구간)로 해석해야 0→150까지 정확히 150개 전환이 됩니다.
+function buildEmblemDecoBandTable(bandValues) {
+  return [].concat(
+    Array(40).fill(bandValues[0]), Array(30).fill(bandValues[1]),
+    Array(20).fill(bandValues[2]), Array(60).fill(bandValues[3])
+  );
+}
+export const EMBLEM_DECORATION_ANVIL = buildEmblemDecoBandTable([1, 2, 4, 10]);
+export const EMBLEM_DECORATION_TICKET_QTY = buildEmblemDecoBandTable([1, 3, 5, 7]);
+
+// 휘장 장식 해금 조건 — 슬롯 1~3(용맹/침착/격렬)은 휘장 자체의 등급별 강화 단계 중 하나만
+// 충족하면 되고, 슬롯 4~5(철벽/투지)는 장식 5개의 강화 단계 합이 기준치 이상이어야 합니다.
+// 출처: 공식 가이드(wikiNo=4008), 2026-07-28 확인.
+export const EMBLEM_DECORATION_UNLOCK = {
+  emblemDeco1: { type: "emblemLevel", conditions: [{ grade: "태고", level: 10 }, { grade: "혼돈", level: 8 }, { grade: "공허", level: 4 }] },
+  emblemDeco2: { type: "emblemLevel", conditions: [{ grade: "태고", level: 20 }, { grade: "혼돈", level: 16 }, { grade: "공허", level: 11 }] },
+  emblemDeco3: { type: "emblemLevel", conditions: [{ grade: "태고", level: 30 }, { grade: "혼돈", level: 27 }, { grade: "공허", level: 21 }] },
+  emblemDeco4: { type: "decoSum", threshold: 150 },
+  emblemDeco5: { type: "decoSum", threshold: 300 }
+};
+
 // 고대의 모루(wikiNo=4021) — 강화 실패마다 "기운"이 쌓이고, 기운이 표의 최대치에 도달하면
 // 다음 시도는 확정 성공합니다. 확률 데이터가 없는 항목은 "기운이 가득 찰 때까지의 시도 횟수"를
 // 그대로 필요 시도 횟수로 가정해 계산합니다(성공률이 그보다 좋으면 실제 비용은 더 낮아질 수 있는
@@ -378,19 +402,26 @@ export const FAMILY_ITEMS = [
   { id: "emblem", name: "휘장", maxLevel: 50, maxLevelByGrade: { "태고": 30, "혼돈": 50, "공허": 50 },
     cpPerLevel: 20, cpEditable: true, cpTable: EMBLEM_CP_TABLE,
     materialOptions: ["영광의 증표"], defaultMaterial: "영광의 증표", qtyPerAttempt: 81301 },
-  // 휘장 장식 5종 — 투스의 숨결+은화로 강화, 실패해도 단계가 하락하지 않아 복구가 필요 없습니다
-  // (최대 150단계). 슬롯별 전투력 증가치는 공식 문서에 최소~최대 구간만 있고 단계별 표는 없어
-  // 직접 입력이 필요합니다. 출처: 공식 가이드(wikiNo=4008), 2026-07-28 확인.
-  { id: "emblemDeco1", name: "휘장 장식(용맹)", maxLevel: 150, cpPerLevel: 10, cpEditable: true,
-    materialOptions: ["투스의 숨결"], defaultMaterial: "투스의 숨결" },
-  { id: "emblemDeco2", name: "휘장 장식(침착)", maxLevel: 150, cpPerLevel: 10, cpEditable: true,
-    materialOptions: ["투스의 숨결"], defaultMaterial: "투스의 숨결" },
-  { id: "emblemDeco3", name: "휘장 장식(격렬)", maxLevel: 150, cpPerLevel: 10, cpEditable: true,
-    materialOptions: ["투스의 숨결"], defaultMaterial: "투스의 숨결" },
-  { id: "emblemDeco4", name: "휘장 장식(철벽)", maxLevel: 150, cpPerLevel: 10, cpEditable: true,
-    materialOptions: ["투스의 숨결"], defaultMaterial: "투스의 숨결" },
-  { id: "emblemDeco5", name: "휘장 장식(투지)", maxLevel: 150, cpPerLevel: 10, cpEditable: true,
-    materialOptions: ["투스의 숨결"], defaultMaterial: "투스의 숨결" },
+  // 휘장 장식 5종 — 투스의 숨결로 강화(고대의 모루 확정 시도 있음), 실패해도 단계가 하락하지
+  // 않아 복구가 필요 없습니다(noRecovery, 최대 150단계). 해금 전(EMBLEM_DECORATION_UNLOCK 조건
+  // 미충족)에는 스펙업 표에 노출하지 않습니다. 전투력 증가치는 공식 문서의 최소~최대 구간을 선형
+  // 보간한 근사치입니다(단계별 실수치 표 미공개 — cpMin/cpMax, 각성 추가 수치·최대생명력 등
+  // 단위가 다른 부가 스탯은 제외). 출처: 공식 가이드(wikiNo=4008), 2026-07-28 확인.
+  { id: "emblemDeco1", name: "휘장 장식(용맹)", maxLevel: 150, cpPerLevel: 10, cpEditable: false, cpMin: 2, cpMax: 150,
+    materialOptions: ["투스의 숨결"], defaultMaterial: "투스의 숨결",
+    anvilTable: EMBLEM_DECORATION_ANVIL, qtyPerAttemptTable: EMBLEM_DECORATION_TICKET_QTY, noRecovery: true },
+  { id: "emblemDeco2", name: "휘장 장식(침착)", maxLevel: 150, cpPerLevel: 10, cpEditable: false, cpMin: 2, cpMax: 150,
+    materialOptions: ["투스의 숨결"], defaultMaterial: "투스의 숨결",
+    anvilTable: EMBLEM_DECORATION_ANVIL, qtyPerAttemptTable: EMBLEM_DECORATION_TICKET_QTY, noRecovery: true },
+  { id: "emblemDeco3", name: "휘장 장식(격렬)", maxLevel: 150, cpPerLevel: 10, cpEditable: false, cpMin: 3, cpMax: 150,
+    materialOptions: ["투스의 숨결"], defaultMaterial: "투스의 숨결",
+    anvilTable: EMBLEM_DECORATION_ANVIL, qtyPerAttemptTable: EMBLEM_DECORATION_TICKET_QTY, noRecovery: true },
+  { id: "emblemDeco4", name: "휘장 장식(철벽)", maxLevel: 150, cpPerLevel: 10, cpEditable: false, cpMin: 2, cpMax: 200,
+    materialOptions: ["투스의 숨결"], defaultMaterial: "투스의 숨결",
+    anvilTable: EMBLEM_DECORATION_ANVIL, qtyPerAttemptTable: EMBLEM_DECORATION_TICKET_QTY, noRecovery: true },
+  { id: "emblemDeco5", name: "휘장 장식(투지)", maxLevel: 150, cpPerLevel: 10, cpEditable: false, cpMin: 3, cpMax: 200,
+    materialOptions: ["투스의 숨결"], defaultMaterial: "투스의 숨결",
+    anvilTable: EMBLEM_DECORATION_ANVIL, qtyPerAttemptTable: EMBLEM_DECORATION_TICKET_QTY, noRecovery: true },
   { id: "ring1", name: "반지", maxLevel: 10, cpPerLevel: 10, cpEditable: true, cpTable: ACCESSORY_CP_TABLE, cpTableKey: "ring1",
     materialOptions: ["반지(강화용 동일품)"], defaultMaterial: "반지(강화용 동일품)", anvilTable: ANCIENT_ANVIL.accessory, recoveryKey: "accessory" },
   { id: "necklace", name: "목걸이", maxLevel: 10, cpPerLevel: 10, cpEditable: true, cpTable: ACCESSORY_CP_TABLE, cpTableKey: "necklace",

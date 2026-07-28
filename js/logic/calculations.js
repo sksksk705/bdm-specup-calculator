@@ -9,7 +9,7 @@ import {
   RING_QTY_PER_STEP, RING_STAT_AT_STEP, RING_GRADE_UP,
   SOUL_BREAKTHROUGH_CURVE, ANCIENT_ANVIL, RELIC_SERIES_CP_GAIN, RELIC_SERIES_RECOVERY_QTY,
   FAMILY_ITEMS, RISKY_STEPS, EQUIP_PROBABILITY_BOOST, EQUIP_PROBABILITY_BOOST_ITEM,
-  UNPRICED_MATERIALS, MATERIAL_PRICE_SUBSTITUTE, LIGHTSTONE_GRADE_UP_TABLE
+  UNPRICED_MATERIALS, MATERIAL_PRICE_SUBSTITUTE, LIGHTSTONE_GRADE_UP_TABLE, EMBLEM_DECORATION_UNLOCK
 } from "../data/gameData.js";
 
 export function familyItem(id) { return FAMILY_ITEMS.filter(function (x) { return x.id === id; })[0]; }
@@ -310,6 +310,26 @@ export function computeLightstoneGradeUp(fam, prices) {
     materialLabel: "혼돈의 원소 ×" + entry.oreQty + ", 혼돈의 축 ×5, 아크라드 ×10",
     cost: total
   };
+}
+
+// 휘장 장식 해금 여부 — 슬롯 1~3은 휘장(emblem) 현재 등급+강화 단계가 조건 중 하나(OR)를
+// 만족하면 되고, 슬롯 4~5는 장식 5개의 강화 단계 합이 기준치 이상이어야 합니다.
+export function isEmblemDecorationUnlocked(itemId, emblemFam, decoLevelSum) {
+  const rule = EMBLEM_DECORATION_UNLOCK[itemId];
+  if (!rule) return true;
+  if (rule.type === "decoSum") return decoLevelSum >= rule.threshold;
+  return rule.conditions.some(function (c) { return emblemFam.grade === c.grade && emblemFam.level >= c.level; });
+}
+
+// 휘장 장식 전투력 근사 — 공식 문서에 단계별 실수치 표가 없고 1단계(+cpMin)~150단계(+cpMax)
+// 구간값만 있어, 그 사이를 선형 보간해 반올림한 근사치를 씁니다(0단계=0).
+function emblemDecoValueAt(minV, maxV, level) {
+  if (level <= 0) return 0;
+  if (level >= 150) return maxV;
+  return minV + (maxV - minV) * (level - 1) / 149;
+}
+export function emblemDecorationGain(minV, maxV, fromLevel) {
+  return Math.round(emblemDecoValueAt(minV, maxV, fromLevel + 1)) - Math.round(emblemDecoValueAt(minV, maxV, fromLevel));
 }
 
 // 공허 유물 계열 돌파(2026-05-12부터 "유물 마력 각인") — 공허 등급 유물에서만 가능, +20 한도.
