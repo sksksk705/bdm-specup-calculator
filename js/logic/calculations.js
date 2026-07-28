@@ -8,10 +8,20 @@ import {
   EQUIP_AWAKEN, ACCESSORY_AWAKEN, ACCESSORY_GRADE_UP, ACCESSORY_GRADE_NEXT,
   RING_QTY_PER_STEP, RING_STAT_AT_STEP, RING_GRADE_UP,
   SOUL_BREAKTHROUGH_CURVE, ANCIENT_ANVIL, RELIC_SERIES_CP_GAIN, RELIC_SERIES_RECOVERY_QTY,
-  FAMILY_ITEMS, RISKY_STEPS, EQUIP_PROBABILITY_BOOST, EQUIP_PROBABILITY_BOOST_ITEM
+  FAMILY_ITEMS, RISKY_STEPS, EQUIP_PROBABILITY_BOOST, EQUIP_PROBABILITY_BOOST_ITEM,
+  UNPRICED_MATERIALS, MATERIAL_PRICE_SUBSTITUTE
 } from "../data/gameData.js";
 
 export function familyItem(id) { return FAMILY_ITEMS.filter(function (x) { return x.id === id; })[0]; }
+
+// 재료 1개의 은화 가치 — 구매 불가 재화(UNPRICED_MATERIALS)는 0, 대체 가치가 있는 재화
+// (MATERIAL_PRICE_SUBSTITUTE)는 그 대체 재료의 시세, 그 외에는 시세 표의 값을 그대로 씁니다.
+export function priceOf(materialName, prices) {
+  if (UNPRICED_MATERIALS.has(materialName)) return 0;
+  const sub = MATERIAL_PRICE_SUBSTITUTE[materialName];
+  if (sub) return prices[sub] || 0;
+  return prices[materialName] || 0;
+}
 
 export function fmt(n) {
   if (!isFinite(n)) return "–";
@@ -58,7 +68,7 @@ export function recipeCostForPart(recipe, partId, prices) {
   const parts = [];
   Object.keys(materials).forEach(function (matName) {
     const qty = materials[matName];
-    total += qty * (prices[matName] || 0);
+    total += qty * priceOf(matName, prices);
     parts.push(matName + " ×" + qty.toLocaleString("ko-KR"));
   });
   return { total: total, label: parts.join(", ") };
@@ -88,7 +98,7 @@ export function equipAttemptCost(step, materialPrice, prices) {
   const qtyPerAttempt = dummyQtyPerAttempt(step);
   const totalQty = attempts * qtyPerAttempt;
   const boostItem = EQUIP_PROBABILITY_BOOST_ITEM[step];
-  const boostCost = boostItem ? (prices[boostItem] || 0) : 0;
+  const boostCost = boostItem ? priceOf(boostItem, prices) : 0;
   return { attempts: attempts, qtyPerAttempt: qtyPerAttempt, totalQty: totalQty, cost: totalQty * materialPrice + attempts * boostCost };
 }
 
@@ -122,10 +132,10 @@ export function computeEquipNextAction(part, rec, prices) {
     const cpTable = EQUIP_CP_TABLE[grade] && EQUIP_CP_TABLE[grade][part.id];
     const hasRealCp = !!cpTable;
     const gain = hasRealCp ? cpTable[step] : (rec.cpGain || 0);
-    const materialPrice = prices[rec.material] || 0;
+    const materialPrice = priceOf(rec.material, prices);
     if (RISKY_STEPS[step]) {
       const risky = RISKY_STEPS[step];
-      const ticketPrice = prices["돌파 복구권"] || 0;
+      const ticketPrice = priceOf("돌파 복구권", prices);
       const attempts = equipExpectedAttempts(step);
       return {
         variants: [
@@ -184,7 +194,7 @@ export function computeEquipAwaken(part, rec, prices) {
   let matTotal = 0;
   const matParts = [];
   Object.keys(table.materials).forEach(function (m) {
-    matTotal += table.materials[m] * (prices[m] || 0);
+    matTotal += table.materials[m] * priceOf(m, prices);
     matParts.push(m + " ×" + table.materials[m]);
   });
   return {
@@ -202,7 +212,7 @@ export function computeAccessoryAwaken(item, fam, prices) {
   let matTotal = 0;
   const matParts = [];
   Object.keys(table.materials).forEach(function (m) {
-    matTotal += table.materials[m] * (prices[m] || 0);
+    matTotal += table.materials[m] * priceOf(m, prices);
     matParts.push(m + " ×" + table.materials[m]);
   });
   return {
@@ -218,7 +228,7 @@ export function computeRingNextAction(rec, prices) {
   const maxStep = qtyTable.length;
   if (step < maxStep) {
     const qty = qtyTable[step];
-    const cost = qty * (prices["봉인된 전승의 고리"] || 0) + (rec.extraSilver || 0);
+    const cost = qty * priceOf("봉인된 전승의 고리", prices) + (rec.extraSilver || 0);
     const gain = statTable[step + 1] - statTable[step];
     return {
       label: grade + " 각성 " + step + " → " + (step + 1) + "단계",
@@ -233,7 +243,7 @@ export function computeRingNextAction(rec, prices) {
   const parts = [];
   Object.keys(up.materials).forEach(function (matName) {
     const q = up.materials[matName];
-    total += q * (prices[matName] || 0);
+    total += q * priceOf(matName, prices);
     parts.push(matName + " ×" + q);
   });
   return {
@@ -250,7 +260,7 @@ export function computeSoulNextAction(rec, prices) {
   const attempts = p > 0 ? 1 / p : Infinity;
   const qtyPerAttempt = dummyQtyPerAttempt(step);
   const qty = attempts * qtyPerAttempt;
-  const cost = qty * (prices[rec.material] || 0);
+  const cost = qty * priceOf(rec.material, prices);
   return {
     label: step + " → " + (step + 1) + "단계",
     materialLabel: rec.material + " × 기대값 " + fmt(qty),
@@ -274,7 +284,7 @@ export function computeAccessoryGradeUp(itemId, grade, fam, prices) {
   const parts = [];
   Object.keys(entry.materials).forEach(function (matName) {
     const q = entry.materials[matName];
-    total += q * (prices[matName] || 0);
+    total += q * priceOf(matName, prices);
     parts.push(matName + " ×" + q.toLocaleString("ko-KR"));
   });
   if (entry.silver) parts.push("직접 은화 " + fmt(entry.silver));
@@ -298,7 +308,7 @@ export function computeRelicSeriesAction(fam, prices) {
   const attempts = table[step];
   const failures = attempts - 1;
   const recoveryQtyEach = RELIC_SERIES_RECOVERY_QTY[fam.seriesRecoveryMethod][step];
-  const cost = failures * recoveryQtyEach * (prices[fam.seriesRecoveryMethod] || 0);
+  const cost = failures * recoveryQtyEach * priceOf(fam.seriesRecoveryMethod, prices);
   const gain = RELIC_SERIES_CP_GAIN[step];
   return {
     maxed: false,

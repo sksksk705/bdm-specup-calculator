@@ -6,7 +6,7 @@ import {
 } from "../data/gameData.js";
 import { state, persist } from "../data/userState.js";
 import {
-  fmt, efficiencySortKey, dummyQtyPerAttempt, familyMaxLevel, familyCpGainArray,
+  fmt, efficiencySortKey, dummyQtyPerAttempt, familyMaxLevel, familyCpGainArray, priceOf,
   computeEquipNextAction, computeEquipAwaken, computeAccessoryAwaken, computeRingNextAction,
   computeSoulNextAction, computeAccessoryGradeUp, computeRelicSeriesAction
 } from "../logic/calculations.js";
@@ -93,13 +93,13 @@ export function renderSpecTable() {
       const qtyPerAttempt = dummyQtyPerAttempt(fam.level);
       const attempts = item.anvilTable ? item.anvilTable[fam.level] : 1;
       const totalQty = attempts * qtyPerAttempt;
-      const materialCost = totalQty * (state.prices[fam.material] || 0);
+      const materialCost = totalQty * priceOf(fam.material, state.prices);
       const failures = attempts - 1;
       const recTable = item.recoveryTable && item.recoveryTable[fam.grade];
       const hasRealRecovery = !!(recTable && recTable.silver[fam.level] !== undefined);
       const recoveryCost = hasRealRecovery
         ? failures * recTable.silver[fam.level]
-        : failures * (fam.recoveryQty * (state.prices["돌파 복구권"] || 0) + fam.recoverySilver);
+        : failures * (fam.recoveryQty * priceOf("돌파 복구권", state.prices) + fam.recoverySilver);
       const cost = materialCost + recoveryCost;
       const actionLabel = fam.level + " → " + (fam.level + 1) + (item.anvilTable ? " (고대의 모루 확정까지 최대 " + attempts + "회)" : "");
       const cpArr = familyCpGainArray(item, fam.grade);
