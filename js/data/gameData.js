@@ -242,6 +242,16 @@ export const ACCESSORY_CP_TABLE = {
   }
 };
 
+// 장신구 잠재력 돌파 실패 시 복구 비용 — 장비와 달리 100% 방어됩니다(단계가 하락하지 않음).
+// 은화 또는 돌파 복구권 중 하나만 있으면 복구되고 어느 쪽을 쓸지 선택할 수 있습니다(사용자 제공값,
+// 2026-07-28 확인). 등급(태고/혼돈/공허) 무관 공통 수치입니다. 배열 인덱스 = 시작 단계 — 0→1강은
+// 원자료에 없어(고대의 모루 상 항상 첫 시도에 성공한다고 가정한 구간과 일치) 0으로 둡니다.
+const ACCESSORY_RECOVERY_VALUES = {
+  silver: [0, 46080, 64512, 92160, 161000, 350000, 672000, 1594000, 2488000, 4976000],
+  ticket: [0, 139, 194, 278, 686, 1752, 4205, 9965, 20530, 26131]
+};
+export const ACCESSORY_RECOVERY_TABLE = { "태고": ACCESSORY_RECOVERY_VALUES, "혼돈": ACCESSORY_RECOVERY_VALUES, "공허": ACCESSORY_RECOVERY_VALUES };
+
 // 각성 — 장비/장신구 전용 시스템. 잠재력 돌파를 해당 등급의 최고 단계(10)까지 마친 뒤 1회만
 // 진행할 수 있고, 완료하면 다시 할 수 없습니다(① 탭의 "각성완료" 체크박스로 직접 표시). 재료·은화는
 // 공식 가이드(wikiNo=3049 "각성 시스템", 2026-07-27 확인), 전투력 증가치는 위 22·23편 원자료의
@@ -354,7 +364,7 @@ export const RELIC_SERIES_RECOVERY_QTY = {
 // 혹은 돌파 복구권 25,000개"), 2026-07-27 확인. 유물 기본 잠재력 돌파는 이후 21편에서
 // "은화 또는 돌파 복구권 중 하나만 있으면 복구"로 확인돼(AND가 아닌 OR) 문구를 수정했습니다.
 export const RECOVERY_NOTES = {
-  accessory: "실패 시 은화 + 돌파 복구권을 함께 소모해야 복구됩니다(정확한 개수는 미공개). 기본은 은화만 반영해뒀고, 복구권도 실제로 필요하니 아신다면 개수를 추가로 입력하세요.",
+  accessory: "실패 시 은화 또는 돌파 복구권 중 하나만 있으면 100% 복구됩니다(장비와 달리 단계가 하락하지 않아 항상 방어됨). 아래 금액은 원자료 실수치이며 기본적으로 은화만 사용하는 것으로 계산했습니다 — 복구권으로 비교하고 싶다면 «① 현재 상태» 탭 맨 위 «복구 기준 시세» 칸의 환산값과 비교해 보세요.",
   relic: "실패 시 은화 또는 돌파 복구권 중 하나만 있으면 복구됩니다. 아래 금액은 원자료 실수치이며 기본적으로 은화만 사용하는 것으로 계산했습니다 — 복구권으로만 복구하실 거면 실패당 은화 입력칸을 직접 0으로 바꾸세요.",
   harmonyAlchemy: "실패 시 은화 또는 돌파 복구권 중 하나만 있으면 복구됩니다(정확한 개수는 미공개). 기본은 은화 사용으로 가정했습니다 — 복구권으로만 복구하실 거면 은화 칸을 0으로 지우고 복구권 칸에 입력하세요.",
   lightstone: "실패 시 은화 또는 돌파 복구권 중 하나만 있으면 복구됩니다. 혼돈 등급은 아래 금액이 원자료 실수치(1~9강/10~19강 두 구간)이며 기본적으로 은화만 사용하는 것으로 계산했습니다. 태고 등급은 정확한 개수가 미공개라 직접 입력이 필요합니다."
@@ -426,15 +436,15 @@ export const FAMILY_ITEMS = [
     materialOptions: ["투스의 숨결"], defaultMaterial: "투스의 숨결",
     anvilTable: EMBLEM_DECORATION_ANVIL, qtyPerAttemptTable: EMBLEM_DECORATION_TICKET_QTY, noRecovery: true },
   { id: "ring1", name: "반지", maxLevel: 10, cpPerLevel: 10, cpEditable: true, cpTable: ACCESSORY_CP_TABLE, cpTableKey: "ring1",
-    materialOptions: ["반지(강화용 동일품)"], defaultMaterial: "반지(강화용 동일품)", anvilTable: ANCIENT_ANVIL.accessory, recoveryKey: "accessory" },
+    materialOptions: ["반지(강화용 동일품)"], defaultMaterial: "반지(강화용 동일품)", anvilTable: ANCIENT_ANVIL.accessory, recoveryKey: "accessory", recoveryTable: ACCESSORY_RECOVERY_TABLE },
   { id: "necklace", name: "목걸이", maxLevel: 10, cpPerLevel: 10, cpEditable: true, cpTable: ACCESSORY_CP_TABLE, cpTableKey: "necklace",
-    materialOptions: ["목걸이(강화용 동일품)"], defaultMaterial: "목걸이(강화용 동일품)", anvilTable: ANCIENT_ANVIL.accessory, recoveryKey: "accessory" },
+    materialOptions: ["목걸이(강화용 동일품)"], defaultMaterial: "목걸이(강화용 동일품)", anvilTable: ANCIENT_ANVIL.accessory, recoveryKey: "accessory", recoveryTable: ACCESSORY_RECOVERY_TABLE },
   { id: "belt", name: "허리띠", maxLevel: 10, cpPerLevel: 10, cpEditable: true, cpTable: ACCESSORY_CP_TABLE, cpTableKey: "belt",
-    materialOptions: ["허리띠(강화용 동일품)"], defaultMaterial: "허리띠(강화용 동일품)", anvilTable: ANCIENT_ANVIL.accessory, recoveryKey: "accessory" },
+    materialOptions: ["허리띠(강화용 동일품)"], defaultMaterial: "허리띠(강화용 동일품)", anvilTable: ANCIENT_ANVIL.accessory, recoveryKey: "accessory", recoveryTable: ACCESSORY_RECOVERY_TABLE },
   { id: "earring", name: "귀걸이", maxLevel: 10, cpPerLevel: 10, cpEditable: true, cpTable: ACCESSORY_CP_TABLE, cpTableKey: "earring",
-    materialOptions: ["귀걸이(강화용 동일품)"], defaultMaterial: "귀걸이(강화용 동일품)", anvilTable: ANCIENT_ANVIL.accessory, recoveryKey: "accessory" },
+    materialOptions: ["귀걸이(강화용 동일품)"], defaultMaterial: "귀걸이(강화용 동일품)", anvilTable: ANCIENT_ANVIL.accessory, recoveryKey: "accessory", recoveryTable: ACCESSORY_RECOVERY_TABLE },
   { id: "bracelet", name: "팔찌", maxLevel: 10, cpPerLevel: 10, cpEditable: true, cpTable: ACCESSORY_CP_TABLE, cpTableKey: "bracelet",
-    materialOptions: ["팔찌(강화용 동일품)"], defaultMaterial: "팔찌(강화용 동일품)", anvilTable: ANCIENT_ANVIL.accessory, recoveryKey: "accessory" },
+    materialOptions: ["팔찌(강화용 동일품)"], defaultMaterial: "팔찌(강화용 동일품)", anvilTable: ANCIENT_ANVIL.accessory, recoveryKey: "accessory", recoveryTable: ACCESSORY_RECOVERY_TABLE },
   // 균열의 토템 기준 — 등급별 돌파 재료·최대 단계가 다릅니다(태고: 주술의 근원/+40,
   // 혼돈: 혼돈의 핵/+20, 공허: 공허의 주술핵/+40). 출처: 공식 가이드(wikiNo=4006).
   { id: "totem", name: "토템(균열의 토템)", maxLevel: 40, maxLevelByGrade: { "태고": 40, "혼돈": 20, "공허": 40 },
