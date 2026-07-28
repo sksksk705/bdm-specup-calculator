@@ -9,7 +9,7 @@ import {
   RING_QTY_PER_STEP, RING_STAT_AT_STEP, RING_GRADE_UP,
   SOUL_BREAKTHROUGH_CURVE, ANCIENT_ANVIL, RELIC_SERIES_CP_GAIN, RELIC_SERIES_RECOVERY_QTY,
   FAMILY_ITEMS, RISKY_STEPS, EQUIP_PROBABILITY_BOOST, EQUIP_PROBABILITY_BOOST_ITEM,
-  UNPRICED_MATERIALS, MATERIAL_PRICE_SUBSTITUTE
+  UNPRICED_MATERIALS, MATERIAL_PRICE_SUBSTITUTE, LIGHTSTONE_GRADE_UP_TABLE
 } from "../data/gameData.js";
 
 export function familyItem(id) { return FAMILY_ITEMS.filter(function (x) { return x.id === id; })[0]; }
@@ -291,6 +291,23 @@ export function computeAccessoryGradeUp(itemId, grade, fam, prices) {
   return {
     label: grade + " → " + ACCESSORY_GRADE_NEXT[grade] + " 등급업",
     materialLabel: parts.join(", ") + " (선행조건: " + entry.prereq + ")",
+    cost: total
+  };
+}
+
+// 광원석 태고→혼돈 등급업 — 태고 강화 단계에 따라 필요한 혼돈의 원소 개수와 등급업 직후
+// 시작하는 혼돈 단계가 다릅니다(LIGHTSTONE_GRADE_UP_TABLE, 사용자 제공값). 태고 등급의 잠재력
+// 돌파(강화) 자체는 스펙업 표에 추천하지 않고, 이 등급업만 계산합니다.
+export function computeLightstoneGradeUp(fam, prices) {
+  if (fam.grade !== "태고") return null;
+  const entry = LIGHTSTONE_GRADE_UP_TABLE[fam.level];
+  if (!entry) return null;
+  const total = entry.oreQty * priceOf("혼돈의 원소", prices)
+    + 5 * priceOf("혼돈의 축", prices)
+    + 10 * priceOf("아크라드", prices);
+  return {
+    label: "태고 → 혼돈 등급업(혼돈 " + entry.resultStep + "강부터 시작)",
+    materialLabel: "혼돈의 원소 ×" + entry.oreQty + ", 혼돈의 축 ×5, 아크라드 ×10",
     cost: total
   };
 }

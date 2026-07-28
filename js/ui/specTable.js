@@ -8,7 +8,7 @@ import { state, persist } from "../data/userState.js";
 import {
   fmt, efficiencySortKey, dummyQtyPerAttempt, familyMaxLevel, familyCpGainArray, priceOf,
   computeEquipNextAction, computeEquipAwaken, computeAccessoryAwaken, computeRingNextAction,
-  computeSoulNextAction, computeAccessoryGradeUp, computeRelicSeriesAction
+  computeSoulNextAction, computeAccessoryGradeUp, computeRelicSeriesAction, computeLightstoneGradeUp
 } from "../logic/calculations.js";
 import { buildMaterialSelect, buildNumberInput, staticLabelCell } from "./domHelpers.js";
 
@@ -89,7 +89,9 @@ export function renderSpecTable() {
 
   FAMILY_ITEMS.forEach(function (item) {
     const fam = state.family[item.id];
-    if (fam.level < familyMaxLevel(item, fam.grade)) {
+    // 광원석 태고 등급은 강화(잠재력 돌파) 자체를 추천하지 않고, 아래 등급업(태고→혼돈)만 계산합니다.
+    const skipBreakthrough = item.id === "lightstone" && fam.grade === "태고";
+    if (!skipBreakthrough && fam.level < familyMaxLevel(item, fam.grade)) {
       const qtyPerAttempt = item.qtyPerAttempt || dummyQtyPerAttempt(fam.level);
       const attempts = item.anvilTable ? item.anvilTable[fam.level] : 1;
       const totalQty = attempts * qtyPerAttempt;
@@ -157,7 +159,9 @@ export function renderSpecTable() {
       });
     }
 
-    const gradeUp = ACCESSORY_GRADE_UP[item.id] ? computeAccessoryGradeUp(item.id, fam.grade, fam, state.prices) : null;
+    const gradeUp = item.id === "lightstone"
+      ? computeLightstoneGradeUp(fam, state.prices)
+      : (ACCESSORY_GRADE_UP[item.id] ? computeAccessoryGradeUp(item.id, fam.grade, fam, state.prices) : null);
     if (gradeUp) {
       rows.push({
         item: item.name, action: gradeUp.label, cost: gradeUp.cost, gain: fam.gradeUpGain,

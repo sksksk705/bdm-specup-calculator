@@ -13,12 +13,18 @@ export function renderGearGrid() {
   const triple = document.getElementById("gearTriple");
   side.innerHTML = ""; main.innerHTML = ""; triple.innerHTML = "";
 
-  // 왼쪽: 휘장, 고리(전승의 고리)
+  // 왼쪽: 휘장, 휘장 장식 5개(용맹/침착/격렬/철벽/투지), 고리(전승의 고리)
   const emblemItem = familyItem("emblem"), emblemFam = state.family["emblem"];
   side.appendChild(levelWithGradeTile("휘장", familyGradeOptions(emblemItem), familyMaxLevel(emblemItem, emblemFam.grade), emblemFam,
     function (v) { emblemFam.level = v; persist(); renderSpecTable(); },
     function (g) { emblemFam.grade = g; emblemFam.level = 0; persist(); renderGearGrid(); renderSpecTable(); }
   ));
+  ["emblemDeco1", "emblemDeco2", "emblemDeco3", "emblemDeco4", "emblemDeco5"].forEach(function (id) {
+    const item = familyItem(id), fam = state.family[id];
+    side.appendChild(levelOnlyTile(item.name, item.maxLevel, fam.level, function (fam) {
+      return function (v) { fam.level = v; persist(); renderSpecTable(); };
+    }(fam)));
+  });
   side.appendChild(gradeStepTile("고리", RING_GRADE_ORDER, state.ring,
     function (g) { state.ring.grade = g; state.ring.step = 0; persist(); renderGearGrid(); renderSpecTable(); },
     function (s) { state.ring.step = s; persist(); renderSpecTable(); },

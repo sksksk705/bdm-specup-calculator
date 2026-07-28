@@ -141,14 +141,26 @@ export const ACCESSORY_GRADE_UP = {
   relic2: {
     "태고": { materials: { "아크라드": 30, "혼돈의 축": 10 }, silver: 1000000, prereq: "각성 +7단계 이상 태고 유물 보유" },
     "혼돈": { materials: { "공허의 눈": 25, "아크라드": 30, "혼돈의 축": 10 }, silver: 1000000, prereq: "각성 +8단계 이상 혼돈 유물 보유" }
-  },
-  // 광원석은 심연→태고→혼돈 3등급뿐이며 공허 등급이 없습니다. 태고→혼돈 제작 시 재료로 쓰는
-  // 태고 광원석의 강화 단계가 높을수록(+14~+20) 혼돈의 원소 소모량이 줄어드는데(40개→1개),
-  // 여기서는 최소 요구치인 +14단계 기준(가장 비용이 큰 경우)으로 계산합니다.
-  lightstone: {
-    "태고": { materials: { "혼돈의 원소": 40, "혼돈의 축": 5, "아크라드": 10 }, silver: 0, prereq: "강화 +14단계 이상 태고 광원석 보유(단계가 높을수록 혼돈의 원소 소모량 감소)" }
   }
 };
+
+// 광원석 태고→혼돈 등급업 — 태고 광원석의 강화 단계에 따라 필요한 혼돈의 원소 개수와 등급업
+// 직후 시작하는 혼돈 단계가 다릅니다(사용자 제공값). 혼돈의 축 5개·아크라드 10개는 단계와
+// 무관하게 항상 함께 필요합니다. 배열 인덱스 = 현재 태고 강화 단계(0~20강).
+export const LIGHTSTONE_GRADE_UP_TABLE = [
+  { oreQty: 50, resultStep: 0 }, { oreQty: 50, resultStep: 0 }, { oreQty: 50, resultStep: 0 },
+  { oreQty: 50, resultStep: 0 }, { oreQty: 50, resultStep: 0 }, { oreQty: 50, resultStep: 0 },
+  { oreQty: 50, resultStep: 0 }, { oreQty: 50, resultStep: 0 }, { oreQty: 50, resultStep: 0 },
+  { oreQty: 50, resultStep: 0 }, { oreQty: 50, resultStep: 0 }, { oreQty: 50, resultStep: 0 },
+  { oreQty: 50, resultStep: 0 }, { oreQty: 50, resultStep: 0 }, // 0~13강
+  { oreQty: 40, resultStep: 0 },  // 14강
+  { oreQty: 35, resultStep: 2 },  // 15강
+  { oreQty: 25, resultStep: 4 },  // 16강
+  { oreQty: 10, resultStep: 6 },  // 17강
+  { oreQty: 1, resultStep: 8 },   // 18강
+  { oreQty: 1, resultStep: 10 },  // 19강
+  { oreQty: 1, resultStep: 13 }   // 20강
+];
 
 // 고대의 모루(wikiNo=4021) — 강화 실패마다 "기운"이 쌓이고, 기운이 표의 최대치에 도달하면
 // 다음 시도는 확정 성공합니다. 확률 데이터가 없는 항목은 "기운이 가득 찰 때까지의 시도 횟수"를
@@ -366,6 +378,19 @@ export const FAMILY_ITEMS = [
   { id: "emblem", name: "휘장", maxLevel: 50, maxLevelByGrade: { "태고": 30, "혼돈": 50, "공허": 50 },
     cpPerLevel: 20, cpEditable: true, cpTable: EMBLEM_CP_TABLE,
     materialOptions: ["영광의 증표"], defaultMaterial: "영광의 증표", qtyPerAttempt: 81301 },
+  // 휘장 장식 5종 — 투스의 숨결+은화로 강화, 실패해도 단계가 하락하지 않아 복구가 필요 없습니다
+  // (최대 150단계). 슬롯별 전투력 증가치는 공식 문서에 최소~최대 구간만 있고 단계별 표는 없어
+  // 직접 입력이 필요합니다. 출처: 공식 가이드(wikiNo=4008), 2026-07-28 확인.
+  { id: "emblemDeco1", name: "휘장 장식(용맹)", maxLevel: 150, cpPerLevel: 10, cpEditable: true,
+    materialOptions: ["투스의 숨결"], defaultMaterial: "투스의 숨결" },
+  { id: "emblemDeco2", name: "휘장 장식(침착)", maxLevel: 150, cpPerLevel: 10, cpEditable: true,
+    materialOptions: ["투스의 숨결"], defaultMaterial: "투스의 숨결" },
+  { id: "emblemDeco3", name: "휘장 장식(격렬)", maxLevel: 150, cpPerLevel: 10, cpEditable: true,
+    materialOptions: ["투스의 숨결"], defaultMaterial: "투스의 숨결" },
+  { id: "emblemDeco4", name: "휘장 장식(철벽)", maxLevel: 150, cpPerLevel: 10, cpEditable: true,
+    materialOptions: ["투스의 숨결"], defaultMaterial: "투스의 숨결" },
+  { id: "emblemDeco5", name: "휘장 장식(투지)", maxLevel: 150, cpPerLevel: 10, cpEditable: true,
+    materialOptions: ["투스의 숨결"], defaultMaterial: "투스의 숨결" },
   { id: "ring1", name: "반지", maxLevel: 10, cpPerLevel: 10, cpEditable: true, cpTable: ACCESSORY_CP_TABLE, cpTableKey: "ring1",
     materialOptions: ["반지(강화용 동일품)"], defaultMaterial: "반지(강화용 동일품)", anvilTable: ANCIENT_ANVIL.accessory, recoveryKey: "accessory" },
   { id: "necklace", name: "목걸이", maxLevel: 10, cpPerLevel: 10, cpEditable: true, cpTable: ACCESSORY_CP_TABLE, cpTableKey: "necklace",
