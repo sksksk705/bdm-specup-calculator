@@ -352,10 +352,11 @@ export const SOUL_ITEMS = [
 // 전투력 1당 증가치가 고정(또는 근사)된 항목, 그리고 "동일 아이템 소모 + 실패 시 초기화"
 // 방식이라 확률 기댓값 대신 직접 입력하는 항목 — 모두 같은 구조(레벨/단계, 재료, 회당 개수, 전투력)로 다룹니다.
 export const FAMILY_ITEMS = [
+  // 회당 소모량(qtyPerAttempt)은 기본 재료(defaultMaterial) 기준 사용자 제공값입니다.
   { id: "sylvia", name: "실비아 여신상", maxLevel: 500, cpPerLevel: 20, cpEditable: false,
-    materialOptions: ["여신의 눈물", "고결한 여신의 눈물"], defaultMaterial: "여신의 눈물" },
+    materialOptions: ["여신의 눈물", "고결한 여신의 눈물"], defaultMaterial: "여신의 눈물", qtyPerAttempt: 1201057 },
   { id: "balance", name: "균형의 돌", maxLevel: 900, cpPerLevel: 10, cpEditable: false,
-    materialOptions: ["혼돈의 결정", "태양의 결정"], defaultMaterial: "혼돈의 결정" },
+    materialOptions: ["혼돈의 결정", "태양의 결정"], defaultMaterial: "혼돈의 결정", qtyPerAttempt: 42355 },
   // 심연 등급 없이 태고부터 다룹니다. 등급업(태고→혼돈)이 가능해 gradeOptions를 둡니다.
   { id: "lightstone", name: "광원석", maxLevel: 20, maxLevelByGrade: { "태고": 20, "혼돈": 20 },
     gradeOptions: ["태고", "혼돈"], cpPerLevel: 10, cpEditable: true, cpTable: LIGHTSTONE_CP_TABLE,
@@ -364,7 +365,7 @@ export const FAMILY_ITEMS = [
     anvilTable: ANCIENT_ANVIL.lightstone, recoveryKey: "lightstone", recoveryTable: LIGHTSTONE_RECOVERY_TABLE },
   { id: "emblem", name: "휘장", maxLevel: 50, maxLevelByGrade: { "태고": 30, "혼돈": 50, "공허": 50 },
     cpPerLevel: 20, cpEditable: true, cpTable: EMBLEM_CP_TABLE,
-    materialOptions: ["영광의 증표"], defaultMaterial: "영광의 증표" },
+    materialOptions: ["영광의 증표"], defaultMaterial: "영광의 증표", qtyPerAttempt: 81301 },
   { id: "ring1", name: "반지", maxLevel: 10, cpPerLevel: 10, cpEditable: true, cpTable: ACCESSORY_CP_TABLE, cpTableKey: "ring1",
     materialOptions: ["반지(강화용 동일품)"], defaultMaterial: "반지(강화용 동일품)", anvilTable: ANCIENT_ANVIL.accessory, recoveryKey: "accessory" },
   { id: "necklace", name: "목걸이", maxLevel: 10, cpPerLevel: 10, cpEditable: true, cpTable: ACCESSORY_CP_TABLE, cpTableKey: "necklace",

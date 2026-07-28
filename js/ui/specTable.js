@@ -90,7 +90,7 @@ export function renderSpecTable() {
   FAMILY_ITEMS.forEach(function (item) {
     const fam = state.family[item.id];
     if (fam.level < familyMaxLevel(item, fam.grade)) {
-      const qtyPerAttempt = dummyQtyPerAttempt(fam.level);
+      const qtyPerAttempt = item.qtyPerAttempt || dummyQtyPerAttempt(fam.level);
       const attempts = item.anvilTable ? item.anvilTable[fam.level] : 1;
       const totalQty = attempts * qtyPerAttempt;
       const materialCost = totalQty * priceOf(fam.material, state.prices);
@@ -106,7 +106,7 @@ export function renderSpecTable() {
       const hasRealCp = !!(cpArr && cpArr[fam.level] !== undefined);
       const gain = hasRealCp ? cpArr[fam.level] : fam.cpPerLevel;
       rows.push({
-        item: item.name, action: actionLabel, cost: cost, gain: gain, qty: qtyPerAttempt, isDummyQty: true,
+        item: item.name, action: actionLabel, cost: cost, gain: gain, qty: qtyPerAttempt, isDummyQty: !item.qtyPerAttempt,
         buildMaterialCell: function (item, fam, totalQty, hasRealRecovery, recTable) {
           return function (td) {
             td.appendChild(buildMaterialSelect(item.materialOptions, fam.material, function (v) { fam.material = v; persist(); renderSpecTable(); }));
