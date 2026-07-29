@@ -11,7 +11,7 @@ import {
   computeAccessoryGradeUp, computeRelicSeriesAction, computeLightstoneGradeUp,
   isEmblemDecorationUnlocked, emblemDecorationGain, karazadExpectedAttempts, computeKarazadCraft
 } from "../logic/calculations.js";
-import { buildMaterialSelect, buildNumberInput, staticLabelCell } from "./domHelpers.js";
+import { buildNumberInput, staticLabelCell } from "./domHelpers.js";
 
 export function renderSpecTable() {
   const body = document.getElementById("specTableBody");
@@ -75,7 +75,8 @@ export function renderSpecTable() {
       const attempts = isKarazad ? karazadExpectedAttempts(fam.level)
         : (item.anvilTable ? item.anvilTable[fam.level] + 1 : 1);
       const totalQty = attempts * qtyPerAttempt;
-      const materialCost = totalQty * priceOf(fam.material, state.prices);
+      const materialCost = totalQty * priceOf(fam.material, state.prices)
+        + (item.extraMaterial ? totalQty * priceOf(item.extraMaterial, state.prices) : 0);
       const failures = attempts - 1;
       const recTable = item.recoveryTable && item.recoveryTable[fam.grade];
       const hasRealRecovery = !!(recTable && recTable.silver[fam.level] !== undefined);
@@ -96,7 +97,7 @@ export function renderSpecTable() {
           return function (td) {
             const matLabel = document.createElement("span");
             matLabel.style.cssText = "color:var(--text-dim);font-size:11.8px;";
-            matLabel.textContent = fam.material;
+            matLabel.textContent = fam.material + (item.extraMaterial ? " + " + item.extraMaterial : "");
             td.appendChild(matLabel);
             if (item.anvilTable) {
               const qtyNote = document.createElement("div");
@@ -114,7 +115,8 @@ export function renderSpecTable() {
               } else if (hasRealRecovery) {
                 const realNote = document.createElement("div");
                 realNote.style.cssText = "color:var(--text-dim);font-size:10.5px;margin-top:4px;";
-                realNote.textContent = "실패당 은화 " + fmt(recTable.silver[fam.level]) + " (또는 돌파 복구권 " + fmt(recTable.ticket[fam.level]) + "장)";
+                realNote.textContent = "실패당 은화 " + fmt(recTable.silver[fam.level])
+                  + (recTable.ticket ? " (또는 돌파 복구권 " + fmt(recTable.ticket[fam.level]) + "장)" : "");
                 td.appendChild(realNote);
               } else {
                 const wrap = document.createElement("div");
@@ -177,21 +179,7 @@ export function renderSpecTable() {
       if (seriesAction && !seriesAction.maxed) {
         rows.push({
           item: item.name, action: seriesAction.label, cost: seriesAction.cost, gain: seriesAction.gain,
-          buildMaterialCell: function (item, fam, seriesAction) {
-            return function (td) {
-              const span = document.createElement("span");
-              span.style.cssText = "color:var(--text-dim);white-space:normal;font-size:11.8px;";
-              span.textContent = seriesAction.materialLabel;
-              td.appendChild(span);
-              const wrap = document.createElement("div");
-              wrap.style.cssText = "display:flex;align-items:center;gap:4px;margin-top:4px;flex-wrap:wrap;";
-              const label = document.createElement("span");
-              label.style.cssText = "color:var(--text-faint);font-size:10px;"; label.textContent = "복구 방식";
-              wrap.appendChild(label);
-              wrap.appendChild(buildMaterialSelect(["돌파 복구권", "차원의 조각"], fam.seriesRecoveryMethod, function (v) { fam.seriesRecoveryMethod = v; persist(); renderSpecTable(); }));
-              td.appendChild(wrap);
-            };
-          }(item, fam, seriesAction),
+          buildMaterialCell: staticLabelCell(seriesAction.materialLabel),
           buildQtyCell: null,
           buildGainCell: null
         });

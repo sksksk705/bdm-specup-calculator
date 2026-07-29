@@ -475,14 +475,15 @@ export function computeRelicSeriesAction(fam, prices) {
   const attemptCostEach = RELIC_SERIES_ATTEMPT_COST["아크라드"] * priceOf("아크라드", prices)
     + RELIC_SERIES_ATTEMPT_COST["차원의 조각"] * priceOf("차원의 조각", prices);
   const attemptCost = attempts * attemptCostEach;
-  const recoveryQtyEach = RELIC_SERIES_RECOVERY_QTY[fam.seriesRecoveryMethod][step];
-  const recoveryCost = failures * recoveryQtyEach * priceOf(fam.seriesRecoveryMethod, prices);
+  // 복구는 항상 차원의 조각만 사용합니다(사용자 확인, 2026-07-29 — 돌파 복구권 선택지 제거).
+  const recoveryQtyEach = RELIC_SERIES_RECOVERY_QTY["차원의 조각"][step];
+  const recoveryCost = failures * recoveryQtyEach * priceOf("차원의 조각", prices);
   const cost = attemptCost + recoveryCost;
   const gain = RELIC_SERIES_CP_GAIN[step];
   return {
     maxed: false,
     label: "공허 유물 계열 돌파(마력각인) " + step + " → " + (step + 1) + " (고대의 모루 확정까지 최대 " + attempts + "회)",
-    materialLabel: "시도당 아크라드 " + RELIC_SERIES_ATTEMPT_COST["아크라드"] + "개·차원의 조각 " + RELIC_SERIES_ATTEMPT_COST["차원의 조각"] + "개 × 기대값 " + fmt(attempts) + "회 · 실패 " + fmt(failures) + "회 × " + fam.seriesRecoveryMethod + " " + fmt(recoveryQtyEach) + "개",
+    materialLabel: "시도당 아크라드 " + RELIC_SERIES_ATTEMPT_COST["아크라드"] + "개·차원의 조각 " + RELIC_SERIES_ATTEMPT_COST["차원의 조각"] + "개 × 기대값 " + fmt(attempts) + "회 · 실패 " + fmt(failures) + "회 × 차원의 조각 " + fmt(recoveryQtyEach) + "개",
     cost: cost, gain: gain,
     gainFixed: true
   };

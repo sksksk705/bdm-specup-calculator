@@ -3,7 +3,7 @@
 // data/prices.json이 아니라 로컬 저장소에 둡니다.
 
 import {
-  PARTS, GRADE_ORDER, RING_GRADE_ORDER, SOUL_ITEMS, FAMILY_ITEMS, ACCESSORY_AWAKEN
+  PARTS, GRADE_ORDER, RING_GRADE_ORDER, SOUL_ITEMS, FAMILY_ITEMS, ACCESSORY_AWAKEN, PAID_MATERIALS
 } from "./gameData.js";
 import { familyGradeOptions } from "../logic/calculations.js";
 
@@ -34,7 +34,8 @@ export const state = {
   ring: null,   // { grade, step }
   soul: {},     // soulId -> { step, material, qtyPerAttempt, cpGain }
   family: {},   // itemId -> { level, material, qtyPerLevel, cpPerLevel }
-  equipPlan: null // ③ 탭 "강화 기대값 계산기"의 장비 돌파 설정(구간/확률 상승권/돌파 복구권)
+  equipPlan: null, // ③ 탭 "강화 기대값 계산기"의 장비 돌파 설정(구간/확률 상승권/돌파 복구권)
+  paidMaterials: {} // 재료명 -> { use, silverRate } — 유료 재화를 실제로 쓸지, 은화로 환산할지
 };
 
 // defaultPrices: data/prices.json에서 fetch해 온 배열([{name,cat,price,note}, ...]).
@@ -44,6 +45,16 @@ export function initState(defaultPrices) {
   defaultPrices.forEach(function (m) {
     const savedVal = saved && saved.prices ? saved.prices[m.name] : undefined;
     state.prices[m.name] = healZero(savedVal, m.price);
+  });
+
+  // 유료 재화 — prices.json에 없는 별도 항목이라 여기서 직접 state.prices에 슬롯을 만듭니다.
+  // use=true(기본값, 프리미엄으로 얻을 계획)면 항상 0으로 고정하고, false면 사용자가 입력한
+  // silverRate를 그대로 씁니다 — 매 로드마다 다시 맞춰서 저장된 값이 어긋나지 않게 합니다.
+  PAID_MATERIALS.forEach(function (name) {
+    const savedPM = saved && saved.paidMaterials ? saved.paidMaterials[name] : null;
+    const pm = savedPM || { use: true, silverRate: 0 };
+    state.paidMaterials[name] = pm;
+    state.prices[name] = pm.use ? 0 : (pm.silverRate || 0);
   });
 
   const materialNames = defaultPrices.map(function (m) { return m.name; });
@@ -90,7 +101,6 @@ export function initState(defaultPrices) {
     if (fam.recoveryQty === undefined) fam.recoveryQty = 0;
     fam.recoverySilver = healZero(fam.recoverySilver, 100000);
     if (fam.seriesLevel === undefined) fam.seriesLevel = 0;
-    if (fam.seriesRecoveryMethod === undefined) fam.seriesRecoveryMethod = "돌파 복구권";
     // 고정 전투력 항목(cpEditable:false, 예: 실비아 여신상/균형의 돌)은 사용자가 값을 바꿀 UI 자체가
     // 없으므로, 저장된 옛 값이 남아있어도 항상 최신 기준값(item.cpPerLevel)으로 덮어씁니다.
     // (가격처럼 "저장된 값이 있으면 최신 값을 가린다"는 문제가 여기서는 복구할 방법이 없기 때문)
@@ -111,7 +121,7 @@ export function persist() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       prices: state.prices, status: state.status, ring: state.ring, soul: state.soul, family: state.family,
-      equipPlan: state.equipPlan
+      equipPlan: state.equipPlan, paidMaterials: state.paidMaterials
     }));
   } catch (e) {}
 }

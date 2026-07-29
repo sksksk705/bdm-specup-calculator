@@ -4,11 +4,58 @@
 // 실제 단가만 state.prices를 통해 localStorage에 저장됩니다).
 
 import { state, persist } from "../data/userState.js";
+import { PAID_MATERIALS } from "../data/gameData.js";
 import { renderSpecTable } from "./specTable.js";
 
 let materialList = [];
 let priceTableBody = null;
 let recoveryTicketInput = null;
+
+// 유료 재화 — 체크하면(기본) 프리미엄으로 얻을 계획으로 보고 은화 0, 체크를 풀면 직접 입력한
+// 은화 환산값을 씁니다. state.prices도 함께 갱신해 다른 계산(priceOf)이 그대로 재사용합니다.
+export function renderPaidMaterials() {
+  const wrap = document.getElementById("paidMaterialRows");
+  wrap.innerHTML = "";
+  PAID_MATERIALS.forEach(function (name) {
+    const pm = state.paidMaterials[name];
+    const row = document.createElement("div");
+    row.style.cssText = "display:flex;align-items:center;gap:8px;flex-wrap:wrap;";
+
+    const label = document.createElement("label");
+    label.style.cssText = "display:flex;align-items:center;gap:6px;font-size:13px;min-width:160px;cursor:pointer;";
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = pm.use;
+    label.appendChild(checkbox);
+    const labelSpan = document.createElement("span");
+    labelSpan.textContent = name + " 실제 재료로 사용";
+    label.appendChild(labelSpan);
+    row.appendChild(label);
+
+    const rateLabel = document.createElement("span");
+    rateLabel.style.cssText = "color:var(--text-faint);font-size:12px;"; rateLabel.textContent = "은화 환산";
+    const rateInput = document.createElement("input");
+    rateInput.type = "number"; rateInput.min = "0"; rateInput.style.width = "110px";
+    rateInput.value = pm.silverRate;
+    rateInput.disabled = pm.use;
+    row.appendChild(rateLabel);
+    row.appendChild(rateInput);
+
+    checkbox.addEventListener("change", function () {
+      pm.use = checkbox.checked;
+      state.prices[name] = pm.use ? 0 : (pm.silverRate || 0);
+      rateInput.disabled = pm.use;
+      persist(); renderSpecTable();
+    });
+    rateInput.addEventListener("input", function () {
+      pm.silverRate = parseFloat(rateInput.value) || 0;
+      state.prices[name] = pm.use ? 0 : pm.silverRate;
+      persist(); renderSpecTable();
+    });
+
+    wrap.appendChild(row);
+  });
+}
 
 export function renderPriceTable(filter) {
   filter = (filter || "").trim().toLowerCase();

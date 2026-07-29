@@ -4,7 +4,7 @@
 import { loadDefaultPrices } from "./data/priceRepository.js";
 import { initState } from "./data/userState.js";
 import { initTabs } from "./ui/tabs.js";
-import { initPriceTable, renderPriceTable, syncRecoveryTicketInput } from "./ui/priceTable.js";
+import { initPriceTable, renderPriceTable, syncRecoveryTicketInput, renderPaidMaterials } from "./ui/priceTable.js";
 import { renderGearGrid, renderGearExtra } from "./ui/gearGrid.js";
 import { renderSpecTable } from "./ui/specTable.js";
 import { renderEvCalcTab } from "./ui/evCalcTab.js";
@@ -27,6 +27,7 @@ async function boot() {
 
   renderPriceTable("");
   syncRecoveryTicketInput();
+  renderPaidMaterials();
   renderGearGrid();
   renderGearExtra();
   renderSpecTable();

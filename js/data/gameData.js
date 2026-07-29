@@ -5,12 +5,20 @@
 // 거래소에서 구매할 수 없는 재화 — 시세 표에 없고, 은화 비용 계산에도 포함하지 않습니다(0으로
 // 취급). 다만 스펙업 표의 "소모 재료" 칸에는 필요 수량을 그대로 표시합니다(사용자 확인).
 export const UNPRICED_MATERIALS = new Set([
-  "영겁의 고리", "시간의 고리", "과거의 영광",
+  "과거의 영광",
   "밤의 영혼석 강화 재료", "달빛 영혼석 강화 재료",
   "태양의 결정", "고결한 여신의 눈물", "순도 높은 흑결정"
 ]);
 // 공허의 주술핵도 구매 불가지만, 공허의 눈 1개와 같은 가치로 계산합니다(사용자 제공값).
 export const MATERIAL_PRICE_SUBSTITUTE = { "공허의 주술핵": "공허의 눈" };
+
+// "유료 재화" — 은화로 살 수 없고 실제 게임 화폐(프리미엄)로만 얻을 수 있는 재화입니다.
+// UNPRICED_MATERIALS와 달리 완전히 0으로 고정하지 않고, ① 탭 위쪽에서 항목별로 "실제 재료로
+// 사용"(기본값, 0은화 취급 — 프리미엄으로 얻을 계획) 또는 "은화로 환산"(직접 입력한 환산값 사용)
+// 중 고를 수 있습니다(사용자 확인, 2026-07-29). state.paidMaterials[재료명] = { use, silverRate }
+// 로 관리하며, use=true면 state.prices[재료명]을 0으로 고정하고, false면 사용자가 입력한
+// silverRate가 그대로 state.prices[재료명]에 반영됩니다.
+export const PAID_MATERIALS = ["시간의 고리", "영겁의 고리"];
 
 export const PARTS = [
   { id: "mainhand", name: "주무기" },
@@ -432,7 +440,7 @@ export const RELIC_SERIES_ATTEMPT_COST = { "아크라드": 1, "차원의 조각"
 export const RECOVERY_NOTES = {
   accessory: "실패 시 은화 또는 돌파 복구권 중 하나만 있으면 100% 복구됩니다(장비와 달리 단계가 하락하지 않아 항상 방어됨). 아래 금액은 원자료 실수치이며 기본적으로 은화만 사용하는 것으로 계산했습니다 — 복구권으로 비교하고 싶다면 «① 현재 상태» 탭 맨 위 «복구 기준 시세» 칸의 환산값과 비교해 보세요.",
   relic: "실패 시 은화 또는 돌파 복구권 중 하나만 있으면 복구됩니다. 아래 금액은 원자료 실수치이며 기본적으로 은화만 사용하는 것으로 계산했습니다 — 복구권으로만 복구하실 거면 실패당 은화 입력칸을 직접 0으로 바꾸세요.",
-  harmonyAlchemy: "실패 시 은화 또는 돌파 복구권 중 하나만 있으면 복구됩니다(정확한 개수는 미공개). 기본은 은화 사용으로 가정했습니다 — 복구권으로만 복구하실 거면 은화 칸을 0으로 지우고 복구권 칸에 입력하세요.",
+  harmonyAlchemy: "실패 시 은화로 복구됩니다(0~4강 45,000, 5~9강 90,000처럼 5단계마다 45,000씩 증가 — 사용자 제공값). 돌파 복구권으로도 복구 가능할 수 있으나 정확한 개수는 미공개입니다.",
   lightstone: "실패 시 은화 또는 돌파 복구권 중 하나만 있으면 복구됩니다. 혼돈 등급은 아래 금액이 원자료 실수치(1~9강/10~19강 두 구간)이며 기본적으로 은화만 사용하는 것으로 계산했습니다. 태고 등급은 정확한 개수가 미공개라 직접 입력이 필요합니다."
 };
 
@@ -478,6 +486,16 @@ export const SOUL_CUMULATIVE_QTY_TABLE = [
   0, 1.959, 5.181, 10.337, 18.397, 30.774, 49.58, 77.882, 120.394,
   183.494, 277.609, 417.603, 624.716, 933.295, 1388.253, 2062.625
 ];
+
+// 조화의 연금석 실패 시 복구 비용(은화) — 0~4강 45,000, 5~9강 90,000, ... 5단계마다 45,000씩
+// 증가합니다. 돌파 복구권 개수는 미공개라 은화만 실수치이고(ticket 배열 없음), maxLevel(40)
+// 만큼 생성합니다. 등급(혼돈/공허) 무관 공통 수치입니다. 사용자 제공값, 2026-07-29 확인.
+const ALCHEMY_RECOVERY_SILVER = Array.from({ length: 40 }, function (_, level) {
+  return 45000 * (Math.floor(level / 5) + 1);
+});
+export const ALCHEMY_RECOVERY_TABLE = {
+  "혼돈": { silver: ALCHEMY_RECOVERY_SILVER }, "공허": { silver: ALCHEMY_RECOVERY_SILVER }
+};
 
 // 전투력 1당 증가치가 고정(또는 근사)된 항목, 그리고 "동일 아이템 소모 + 실패 시 초기화"
 // 방식이라 확률 기댓값 대신 직접 입력하는 항목 — 모두 같은 구조(레벨/단계, 재료, 회당 개수, 전투력)로 다룹니다.
@@ -557,15 +575,14 @@ export const FAMILY_ITEMS = [
   // 조화의 연금석 기준 — 태고 등급 없이 혼돈부터 시작하는 별도 4슬롯 결합 아이템입니다.
   // 공허 등급은 돌파 단계마다 공격력+5/방어력+5(=전투력 근사 10)가 공식 문서에 명시돼 있습니다.
   // 출처: 공식 가이드(wikiNo=4007).
-  // 재료 선택 드롭다운을 없애고 등급별 자동 재료(materialByGrade)만 쓰기로 하면서(사용자 확인,
-  // 2026-07-29) "조화의 빛"은 materialOptions에서 뺐습니다 — prices.json 메모에 "공통 재료"라고
-  // 적혀 있어 등급별 재료와 함께 항상 같이 드는 별도 재료일 가능성이 있는데, 회당 개수를 몰라
-  // 계산에는 아직 못 넣었습니다(가격 데이터 자체는 prices.json에 남겨둠).
+  // 돌파 재료는 등급별 재료(시간의 고리/영겁의 고리, 유료 재화) 1개 + 조화의 빛(구매 가능) 1개를
+  // 시도마다 함께 소모합니다(extraMaterial, 사용자 확인 2026-07-29). 재료 선택 드롭다운은 없애고
+  // 등급별 자동 재료(materialByGrade)만 씁니다.
   { id: "alchemy", name: "조화의 연금석", maxLevel: 40, maxLevelByGrade: { "혼돈": 40, "공허": 40 },
     gradeOptions: ["혼돈", "공허"], cpPerLevel: 10, cpEditable: true,
     materialOptions: ["시간의 고리", "영겁의 고리"], defaultMaterial: "시간의 고리",
-    materialByGrade: { "혼돈": "시간의 고리", "공허": "영겁의 고리" },
-    anvilTable: ANCIENT_ANVIL.harmonyAlchemy, recoveryKey: "harmonyAlchemy" },
+    materialByGrade: { "혼돈": "시간의 고리", "공허": "영겁의 고리" }, extraMaterial: "조화의 빛",
+    anvilTable: ANCIENT_ANVIL.harmonyAlchemy, recoveryKey: "harmonyAlchemy", recoveryTable: ALCHEMY_RECOVERY_TABLE },
   // 태고·혼돈 등급 유물은 10단계까지 돌파합니다(희귀~심연 등급은 5단계뿐이지만 이 계산기는
   // 태고 이상만 다룹니다). 출처: 공식 확률 안내(wikiNo=1001004).
   { id: "relic1", name: "유물1", maxLevel: 10, cpPerLevel: 10, cpEditable: true, cpTable: RELIC_CP_TABLE,
