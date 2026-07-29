@@ -10,7 +10,7 @@ import {
   SOUL_CUMULATIVE_QTY_TABLE, ANCIENT_ANVIL, RELIC_SERIES_CP_GAIN, RELIC_SERIES_RECOVERY_QTY, RELIC_SERIES_ATTEMPT_COST,
   FAMILY_ITEMS, EQUIP_DROP_PROTECT, EQUIP_SHADOW_PROTECT, EQUIP_PROBABILITY_BOOST, EQUIP_PROBABILITY_BOOST_ITEM,
   UNPRICED_MATERIALS, MATERIAL_PRICE_SUBSTITUTE, LIGHTSTONE_GRADE_UP_TABLE, EMBLEM_DECORATION_UNLOCK,
-  KARAZAD_CRAFT, KARAZAD_ITEM_MATERIAL, KARAZAD_BREAKTHROUGH_CURVE, KARAZAD_CRAFT_CP_GAIN
+  KARAZAD_CRAFT, KARAZAD_ITEM_MATERIAL, KARAZAD_BREAKTHROUGH_CURVE
 } from "../data/gameData.js";
 
 export function familyItem(id) { return FAMILY_ITEMS.filter(function (x) { return x.id === id; })[0]; }
@@ -146,9 +146,11 @@ export function equipStepCost(step, method, materialPrice, ticketPrice, prices) 
 // 있습니다. 돌파 복구권 사용 구간 밖의 단계는 실패 시 방어 없이 100% 이전 단계로 하락합니다
 // (사용자 확인, 2026-07-29 — "혼돈의 그림자 장비" 100% 방어 옵션은 이 계산기에서는 단순화를
 // 위해 제외). FROM단계는 계산의 바닥으로 취급해 그 아래로는 하락 비용을 계산하지 않습니다
-// (밤·달빛 영혼석의 0강과 같은 방식). 은화는 돌파 복구권 사용 시 직접 소모되는 500은화만
-// 집계하고(구매 불가 재료·상승권·복구권 자체의 시세는 이 계산기가 다루지 않고 개수만 보여줌),
-// 상승권·복구권·재료는 전부 raw 개수로 반환합니다.
+// (밤·달빛 영혼석의 0강과 같은 방식). 하락 방어는 돌파 복구권(200개)만 소모하고 은화는 들지
+// 않습니다(사용자 확인, 2026-07-29 — 은화 500 병행 소모는 제거). 상승권·복구권·재료는 전부
+// raw 개수로 반환합니다. silverDirect는 자리만 유지해두고 0으로 고정했습니다 — 장비 강화의
+// 은화는 "복구 가격"이 아니라 "시도 가격"이라는 사용자 피드백이 있었으나 정확한 값을 아직
+// 확인 중입니다.
 const EQUIP_RANGE_BOOST_MULT = { "10": 1.1, "50": 1.5, "100": 2 };
 
 function equipRangeBoostTypeAt(label, boostConfig) {
@@ -204,14 +206,13 @@ export function computeEquipRangePlan(from, to, boostConfig, recoveryConfig) {
     const usesRecovery = equipRangeUsesRecoveryAt(label, recoveryConfig);
     const dropChance = usesRecovery ? 0.5 : 1;
     const protectTicket = usesRecovery ? failures * EQUIP_DROP_PROTECT.plainTicket : 0;
-    const protectSilver = usesRecovery ? failures * EQUIP_DROP_PROTECT.plainSilver : 0;
 
     const reclimb = solve(step - 1);
     const factor = failures * dropChance;
 
     const result = {
       attempts: attempts + reclimb.attempts * factor,
-      silverDirect: protectSilver + reclimb.silverDirect * factor,
+      silverDirect: 0 + reclimb.silverDirect * factor,
       boost10: (boostType === "10" ? attempts : 0) + reclimb.boost10 * factor,
       boost50: (boostType === "50" ? attempts : 0) + reclimb.boost50 * factor,
       boost100: (boostType === "100" ? attempts : 0) + reclimb.boost100 * factor,
@@ -401,6 +402,9 @@ export function computeAccessoryGradeUp(itemId, grade, fam, prices) {
 // 공허 → 카라자드(신성 등급) 제작 — 각성 완료한 공허 +9단계 또는 +10단계(최대) 장신구를
 // "카라자드 장신구(+0)" 1개와 함께 소모합니다. 소모되는 공허 장신구 자체는 은화로 값을 매기지
 // 않고(이미 보유한 장비), 구매해야 하는 카라자드 장신구(+0)의 시세만 비용으로 계산합니다.
+// KARAZAD_CRAFT_CP_GAIN 수치는 "전투력 증가분"이 아니라 공격력/방어력 절대 수치라고 확인돼
+// (사용자 확인, 2026-07-29) 전투력 증가는 다시 직접 입력(gain: undefined → 호출부에서
+// fam.gradeUpGain 사용)으로 되돌렸습니다 — 실제 증가분 계산에 필요한 데이터를 확인 중입니다.
 export function computeKarazadCraft(itemId, fam, prices) {
   if (fam.grade !== "공허") return null;
   const materialName = KARAZAD_ITEM_MATERIAL[itemId];
@@ -409,12 +413,10 @@ export function computeKarazadCraft(itemId, fam, prices) {
   if (!entry) return null;
   if (!(fam.awakened && fam.awakened["공허"])) return null;
   const basePrice = priceOf(materialName, prices);
-  const gainTable = KARAZAD_CRAFT_CP_GAIN[itemId];
-  const gain = gainTable ? gainTable[entry.resultStep] : undefined;
   return {
     label: "공허 → 카라자드 제작(카라자드 " + entry.resultStep + "단계부터 시작)",
     materialLabel: materialName + "(+0) 1개 × " + fmt(basePrice) + "은화 (선행조건: " + entry.prereq + ")",
-    cost: basePrice, gain: gain
+    cost: basePrice
   };
 }
 
