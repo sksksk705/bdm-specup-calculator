@@ -557,9 +557,13 @@ export const FAMILY_ITEMS = [
   // 조화의 연금석 기준 — 태고 등급 없이 혼돈부터 시작하는 별도 4슬롯 결합 아이템입니다.
   // 공허 등급은 돌파 단계마다 공격력+5/방어력+5(=전투력 근사 10)가 공식 문서에 명시돼 있습니다.
   // 출처: 공식 가이드(wikiNo=4007).
+  // 재료 선택 드롭다운을 없애고 등급별 자동 재료(materialByGrade)만 쓰기로 하면서(사용자 확인,
+  // 2026-07-29) "조화의 빛"은 materialOptions에서 뺐습니다 — prices.json 메모에 "공통 재료"라고
+  // 적혀 있어 등급별 재료와 함께 항상 같이 드는 별도 재료일 가능성이 있는데, 회당 개수를 몰라
+  // 계산에는 아직 못 넣었습니다(가격 데이터 자체는 prices.json에 남겨둠).
   { id: "alchemy", name: "조화의 연금석", maxLevel: 40, maxLevelByGrade: { "혼돈": 40, "공허": 40 },
     gradeOptions: ["혼돈", "공허"], cpPerLevel: 10, cpEditable: true,
-    materialOptions: ["시간의 고리", "영겁의 고리", "조화의 빛"], defaultMaterial: "시간의 고리",
+    materialOptions: ["시간의 고리", "영겁의 고리"], defaultMaterial: "시간의 고리",
     materialByGrade: { "혼돈": "시간의 고리", "공허": "영겁의 고리" },
     anvilTable: ANCIENT_ANVIL.harmonyAlchemy, recoveryKey: "harmonyAlchemy" },
   // 태고·혼돈 등급 유물은 10단계까지 돌파합니다(희귀~심연 등급은 5단계뿐이지만 이 계산기는

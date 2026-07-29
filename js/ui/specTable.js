@@ -26,9 +26,7 @@ export function renderSpecTable() {
     if (!action.variants && !action.maxed) {
       rows.push({
         item: part.name, action: action.label, cost: action.cost, gain: action.gain, qty: action.qty, isDummyQty: action.isDummyQty,
-        buildMaterialCell: action.editable.material
-          ? function (rec) { return function (td) { td.appendChild(buildMaterialSelect(["순도 높은 흑결정"], rec.material, function (v) { rec.material = v; persist(); renderSpecTable(); })); }; }(rec)
-          : staticLabelCell(action.materialLabel),
+        buildMaterialCell: staticLabelCell(action.materialLabel),
         buildQtyCell: null,
         buildGainCell: action.editable.cp ? function (rec) { return function (td) { td.appendChild(buildNumberInput(rec.cpGain, function (v) { rec.cpGain = v; persist(); renderSpecTable(); })); }; }(rec) : null
       });
@@ -96,7 +94,10 @@ export function renderSpecTable() {
         isDummyQty: !item.qtyPerAttempt && !item.qtyPerAttemptTable,
         buildMaterialCell: function (item, fam, totalQty, hasRealRecovery, recTable) {
           return function (td) {
-            td.appendChild(buildMaterialSelect(item.materialOptions, fam.material, function (v) { fam.material = v; persist(); renderSpecTable(); }));
+            const matLabel = document.createElement("span");
+            matLabel.style.cssText = "color:var(--text-dim);font-size:11.8px;";
+            matLabel.textContent = fam.material;
+            td.appendChild(matLabel);
             if (item.anvilTable) {
               const qtyNote = document.createElement("div");
               qtyNote.style.cssText = "color:var(--text-faint);font-size:10px;margin-top:2px;";
