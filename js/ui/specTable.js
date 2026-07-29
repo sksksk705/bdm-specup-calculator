@@ -62,8 +62,13 @@ export function renderSpecTable() {
     const fam = state.family[item.id];
     // 광원석 태고 등급은 강화(잠재력 돌파) 자체를 추천하지 않고, 아래 등급업(태고→혼돈)만 계산합니다.
     // 휘장 장식은 해금 조건(EMBLEM_DECORATION_UNLOCK) 미충족 시 스펙업 수단으로 노출하지 않습니다.
+    // 유료 재화(시간의 고리 등) 체크를 끄면 그 재료가 필요한 스펙업 방식 자체를 표에서 제외합니다.
+    const usesUncheckedPaidMaterial = [fam.material, item.extraMaterial].some(function (name) {
+      return name && state.paidMaterials[name] && !state.paidMaterials[name].use;
+    });
     const skipBreakthrough = (item.id === "lightstone" && fam.grade === "태고")
-      || (emblemDecoIds.indexOf(item.id) !== -1 && !isEmblemDecorationUnlocked(item.id, emblemFam, decoLevelSum));
+      || (emblemDecoIds.indexOf(item.id) !== -1 && !isEmblemDecorationUnlocked(item.id, emblemFam, decoLevelSum))
+      || usesUncheckedPaidMaterial;
     if (!skipBreakthrough && fam.level < familyMaxLevel(item, fam.grade)) {
       const qtyPerAttempt = item.qtyPerAttemptTable ? item.qtyPerAttemptTable[fam.level]
         : (item.qtyPerAttempt || dummyQtyPerAttempt(fam.level));

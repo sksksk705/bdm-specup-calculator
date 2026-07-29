@@ -47,14 +47,12 @@ export function initState(defaultPrices) {
     state.prices[m.name] = healZero(savedVal, m.price);
   });
 
-  // 유료 재화 — prices.json에 없는 별도 항목이라 여기서 직접 state.prices에 슬롯을 만듭니다.
-  // use=true(기본값, 프리미엄으로 얻을 계획)면 항상 0으로 고정하고, false면 사용자가 입력한
-  // silverRate를 그대로 씁니다 — 매 로드마다 다시 맞춰서 저장된 값이 어긋나지 않게 합니다.
+  // 유료 재화 — use=true(기본값, 프리미엄으로 얻을 계획)면 이 재료를 쓰는 스펙업 방식을 표에
+  // 그대로 보여주고(은화 비용 0), false면 그 스펙업 방식 자체를 표에서 제외합니다
+  // (specTable.js에서 fam.material/item.extraMaterial을 이 값과 대조해 행을 건너뜁니다).
   PAID_MATERIALS.forEach(function (name) {
     const savedPM = saved && saved.paidMaterials ? saved.paidMaterials[name] : null;
-    const pm = savedPM || { use: true, silverRate: 0 };
-    state.paidMaterials[name] = pm;
-    state.prices[name] = pm.use ? 0 : (pm.silverRate || 0);
+    state.paidMaterials[name] = savedPM || { use: true };
   });
 
   const materialNames = defaultPrices.map(function (m) { return m.name; });

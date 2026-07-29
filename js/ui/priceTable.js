@@ -11,49 +11,30 @@ let materialList = [];
 let priceTableBody = null;
 let recoveryTicketInput = null;
 
-// 유료 재화 — 체크하면(기본) 프리미엄으로 얻을 계획으로 보고 은화 0, 체크를 풀면 직접 입력한
-// 은화 환산값을 씁니다. state.prices도 함께 갱신해 다른 계산(priceOf)이 그대로 재사용합니다.
+// 유료 재화 — 체크하면(기본) 이 재료를 쓰는 스펙업 방식을 표에 그대로 보여주고(은화 비용 0,
+// 프리미엄으로 얻을 계획), 체크를 풀면 그 스펙업 방식 자체를 표에서 제외합니다(구매 불가 재료라
+// 은화로 대체할 방법이 없기 때문 — 사용자 확인, 2026-07-29).
 export function renderPaidMaterials() {
   const wrap = document.getElementById("paidMaterialRows");
   wrap.innerHTML = "";
   PAID_MATERIALS.forEach(function (name) {
     const pm = state.paidMaterials[name];
-    const row = document.createElement("div");
-    row.style.cssText = "display:flex;align-items:center;gap:8px;flex-wrap:wrap;";
-
     const label = document.createElement("label");
-    label.style.cssText = "display:flex;align-items:center;gap:6px;font-size:13px;min-width:160px;cursor:pointer;";
+    label.style.cssText = "display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;";
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.checked = pm.use;
     label.appendChild(checkbox);
     const labelSpan = document.createElement("span");
-    labelSpan.textContent = name + " 실제 재료로 사용";
+    labelSpan.textContent = name + " 보유(프리미엄으로 조달 예정) — 끄면 이 재료가 필요한 스펙업 방식을 표에서 제외";
     label.appendChild(labelSpan);
-    row.appendChild(label);
-
-    const rateLabel = document.createElement("span");
-    rateLabel.style.cssText = "color:var(--text-faint);font-size:12px;"; rateLabel.textContent = "은화 환산";
-    const rateInput = document.createElement("input");
-    rateInput.type = "number"; rateInput.min = "0"; rateInput.style.width = "110px";
-    rateInput.value = pm.silverRate;
-    rateInput.disabled = pm.use;
-    row.appendChild(rateLabel);
-    row.appendChild(rateInput);
 
     checkbox.addEventListener("change", function () {
       pm.use = checkbox.checked;
-      state.prices[name] = pm.use ? 0 : (pm.silverRate || 0);
-      rateInput.disabled = pm.use;
-      persist(); renderSpecTable();
-    });
-    rateInput.addEventListener("input", function () {
-      pm.silverRate = parseFloat(rateInput.value) || 0;
-      state.prices[name] = pm.use ? 0 : pm.silverRate;
       persist(); renderSpecTable();
     });
 
-    wrap.appendChild(row);
+    wrap.appendChild(label);
   });
 }
 

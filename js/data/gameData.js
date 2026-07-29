@@ -13,11 +13,10 @@ export const UNPRICED_MATERIALS = new Set([
 export const MATERIAL_PRICE_SUBSTITUTE = { "공허의 주술핵": "공허의 눈" };
 
 // "유료 재화" — 은화로 살 수 없고 실제 게임 화폐(프리미엄)로만 얻을 수 있는 재화입니다.
-// UNPRICED_MATERIALS와 달리 완전히 0으로 고정하지 않고, ① 탭 위쪽에서 항목별로 "실제 재료로
-// 사용"(기본값, 0은화 취급 — 프리미엄으로 얻을 계획) 또는 "은화로 환산"(직접 입력한 환산값 사용)
-// 중 고를 수 있습니다(사용자 확인, 2026-07-29). state.paidMaterials[재료명] = { use, silverRate }
-// 로 관리하며, use=true면 state.prices[재료명]을 0으로 고정하고, false면 사용자가 입력한
-// silverRate가 그대로 state.prices[재료명]에 반영됩니다.
+// ① 탭 위쪽에서 항목별로 "보유/사용" 체크박스를 켜고 끌 수 있는데, 체크(기본값)하면 해당 재료를
+// 쓰는 스펙업 방식을 그대로 은화 스펙업 표에 포함하고(은화 비용은 0으로 취급 — 프리미엄으로
+// 얻을 계획), 체크를 끄면 그 재료를 쓰는 스펙업 방식 자체를 표에서 제외합니다(사용자 확인,
+// 2026-07-29). state.paidMaterials[재료명] = { use }로 관리합니다.
 export const PAID_MATERIALS = ["시간의 고리", "영겁의 고리"];
 
 export const PARTS = [
