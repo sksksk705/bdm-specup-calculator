@@ -140,6 +140,100 @@ export function equipStepCost(step, method, materialPrice, ticketPrice, prices) 
   return attemptCost + failures * protectCost + failures * dropChance * reclimbCost;
 }
 
+// 장비 돌파 "강화 기대값 계산기"(③ 탭) — 사용자가 직접 확률 상승권 10%/50%/100% 사용 구간과
+// 돌파 복구권 사용 구간을 설정해, FROM강→TO강까지 필요한 재료·상승권·복구권 기대 개수를
+// 계산합니다. ②탭 순위표의 하드코딩된 기본 전략과 달리 여기서는 완전히 자유롭게 설정할 수
+// 있습니다. 돌파 복구권 사용 구간 밖의 단계는 실패 시 방어 없이 100% 이전 단계로 하락합니다
+// (사용자 확인, 2026-07-29 — "혼돈의 그림자 장비" 100% 방어 옵션은 이 계산기에서는 단순화를
+// 위해 제외). FROM단계는 계산의 바닥으로 취급해 그 아래로는 하락 비용을 계산하지 않습니다
+// (밤·달빛 영혼석의 0강과 같은 방식). 은화는 돌파 복구권 사용 시 직접 소모되는 500은화만
+// 집계하고(구매 불가 재료·상승권·복구권 자체의 시세는 이 계산기가 다루지 않고 개수만 보여줌),
+// 상승권·복구권·재료는 전부 raw 개수로 반환합니다.
+const EQUIP_RANGE_BOOST_MULT = { "10": 1.1, "50": 1.5, "100": 2 };
+
+function equipRangeBoostTypeAt(label, boostConfig) {
+  if (boostConfig.boost10.use && label >= boostConfig.boost10.start && label <= boostConfig.boost10.end) return "10";
+  if (boostConfig.boost50.use && label >= boostConfig.boost50.start && label <= boostConfig.boost50.end) return "50";
+  if (boostConfig.boost100.use && label >= boostConfig.boost100.start && label <= boostConfig.boost100.end) return "100";
+  return null;
+}
+function equipRangeUsesRecoveryAt(label, recoveryConfig) {
+  return !!recoveryConfig.use && label >= recoveryConfig.start && label <= recoveryConfig.end;
+}
+
+// 확률 상승권 구간은 10%→50%→100% 순서로 이어져야 하고(사용 중인 것끼리는 빈 구간 없이 연속),
+// 맨 앞·맨 뒤는 비워둘 수 있습니다. 돌파 복구권 구간은 그 자체로 1~10강 안의 유효한 구간이면
+// 됩니다(다른 구간과 무관). 문제가 없으면 null, 있으면 에러 메시지를 반환합니다.
+export function validateEquipRangeConfig(boostConfig, recoveryConfig) {
+  const order = ["boost10", "boost50", "boost100"];
+  const labels = { boost10: "10%", boost50: "50%", boost100: "100%" };
+  const active = [];
+  for (const key of order) {
+    const c = boostConfig[key];
+    if (!c.use) continue;
+    if (!(c.start >= 1 && c.end <= 10 && c.start <= c.end)) {
+      return labels[key] + " 구간이 올바르지 않습니다(1~10강, 시작≤끝).";
+    }
+    active.push({ label: labels[key], start: c.start, end: c.end });
+  }
+  for (let i = 1; i < active.length; i++) {
+    if (active[i].start !== active[i - 1].end + 1) {
+      return active[i - 1].label + " 구간과 " + active[i].label + " 구간 사이는 빈 칸 없이 이어져야 합니다.";
+    }
+  }
+  if (recoveryConfig.use && !(recoveryConfig.start >= 1 && recoveryConfig.end <= 10 && recoveryConfig.start <= recoveryConfig.end)) {
+    return "돌파 복구권 구간이 올바르지 않습니다(1~10강, 시작≤끝).";
+  }
+  return null;
+}
+
+export function computeEquipRangePlan(from, to, boostConfig, recoveryConfig) {
+  const memo = {};
+  function zero() { return { attempts: 0, silverDirect: 0, boost10: 0, boost50: 0, boost100: 0, recoveryTicket: 0 }; }
+  function solve(step) {
+    if (step < from) return zero();
+    if (memo[step] !== undefined) return memo[step];
+    const label = step + 1;
+    const boostType = equipRangeBoostTypeAt(label, boostConfig);
+    const mult = boostType ? EQUIP_RANGE_BOOST_MULT[boostType] : 1;
+    const p = Math.min(1, (EQUIP_BREAKTHROUGH_CURVE[step] / 100) * mult);
+    const n = ANCIENT_ANVIL.equip[step] + 1;
+    const attempts = truncatedGeometricExpectedAttempts(p, n);
+    const failures = attempts - 1;
+
+    const usesRecovery = equipRangeUsesRecoveryAt(label, recoveryConfig);
+    const dropChance = usesRecovery ? 0.5 : 1;
+    const protectTicket = usesRecovery ? failures * EQUIP_DROP_PROTECT.plainTicket : 0;
+    const protectSilver = usesRecovery ? failures * EQUIP_DROP_PROTECT.plainSilver : 0;
+
+    const reclimb = solve(step - 1);
+    const factor = failures * dropChance;
+
+    const result = {
+      attempts: attempts + reclimb.attempts * factor,
+      silverDirect: protectSilver + reclimb.silverDirect * factor,
+      boost10: (boostType === "10" ? attempts : 0) + reclimb.boost10 * factor,
+      boost50: (boostType === "50" ? attempts : 0) + reclimb.boost50 * factor,
+      boost100: (boostType === "100" ? attempts : 0) + reclimb.boost100 * factor,
+      recoveryTicket: protectTicket + reclimb.recoveryTicket * factor
+    };
+    memo[step] = result;
+    return result;
+  }
+
+  const total = zero();
+  for (let s = from; s < to; s++) {
+    const r = solve(s);
+    total.attempts += r.attempts;
+    total.silverDirect += r.silverDirect;
+    total.boost10 += r.boost10;
+    total.boost50 += r.boost50;
+    total.boost100 += r.boost100;
+    total.recoveryTicket += r.recoveryTicket;
+  }
+  return total;
+}
+
 function equipBoostLabel(step) {
   const item = EQUIP_PROBABILITY_BOOST_ITEM[step];
   return item ? " + 시도당 " + item : "";

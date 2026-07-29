@@ -7,7 +7,7 @@ import { initTabs } from "./ui/tabs.js";
 import { initPriceTable, renderPriceTable, syncRecoveryTicketInput } from "./ui/priceTable.js";
 import { renderGearGrid, renderGearExtra } from "./ui/gearGrid.js";
 import { renderSpecTable } from "./ui/specTable.js";
-import { renderSoulTab } from "./ui/soulTab.js";
+import { renderEvCalcTab } from "./ui/evCalcTab.js";
 
 async function boot() {
   let defaultPrices;
@@ -30,7 +30,7 @@ async function boot() {
   renderGearGrid();
   renderGearExtra();
   renderSpecTable();
-  renderSoulTab();
+  renderEvCalcTab();
 }
 
 boot();

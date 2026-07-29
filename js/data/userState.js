@@ -33,7 +33,8 @@ export const state = {
   status: {},   // partId -> { grade, step, material, qtyPerAttempt, cpGain }
   ring: null,   // { grade, step }
   soul: {},     // soulId -> { step, material, qtyPerAttempt, cpGain }
-  family: {}    // itemId -> { level, material, qtyPerLevel, cpPerLevel }
+  family: {},   // itemId -> { level, material, qtyPerLevel, cpPerLevel }
+  equipPlan: null // ③ 탭 "강화 기대값 계산기"의 장비 돌파 설정(구간/확률 상승권/돌파 복구권)
 };
 
 // defaultPrices: data/prices.json에서 fetch해 온 배열([{name,cat,price,note}, ...]).
@@ -67,6 +68,16 @@ export function initState(defaultPrices) {
     state.soul[item.id] = savedSoul || { step: 0 };
   });
 
+  // 장비 돌파 "강화 기대값 계산기"(③ 탭) 설정 — 확률 상승권 10%/50%/100% 각각 사용 여부+구간,
+  // 돌파 복구권 사용 여부+구간(단일 구간만 허용), 계산할 강화 단계(from→to).
+  state.equipPlan = (saved && saved.equipPlan) || {
+    from: 0, to: 10,
+    boost10: { use: false, start: 1, end: 1 },
+    boost50: { use: false, start: 1, end: 1 },
+    boost100: { use: false, start: 1, end: 1 },
+    recovery: { use: false, start: 1, end: 1 }
+  };
+
   FAMILY_ITEMS.forEach(function (item) {
     const savedFam = saved && saved.family ? saved.family[item.id] : null;
     const fam = savedFam || {
@@ -95,7 +106,8 @@ export function initState(defaultPrices) {
 export function persist() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      prices: state.prices, status: state.status, ring: state.ring, soul: state.soul, family: state.family
+      prices: state.prices, status: state.status, ring: state.ring, soul: state.soul, family: state.family,
+      equipPlan: state.equipPlan
     }));
   } catch (e) {}
 }
