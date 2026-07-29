@@ -2,13 +2,13 @@
 // 로직 계층(calculations.js)의 순수 함수로 계산한 뒤, 결과를 DOM에 그립니다.
 
 import {
-  PARTS, SOUL_ITEMS, FAMILY_ITEMS, ACCESSORY_AWAKEN, ACCESSORY_GRADE_UP, RECOVERY_NOTES, KARAZAD_ITEM_MATERIAL
+  PARTS, FAMILY_ITEMS, ACCESSORY_AWAKEN, ACCESSORY_GRADE_UP, RECOVERY_NOTES, KARAZAD_ITEM_MATERIAL
 } from "../data/gameData.js";
 import { state, persist } from "../data/userState.js";
 import {
   fmt, efficiencySortKey, dummyQtyPerAttempt, familyMaxLevel, familyCpGainArray, priceOf,
   computeEquipNextAction, computeEquipAwaken, computeAccessoryAwaken, computeRingNextAction,
-  computeSoulNextAction, computeAccessoryGradeUp, computeRelicSeriesAction, computeLightstoneGradeUp,
+  computeAccessoryGradeUp, computeRelicSeriesAction, computeLightstoneGradeUp,
   isEmblemDecorationUnlocked, emblemDecorationGain, karazadExpectedAttempts, computeKarazadCraft
 } from "../logic/calculations.js";
 import { buildMaterialSelect, buildNumberInput, staticLabelCell } from "./domHelpers.js";
@@ -64,18 +64,6 @@ export function renderSpecTable() {
       buildGainCell: null
     });
   }
-
-  SOUL_ITEMS.forEach(function (item) {
-    const rec = state.soul[item.id];
-    const action = computeSoulNextAction(rec, state.prices);
-    if (action.maxed) return;
-    rows.push({
-      item: item.name, action: action.label, cost: action.cost, gain: action.gain, qty: action.qty, isDummyQty: action.isDummyQty,
-      buildMaterialCell: function (rec, item) { return function (td) { td.appendChild(buildMaterialSelect([item.material], rec.material, function (v) { rec.material = v; persist(); renderSpecTable(); })); }; }(rec, item),
-      buildQtyCell: null,
-      buildGainCell: function (rec) { return function (td) { td.appendChild(buildNumberInput(rec.cpGain, function (v) { rec.cpGain = v; persist(); renderSpecTable(); })); }; }(rec)
-    });
-  });
 
   const emblemFam = state.family["emblem"];
   const emblemDecoIds = ["emblemDeco1", "emblemDeco2", "emblemDeco3", "emblemDeco4", "emblemDeco5"];

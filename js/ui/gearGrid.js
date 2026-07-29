@@ -3,8 +3,8 @@
 
 import { PARTS, RING_GRADE_ORDER, RING_QTY_PER_STEP, SOUL_ITEMS, SOUL_BREAKTHROUGH_CURVE, GRADE_ORDER, ANCIENT_ANVIL } from "../data/gameData.js";
 import { state, persist } from "../data/userState.js";
-import { familyGradeOptions, familyMaxLevel, familyItem } from "../logic/calculations.js";
-import { gradeStepTile, stepOnlyTile, levelOnlyTile, levelWithGradeTile } from "./tiles.js";
+import { familyGradeOptions, familyMaxLevel, familyItem, fmt, soulCumulativeQty } from "../logic/calculations.js";
+import { buildTile, gradeStepTile, stepOnlyTile, levelOnlyTile, levelWithGradeTile } from "./tiles.js";
 import { renderSpecTable } from "./specTable.js";
 
 export function renderGearGrid() {
@@ -72,11 +72,27 @@ export function renderGearGrid() {
     }
   ));
 
+  // 밤·달빛 영혼석은 구매 불가 재화라 스펙업 순위에서 빼고, 목표 강화 단계를 입력하면
+  // 0강부터 그 단계까지 필요한 재료 기대 개수만 여기서 바로 보여줍니다.
   SOUL_ITEMS.forEach(function (item) {
     const rec = state.soul[item.id];
-    main.appendChild(stepOnlyTile(item.name, SOUL_BREAKTHROUGH_CURVE.length, rec, function (rec) {
-      return function (s) { rec.step = s; persist(); renderSpecTable(); };
-    }(rec)));
+    const built = buildTile(item.name + " (목표)");
+    const stepSel = document.createElement("select");
+    for (let i = 0; i <= SOUL_BREAKTHROUGH_CURVE.length; i++) {
+      const o = document.createElement("option"); o.value = i; o.textContent = i + "단계";
+      if (i === rec.step) o.selected = true;
+      stepSel.appendChild(o);
+    }
+    const note = document.createElement("div");
+    note.style.cssText = "color:var(--text-faint);font-size:10px;margin-top:4px;white-space:normal;max-width:150px;";
+    function updateNote() {
+      note.textContent = "0→" + rec.step + "단계 재료 기대값 " + fmt(soulCumulativeQty(rec.step)) + "개(" + item.material + ")";
+    }
+    stepSel.addEventListener("change", function () { rec.step = parseInt(stepSel.value, 10); persist(); updateNote(); });
+    updateNote();
+    built.controls.appendChild(stepSel);
+    built.controls.appendChild(note);
+    main.appendChild(built.tile);
   });
 
   // 마지막 줄 3개: 조화의 연금석, 유물1, 유물2. 유물1/2는 공허 등급 전용 "계열돌파"(마력각인)

@@ -269,20 +269,17 @@ export function computeRingNextAction(rec, prices) {
   };
 }
 
-export function computeSoulNextAction(rec, prices) {
-  const step = rec.step, maxStep = SOUL_BREAKTHROUGH_CURVE.length;
-  if (step >= maxStep) return { label: "최고 단계 도달", cost: 0, gain: 0, maxed: true, editable: {} };
-  const p = SOUL_BREAKTHROUGH_CURVE[step] / 100;
-  const attempts = p > 0 ? 1 / p : Infinity;
-  const qtyPerAttempt = dummyQtyPerAttempt(step);
-  const qty = attempts * qtyPerAttempt;
-  const cost = qty * priceOf(rec.material, prices);
-  return {
-    label: step + " → " + (step + 1) + "단계",
-    materialLabel: rec.material + " × 기대값 " + fmt(qty),
-    cost: cost, gain: rec.cpGain || 0, maxed: false, qty: qtyPerAttempt, isDummyQty: true,
-    editable: { material: true, qty: false, cp: true }
-  };
+// 밤·달빛 영혼석은 구매 불가 재화라 은화 스펙업 순위에서 빼고, 대신 0강부터 목표 강화 단계까지
+// 필요한 재료 기대 개수만 보여줍니다(모든 단계 성공확률 51%로 동일, 회당 소모량은 공식 문서에
+// 없어 1개(더미)로 가정).
+export function soulCumulativeQty(targetStep) {
+  let total = 0;
+  for (let s = 0; s < targetStep; s++) {
+    const p = SOUL_BREAKTHROUGH_CURVE[s] / 100;
+    const attempts = p > 0 ? 1 / p : Infinity;
+    total += attempts * dummyQtyPerAttempt(s);
+  }
+  return total;
 }
 
 // 반지/목걸이/허리띠/귀걸이/팔찌/휘장/토템/연금석/유물1/유물2의 등급업(제작) 경로.

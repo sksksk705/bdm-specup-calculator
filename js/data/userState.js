@@ -59,12 +59,12 @@ export function initState(defaultPrices) {
   state.ring = (saved && saved.ring) || { grade: "혼돈", step: 0 };
   if (RING_GRADE_ORDER.indexOf(state.ring.grade) === -1) state.ring = { grade: "혼돈", step: 0 };
 
+  // 밤·달빛 영혼석은 구매 불가 재화라 스펙업 순위에 넣지 않고, 목표 강화 단계를 입력하면
+  // 0강부터 그 단계까지 필요한 재료 기대 개수만 보여줍니다(① 탭) — 그래서 현재 단계(step) 외에
+  // 다른 상태가 필요 없습니다.
   SOUL_ITEMS.forEach(function (item) {
     const savedSoul = saved && saved.soul ? saved.soul[item.id] : null;
-    const rec = savedSoul || { step: 0, material: item.material, qtyPerAttempt: 1, cpGain: 10 };
-    rec.cpGain = healZero(rec.cpGain, 10);
-    if (materialNames.indexOf(rec.material) === -1) rec.material = item.material;
-    state.soul[item.id] = rec;
+    state.soul[item.id] = savedSoul || { step: 0 };
   });
 
   FAMILY_ITEMS.forEach(function (item) {
