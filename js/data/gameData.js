@@ -483,10 +483,12 @@ export const SOUL_CUMULATIVE_QTY_TABLE = [
 // 방식이라 확률 기댓값 대신 직접 입력하는 항목 — 모두 같은 구조(레벨/단계, 재료, 회당 개수, 전투력)로 다룹니다.
 export const FAMILY_ITEMS = [
   // 회당 소모량(qtyPerAttempt)은 기본 재료(defaultMaterial) 기준 사용자 제공값입니다.
+  // 고결한 여신의 눈물/태양의 결정은 거래소에서 구매할 수 없어(UNPRICED_MATERIALS) 선택지에서
+  // 뺐습니다(사용자 확인, 2026-07-29) — 여신의 눈물/혼돈의 결정만 남습니다.
   { id: "sylvia", name: "실비아 여신상", maxLevel: 500, cpPerLevel: 20, cpEditable: false,
-    materialOptions: ["여신의 눈물", "고결한 여신의 눈물"], defaultMaterial: "여신의 눈물", qtyPerAttempt: 1201057 },
+    materialOptions: ["여신의 눈물"], defaultMaterial: "여신의 눈물", qtyPerAttempt: 1201057 },
   { id: "balance", name: "균형의 돌", maxLevel: 900, cpPerLevel: 10, cpEditable: false,
-    materialOptions: ["혼돈의 결정", "태양의 결정"], defaultMaterial: "혼돈의 결정", qtyPerAttempt: 42355 },
+    materialOptions: ["혼돈의 결정"], defaultMaterial: "혼돈의 결정", qtyPerAttempt: 42355 },
   // 심연 등급 없이 태고부터 다룹니다. 등급업(태고→혼돈)이 가능해 gradeOptions를 둡니다.
   { id: "lightstone", name: "광원석", maxLevel: 20, maxLevelByGrade: { "태고": 20, "혼돈": 20 },
     gradeOptions: ["태고", "혼돈"], cpPerLevel: 10, cpEditable: true, cpTable: LIGHTSTONE_CP_TABLE,
