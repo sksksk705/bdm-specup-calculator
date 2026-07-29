@@ -343,6 +343,12 @@ export const LIGHTSTONE_RECOVERY_TABLE = {
 const RELIC_CP_TABLE_VALUES = [28, 28, 32, 36, 40, 60, 66, 74, 86, 100];
 export const RELIC_CP_TABLE = { "태고": RELIC_CP_TABLE_VALUES, "혼돈": RELIC_CP_TABLE_VALUES, "공허": RELIC_CP_TABLE_VALUES };
 
+// 문양 각인서 — 1회성 구매+감정 소모품(강화 단계 개념 없음, maxLevel 1). 등급별 공격력 구간 중
+// 중앙값을 전투력 근사로 씁니다(실제 감정 결과는 그 구간 내 무작위, 사용자 확인 2026-07-28).
+// 방어력·모험가 추가 피해량(%)은 단위가 달라 제외했습니다(토템과 같은 이유). 심연 54~67(중앙값
+// 60.5→61), 태고 68~93(80.5→81), 혼돈 94~133(113.5→114), 모두 사용자 제공값.
+export const INSIGNIA_BOOK_CP_TABLE = { "심연": [61], "태고": [81], "혼돈": [114] };
+
 // 유물 잠재력 돌파(신화급 이상 = 태고/혼돈/공허 공통) 실패 시 복구 비용. 4강부터 고정.
 // +10강(마지막 단계) 복구 비용은 원자료에 없어 +4~+9와 동일하다고 가정했습니다.
 const RELIC_RECOVERY_VALUES = {
@@ -477,5 +483,12 @@ export const FAMILY_ITEMS = [
     hasSeries: true },
   { id: "relic2", name: "유물2", maxLevel: 10, cpPerLevel: 10, cpEditable: true, cpTable: RELIC_CP_TABLE,
     materialOptions: ["유물2(강화용 동일품)"], defaultMaterial: "유물2(강화용 동일품)", anvilTable: ANCIENT_ANVIL.relic, recoveryKey: "relic", recoveryTable: RELIC_RECOVERY_TABLE,
-    hasSeries: true }
+    hasSeries: true },
+  // 문양 각인서 — 등급 하나당 1개만 구매+감정하면 끝(강화 반복 없음). qtyPerAttempt:1은 실수치.
+  { id: "insigniaBook", name: "문양 각인서", maxLevel: 1, maxLevelByGrade: { "심연": 1, "태고": 1, "혼돈": 1 },
+    gradeOptions: ["심연", "태고", "혼돈"], cpPerLevel: 10, cpEditable: true, cpTable: INSIGNIA_BOOK_CP_TABLE,
+    materialOptions: ["심연 미확인 문양 각인서", "태고 미확인 문양 각인서", "혼돈 미확인 문양 각인서"],
+    defaultMaterial: "심연 미확인 문양 각인서",
+    materialByGrade: { "심연": "심연 미확인 문양 각인서", "태고": "태고 미확인 문양 각인서", "혼돈": "혼돈 미확인 문양 각인서" },
+    qtyPerAttempt: 1 }
 ];

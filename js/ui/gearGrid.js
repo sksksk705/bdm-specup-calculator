@@ -89,6 +89,17 @@ export function renderGearGrid() {
       ));
     }
   });
+
+  // 문양 각인서 — 유물 아래에 등급 하나만 골라 1개 구매+감정하는 1회성 항목.
+  const insigniaItem = familyItem("insigniaBook"), insigniaFam = state.family["insigniaBook"];
+  triple.appendChild(levelWithGradeTile(insigniaItem.name, familyGradeOptions(insigniaItem), familyMaxLevel(insigniaItem, insigniaFam.grade), insigniaFam,
+    function (v) { insigniaFam.level = v; persist(); renderSpecTable(); },
+    function (g) {
+      insigniaFam.grade = g; insigniaFam.level = 0;
+      if (insigniaItem.materialByGrade && insigniaItem.materialByGrade[g]) insigniaFam.material = insigniaItem.materialByGrade[g];
+      persist(); renderGearGrid(); renderSpecTable();
+    }
+  ));
 }
 
 export function renderGearExtra() {
