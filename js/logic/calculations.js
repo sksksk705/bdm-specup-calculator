@@ -7,7 +7,7 @@ import {
   GRADE_ORDER, BREAKTHROUGH_GRADES, EQUIP_BREAKTHROUGH_CURVE, EQUIP_CP_TABLE, GRADE_UP_RECIPES,
   EQUIP_AWAKEN, ACCESSORY_AWAKEN, ACCESSORY_GRADE_UP, ACCESSORY_GRADE_NEXT,
   RING_QTY_PER_STEP, RING_STAT_AT_STEP, RING_GRADE_UP, RING_ATTEMPT_SILVER,
-  SOUL_BREAKTHROUGH_CURVE, ANCIENT_ANVIL, RELIC_SERIES_CP_GAIN, RELIC_SERIES_RECOVERY_QTY, RELIC_SERIES_ATTEMPT_COST,
+  SOUL_CUMULATIVE_QTY_TABLE, ANCIENT_ANVIL, RELIC_SERIES_CP_GAIN, RELIC_SERIES_RECOVERY_QTY, RELIC_SERIES_ATTEMPT_COST,
   FAMILY_ITEMS, EQUIP_DROP_PROTECT, EQUIP_SHADOW_PROTECT, EQUIP_PROBABILITY_BOOST, EQUIP_PROBABILITY_BOOST_ITEM,
   UNPRICED_MATERIALS, MATERIAL_PRICE_SUBSTITUTE, LIGHTSTONE_GRADE_UP_TABLE, EMBLEM_DECORATION_UNLOCK,
   KARAZAD_CRAFT, KARAZAD_ITEM_MATERIAL, KARAZAD_BREAKTHROUGH_CURVE, KARAZAD_CRAFT_CP_GAIN
@@ -270,16 +270,12 @@ export function computeRingNextAction(rec, prices) {
 }
 
 // 밤·달빛 영혼석은 구매 불가 재화라 은화 스펙업 순위에서 빼고, 대신 0강부터 목표 강화 단계까지
-// 필요한 재료 기대 개수만 보여줍니다(모든 단계 성공확률 51%로 동일, 회당 소모량은 공식 문서에
-// 없어 1개(더미)로 가정).
+// 필요한 재료 기대 개수만 보여줍니다. 실패 시 0강으로 떨어지되 그 단계의 "복구 재료"를 받고,
+// 이미 그 단계 복구 재료가 있으면 그걸 소모해 즉시 복구되는 방식이라(사용자 확인) 닫힌 공식으로
+// 정확히 계산할 수 없어(자세한 설명은 SOUL_CUMULATIVE_QTY_TABLE 주석 참고), 몬테카를로 시뮬레이션
+// 으로 구한 값(SOUL_CUMULATIVE_QTY_TABLE)을 그대로 씁니다.
 export function soulCumulativeQty(targetStep) {
-  let total = 0;
-  for (let s = 0; s < targetStep; s++) {
-    const p = SOUL_BREAKTHROUGH_CURVE[s] / 100;
-    const attempts = p > 0 ? 1 / p : Infinity;
-    total += attempts * dummyQtyPerAttempt(s);
-  }
-  return total;
+  return SOUL_CUMULATIVE_QTY_TABLE[targetStep];
 }
 
 // 반지/목걸이/허리띠/귀걸이/팔찌/휘장/토템/연금석/유물1/유물2의 등급업(제작) 경로.
