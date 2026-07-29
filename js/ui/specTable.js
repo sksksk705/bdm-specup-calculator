@@ -2,14 +2,14 @@
 // 로직 계층(calculations.js)의 순수 함수로 계산한 뒤, 결과를 DOM에 그립니다.
 
 import {
-  PARTS, SOUL_ITEMS, FAMILY_ITEMS, ACCESSORY_AWAKEN, ACCESSORY_GRADE_UP, RECOVERY_NOTES
+  PARTS, SOUL_ITEMS, FAMILY_ITEMS, ACCESSORY_AWAKEN, ACCESSORY_GRADE_UP, RECOVERY_NOTES, KARAZAD_ITEM_MATERIAL
 } from "../data/gameData.js";
 import { state, persist } from "../data/userState.js";
 import {
   fmt, efficiencySortKey, dummyQtyPerAttempt, familyMaxLevel, familyCpGainArray, priceOf,
   computeEquipNextAction, computeEquipAwaken, computeAccessoryAwaken, computeRingNextAction,
   computeSoulNextAction, computeAccessoryGradeUp, computeRelicSeriesAction, computeLightstoneGradeUp,
-  isEmblemDecorationUnlocked, emblemDecorationGain
+  isEmblemDecorationUnlocked, emblemDecorationGain, karazadExpectedAttempts, computeKarazadCraft
 } from "../logic/calculations.js";
 import { buildMaterialSelect, buildNumberInput, staticLabelCell } from "./domHelpers.js";
 
@@ -92,7 +92,11 @@ export function renderSpecTable() {
         : (item.qtyPerAttempt || dummyQtyPerAttempt(fam.level));
       // anvilTable 값 = 허용되는 최대 실패 횟수라, 총 시도 횟수 상한은 그 값+1(실패를 다 채운
       // 다음 시도가 확정 성공)입니다.
-      const attempts = item.anvilTable ? item.anvilTable[fam.level] + 1 : 1;
+      // 카라자드(신성 등급) 장신구는 실제 성공 확률표가 있어 확률+고대의 모루를 함께 반영한
+      // 기댓값을 씁니다. 그 외 등급은 기존처럼 고대의 모루 상한만으로 보수적 상한치를 잡습니다.
+      const isKarazad = !!KARAZAD_ITEM_MATERIAL[item.id] && fam.grade === "카라자드";
+      const attempts = isKarazad ? karazadExpectedAttempts(fam.level)
+        : (item.anvilTable ? item.anvilTable[fam.level] + 1 : 1);
       const totalQty = attempts * qtyPerAttempt;
       const materialCost = totalQty * priceOf(fam.material, state.prices);
       const failures = attempts - 1;
@@ -102,7 +106,8 @@ export function renderSpecTable() {
         ? failures * recTable.silver[fam.level]
         : failures * (fam.recoveryQty * priceOf("돌파 복구권", state.prices) + fam.recoverySilver));
       const cost = materialCost + recoveryCost;
-      const actionLabel = fam.level + " → " + (fam.level + 1) + (item.anvilTable ? " (고대의 모루 확정까지 최대 " + attempts + "회)" : "");
+      const actionLabel = fam.level + " → " + (fam.level + 1) + (isKarazad ? " (기대값 " + fmt(attempts) + "회)"
+        : item.anvilTable ? " (고대의 모루 확정까지 최대 " + attempts + "회)" : "");
       const cpArr = familyCpGainArray(item, fam.grade);
       const hasRealCp = !!(cpArr && cpArr[fam.level] !== undefined) || item.cpMin !== undefined;
       const gain = item.cpMin !== undefined ? emblemDecorationGain(item.cpMin, item.cpMax, fam.level)
@@ -169,6 +174,16 @@ export function renderSpecTable() {
       rows.push({
         item: item.name, action: gradeUp.label, cost: gradeUp.cost, gain: fam.gradeUpGain,
         buildMaterialCell: staticLabelCell(gradeUp.materialLabel),
+        buildQtyCell: null,
+        buildGainCell: function (fam) { return function (td) { td.appendChild(buildNumberInput(fam.gradeUpGain, function (v) { fam.gradeUpGain = v; persist(); renderSpecTable(); })); }; }(fam)
+      });
+    }
+
+    const karazadCraft = KARAZAD_ITEM_MATERIAL[item.id] ? computeKarazadCraft(item.id, fam, state.prices) : null;
+    if (karazadCraft) {
+      rows.push({
+        item: item.name, action: karazadCraft.label, cost: karazadCraft.cost, gain: fam.gradeUpGain,
+        buildMaterialCell: staticLabelCell(karazadCraft.materialLabel),
         buildQtyCell: null,
         buildGainCell: function (fam) { return function (td) { td.appendChild(buildNumberInput(fam.gradeUpGain, function (v) { fam.gradeUpGain = v; persist(); renderSpecTable(); })); }; }(fam)
       });

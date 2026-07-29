@@ -45,7 +45,11 @@ export function renderGearGrid() {
     const item = familyItem(id), fam = state.family[id];
     main.appendChild(levelWithGradeTile(item.name, familyGradeOptions(item), familyMaxLevel(item, fam.grade), fam,
       function (fam) { return function (v) { fam.level = v; persist(); renderSpecTable(); }; }(fam),
-      function (fam) { return function (g) { fam.grade = g; fam.level = 0; persist(); renderGearGrid(); renderSpecTable(); }; }(fam)
+      function (item, fam) { return function (g) {
+        fam.grade = g; fam.level = 0;
+        if (item.materialByGrade && item.materialByGrade[g]) fam.material = item.materialByGrade[g];
+        persist(); renderGearGrid(); renderSpecTable();
+      }; }(item, fam)
     ));
   });
 
@@ -61,7 +65,11 @@ export function renderGearGrid() {
   const braceletItem = familyItem("bracelet"), braceletFam = state.family["bracelet"];
   main.appendChild(levelWithGradeTile("팔찌", familyGradeOptions(braceletItem), familyMaxLevel(braceletItem, braceletFam.grade), braceletFam,
     function (v) { braceletFam.level = v; persist(); renderSpecTable(); },
-    function (g) { braceletFam.grade = g; braceletFam.level = 0; persist(); renderGearGrid(); renderSpecTable(); }
+    function (g) {
+      braceletFam.grade = g; braceletFam.level = 0;
+      if (braceletItem.materialByGrade && braceletItem.materialByGrade[g]) braceletFam.material = braceletItem.materialByGrade[g];
+      persist(); renderGearGrid(); renderSpecTable();
+    }
   ));
 
   SOUL_ITEMS.forEach(function (item) {

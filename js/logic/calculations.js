@@ -9,7 +9,8 @@ import {
   RING_QTY_PER_STEP, RING_STAT_AT_STEP, RING_GRADE_UP, RING_ATTEMPT_SILVER,
   SOUL_BREAKTHROUGH_CURVE, ANCIENT_ANVIL, RELIC_SERIES_CP_GAIN, RELIC_SERIES_RECOVERY_QTY, RELIC_SERIES_ATTEMPT_COST,
   FAMILY_ITEMS, EQUIP_DROP_PROTECT, EQUIP_SHADOW_PROTECT, EQUIP_PROBABILITY_BOOST, EQUIP_PROBABILITY_BOOST_ITEM,
-  UNPRICED_MATERIALS, MATERIAL_PRICE_SUBSTITUTE, LIGHTSTONE_GRADE_UP_TABLE, EMBLEM_DECORATION_UNLOCK
+  UNPRICED_MATERIALS, MATERIAL_PRICE_SUBSTITUTE, LIGHTSTONE_GRADE_UP_TABLE, EMBLEM_DECORATION_UNLOCK,
+  KARAZAD_CRAFT, KARAZAD_ITEM_MATERIAL, KARAZAD_BREAKTHROUGH_CURVE
 } from "../data/gameData.js";
 
 export function familyItem(id) { return FAMILY_ITEMS.filter(function (x) { return x.id === id; })[0]; }
@@ -80,16 +81,28 @@ export function equipBoostedProbability(step) {
   return Math.min(1, base * EQUIP_PROBABILITY_BOOST[step]);
 }
 
-// 상승권을 쓴 확률로, 고대의 모루 확정 시도 횟수(N)를 상한으로 하는 기대 시도 횟수.
+// 실제 성공 확률 p로, 고대의 모루 확정 시도 횟수(N)를 상한으로 하는 절단 기하분포 기대 시도
+// 횟수. 공식 E = (1-(1-p)^N)/p — N번째는 모루로 확정 성공하고, 그 전에 확률 p로 먼저 성공할
+// 수도 있어 기댓값은 항상 N 이하입니다.
+function truncatedGeometricExpectedAttempts(p, n) {
+  if (p <= 0) return n;
+  return (1 - Math.pow(1 - p, n)) / p;
+}
+
 // ANCIENT_ANVIL 값은 "허용되는 최대 실패 횟수"라 총 시도 횟수 상한 N은 그 값+1(실패를 다
-// 채운 다음 시도가 확정 성공, 사용자 확인 2026-07-28)입니다. 절단 기하분포 기댓값 공식
-// E = (1-(1-p)^N)/p 을 씁니다 — N번째는 모루로 확정 성공하고, 그 전에 보정 확률 p로 먼저
-// 성공할 수도 있어 기댓값은 항상 N 이하입니다.
+// 채운 다음 시도가 확정 성공, 사용자 확인 2026-07-28)입니다.
 export function equipExpectedAttempts(step) {
   const p = equipBoostedProbability(step);
   const n = ANCIENT_ANVIL.equip[step] + 1;
-  if (p <= 0) return n;
-  return (1 - Math.pow(1 - p, n)) / p;
+  return truncatedGeometricExpectedAttempts(p, n);
+}
+
+// 카라자드(신성 등급) 장신구 — 다른 장신구 등급과 달리 실제 성공 확률표(KARAZAD_BREAKTHROUGH_CURVE)와
+// 전용 모루표(ANCIENT_ANVIL.karazad)가 있어, 장비 돌파와 같은 방식으로 둘을 함께 반영합니다.
+export function karazadExpectedAttempts(step) {
+  const p = KARAZAD_BREAKTHROUGH_CURVE[step] / 100;
+  const n = ANCIENT_ANVIL.karazad[step] + 1;
+  return truncatedGeometricExpectedAttempts(p, n);
 }
 
 // 기대 시도 횟수만큼의 재료+확률 상승권 비용. 상승권은 실패분이 아니라 "매 시도"마다 씁니다
@@ -295,6 +308,24 @@ export function computeAccessoryGradeUp(itemId, grade, fam, prices) {
     label: grade + " → " + ACCESSORY_GRADE_NEXT[grade] + " 등급업",
     materialLabel: parts.join(", ") + " (선행조건: " + entry.prereq + ")",
     cost: total
+  };
+}
+
+// 공허 → 카라자드(신성 등급) 제작 — 각성 완료한 공허 +9단계 또는 +10단계(최대) 장신구를
+// "카라자드 장신구(+0)" 1개와 함께 소모합니다. 소모되는 공허 장신구 자체는 은화로 값을 매기지
+// 않고(이미 보유한 장비), 구매해야 하는 카라자드 장신구(+0)의 시세만 비용으로 계산합니다.
+export function computeKarazadCraft(itemId, fam, prices) {
+  if (fam.grade !== "공허") return null;
+  const materialName = KARAZAD_ITEM_MATERIAL[itemId];
+  if (!materialName) return null;
+  const entry = KARAZAD_CRAFT[fam.level];
+  if (!entry) return null;
+  if (!(fam.awakened && fam.awakened["공허"])) return null;
+  const basePrice = priceOf(materialName, prices);
+  return {
+    label: "공허 → 카라자드 제작(카라자드 " + entry.resultStep + "단계부터 시작)",
+    materialLabel: materialName + "(+0) 1개 × " + fmt(basePrice) + "은화 (선행조건: " + entry.prereq + ")",
+    cost: basePrice
   };
 }
 

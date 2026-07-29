@@ -211,7 +211,10 @@ export const ANCIENT_ANVIL = {
     5, 5, 7, 7, 7, 7, 10, 10, 20, 20, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34
   ],
   // 공허 유물 계열 돌파(2026-05-12부터 "유물 마력 각인"으로 명칭 변경), 0~19단계(+20 한도)
-  relicSeries: [10, 20, 34, 34, 50, 50, 100, 100, 200, 200, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40]
+  relicSeries: [10, 20, 34, 34, 50, 50, 100, 100, 200, 200, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40],
+  // 카라자드(신성 등급) 장신구 전용 모루표, 0~9단계. 다른 장신구 등급(accessory)과는 별개의
+  // 고유 수치입니다. 사용자 제공값, 2026-07-29 확인.
+  karazad: [0, 2, 2, 4, 4, 7, 10, 20, 34, 100]
 };
 
 // 장신구(반지/팔찌/귀걸이/허리띠/목걸이)/휘장/토템의 잠재력 돌파 1단계당 실수치 상승분.
@@ -254,7 +257,41 @@ const ACCESSORY_RECOVERY_VALUES = {
   silver: [0, 46080, 64512, 92160, 161000, 350000, 672000, 1594000, 2488000, 4976000],
   ticket: [0, 139, 194, 278, 686, 1752, 4205, 9965, 20530, 26131]
 };
-export const ACCESSORY_RECOVERY_TABLE = { "태고": ACCESSORY_RECOVERY_VALUES, "혼돈": ACCESSORY_RECOVERY_VALUES, "공허": ACCESSORY_RECOVERY_VALUES };
+// 카라자드(신성 등급)는 복구 비용 실수치가 따로 없어 위 공통표를 그대로 재사용합니다.
+export const ACCESSORY_RECOVERY_TABLE = { "태고": ACCESSORY_RECOVERY_VALUES, "혼돈": ACCESSORY_RECOVERY_VALUES, "공허": ACCESSORY_RECOVERY_VALUES, "카라자드": ACCESSORY_RECOVERY_VALUES };
+
+// 카라자드(신성 등급) 장신구 — 최상위 사냥터 '오딜리타'(전투력 95,000 이상) 필드 전리품·'어둠의
+// 틈' 보상으로 낮은 확률로 얻는 "카라자드 장신구(+0)"를, 각성 완료한 공허 등급 장신구(+9 또는
+// +10)와 함께 소모해 [제작]-[장비]-[장신구]-[신성 장신구] 메뉴에서 제작합니다. 공허 +9로 제작하면
+// 카라자드 +2단계부터, +10(최대)으로 제작하면 +4단계부터 시작합니다. 잠재력 돌파하지 않은(+0)
+// 카라자드 장신구는 거래소에서 매매 가능하고, 돌파 시에도 동일 부위의 +0 카라자드 장신구를
+// 재료로 소모합니다(사용자 확인) — 그래서 이 +0 아이템의 시세를 prices.json에 등록해 제작·돌파
+// 양쪽에서 함께 씁니다. 출처: 공식 제작 가이드, 사용자 제공, 2026-07-29 확인.
+export const KARAZAD_CRAFT = {
+  9: { resultStep: 2, prereq: "각성 완료 공허 +9단계 장신구 보유" },
+  10: { resultStep: 4, prereq: "각성 완료 공허 +10단계(최대) 장신구 보유" }
+};
+
+// itemId → "카라자드 장신구(+0)" 재료명(prices.json에 등록된 이름, priceOf()로 시세 조회).
+export const KARAZAD_ITEM_MATERIAL = {
+  ring1: "카라자드 반지", necklace: "카라자드 목걸이", earring: "카라자드 귀걸이",
+  belt: "카라자드 허리띠", bracelet: "카라자드 팔찌"
+};
+
+// 카라자드(신성 등급) 장신구 잠재력 돌파 성공 확률표. 인덱스 i = i→(i+1)단계(%). 다른 장신구
+// 등급과 달리 실제 확률 데이터가 있어, 장비 돌파와 같은 방식으로 이 확률과 전용 모루표
+// (ANCIENT_ANVIL.karazad)를 함께 반영한 절단 기하분포 기댓값을 씁니다. 사용자 제공값,
+// 2026-07-29 확인.
+export const KARAZAD_BREAKTHROUGH_CURVE = [100, 75, 50, 30, 25, 15, 10, 5, 3, 1];
+
+// 카라자드 +0단계(잠재력 돌파 전) 기본 능력치 — 부위별 공격력 또는 방어력 중 하나만 붙습니다.
+// 잠재력 돌파 단계별 증가치(0→1~9→10)는 아직 공개 데이터가 없어, 지금은 참고용으로만
+// 남겨두고 카라자드 제작/돌파의 전투력 증가치는 여전히 직접 입력(cpEditable)입니다.
+// 사용자 제공값, 2026-07-29 확인.
+export const KARAZAD_BASE_STAT = {
+  ring1: { atk: 0, def: 2168 }, necklace: { atk: 2267, def: 0 }, earring: { atk: 1688, def: 0 },
+  belt: { atk: 1920, def: 0 }, bracelet: { atk: 0, def: 2168 }
+};
 
 // 각성 — 장비/장신구 전용 시스템. 잠재력 돌파를 해당 등급의 최고 단계(10)까지 마친 뒤 1회만
 // 진행할 수 있고, 완료하면 다시 할 수 없습니다(① 탭의 "각성완료" 체크박스로 직접 표시). 재료·은화는
@@ -453,16 +490,36 @@ export const FAMILY_ITEMS = [
   { id: "emblemDeco5", name: "휘장 장식(투지)", maxLevel: 150, cpPerLevel: 10, cpEditable: false, cpMin: 3, cpMax: 200,
     materialOptions: ["투스의 숨결"], defaultMaterial: "투스의 숨결",
     anvilTable: EMBLEM_DECORATION_ANVIL, qtyPerAttemptTable: EMBLEM_DECORATION_TICKET_QTY, noRecovery: true },
-  { id: "ring1", name: "반지", maxLevel: 10, cpPerLevel: 10, cpEditable: true, cpTable: ACCESSORY_CP_TABLE, cpTableKey: "ring1",
-    materialOptions: ["반지(강화용 동일품)"], defaultMaterial: "반지(강화용 동일품)", anvilTable: ANCIENT_ANVIL.accessory, recoveryKey: "accessory", recoveryTable: ACCESSORY_RECOVERY_TABLE },
-  { id: "necklace", name: "목걸이", maxLevel: 10, cpPerLevel: 10, cpEditable: true, cpTable: ACCESSORY_CP_TABLE, cpTableKey: "necklace",
-    materialOptions: ["목걸이(강화용 동일품)"], defaultMaterial: "목걸이(강화용 동일품)", anvilTable: ANCIENT_ANVIL.accessory, recoveryKey: "accessory", recoveryTable: ACCESSORY_RECOVERY_TABLE },
-  { id: "belt", name: "허리띠", maxLevel: 10, cpPerLevel: 10, cpEditable: true, cpTable: ACCESSORY_CP_TABLE, cpTableKey: "belt",
-    materialOptions: ["허리띠(강화용 동일품)"], defaultMaterial: "허리띠(강화용 동일품)", anvilTable: ANCIENT_ANVIL.accessory, recoveryKey: "accessory", recoveryTable: ACCESSORY_RECOVERY_TABLE },
-  { id: "earring", name: "귀걸이", maxLevel: 10, cpPerLevel: 10, cpEditable: true, cpTable: ACCESSORY_CP_TABLE, cpTableKey: "earring",
-    materialOptions: ["귀걸이(강화용 동일품)"], defaultMaterial: "귀걸이(강화용 동일품)", anvilTable: ANCIENT_ANVIL.accessory, recoveryKey: "accessory", recoveryTable: ACCESSORY_RECOVERY_TABLE },
-  { id: "bracelet", name: "팔찌", maxLevel: 10, cpPerLevel: 10, cpEditable: true, cpTable: ACCESSORY_CP_TABLE, cpTableKey: "bracelet",
-    materialOptions: ["팔찌(강화용 동일품)"], defaultMaterial: "팔찌(강화용 동일품)", anvilTable: ANCIENT_ANVIL.accessory, recoveryKey: "accessory", recoveryTable: ACCESSORY_RECOVERY_TABLE },
+  // 카라자드(신성 등급)는 공허 등급 각성 완료 +9·+10단계에서 별도 재료를 소모해 제작하는
+  // 최상위 승급 경로입니다(위 KARAZAD_CRAFT/KARAZAD_ITEM_MATERIAL/KARAZAD_BREAKTHROUGH_CURVE
+  // 참고). maxLevel은 태고/혼돈/공허와 동일한 10이라 별도 maxLevelByGrade는 두지 않았습니다.
+  // 카라자드 등급의 돌파 재료도 동일 부위 "카라자드 X" +0 아이템 자기소모라 materialByGrade로
+  // 등급 전환 시 자동으로 바뀌게 했습니다.
+  { id: "ring1", name: "반지", maxLevel: 10, gradeOptions: ["태고", "혼돈", "공허", "카라자드"],
+    cpPerLevel: 10, cpEditable: true, cpTable: ACCESSORY_CP_TABLE, cpTableKey: "ring1",
+    materialOptions: ["반지(강화용 동일품)", "카라자드 반지"], defaultMaterial: "반지(강화용 동일품)",
+    materialByGrade: { "카라자드": "카라자드 반지" },
+    anvilTable: ANCIENT_ANVIL.accessory, recoveryKey: "accessory", recoveryTable: ACCESSORY_RECOVERY_TABLE },
+  { id: "necklace", name: "목걸이", maxLevel: 10, gradeOptions: ["태고", "혼돈", "공허", "카라자드"],
+    cpPerLevel: 10, cpEditable: true, cpTable: ACCESSORY_CP_TABLE, cpTableKey: "necklace",
+    materialOptions: ["목걸이(강화용 동일품)", "카라자드 목걸이"], defaultMaterial: "목걸이(강화용 동일품)",
+    materialByGrade: { "카라자드": "카라자드 목걸이" },
+    anvilTable: ANCIENT_ANVIL.accessory, recoveryKey: "accessory", recoveryTable: ACCESSORY_RECOVERY_TABLE },
+  { id: "belt", name: "허리띠", maxLevel: 10, gradeOptions: ["태고", "혼돈", "공허", "카라자드"],
+    cpPerLevel: 10, cpEditable: true, cpTable: ACCESSORY_CP_TABLE, cpTableKey: "belt",
+    materialOptions: ["허리띠(강화용 동일품)", "카라자드 허리띠"], defaultMaterial: "허리띠(강화용 동일품)",
+    materialByGrade: { "카라자드": "카라자드 허리띠" },
+    anvilTable: ANCIENT_ANVIL.accessory, recoveryKey: "accessory", recoveryTable: ACCESSORY_RECOVERY_TABLE },
+  { id: "earring", name: "귀걸이", maxLevel: 10, gradeOptions: ["태고", "혼돈", "공허", "카라자드"],
+    cpPerLevel: 10, cpEditable: true, cpTable: ACCESSORY_CP_TABLE, cpTableKey: "earring",
+    materialOptions: ["귀걸이(강화용 동일품)", "카라자드 귀걸이"], defaultMaterial: "귀걸이(강화용 동일품)",
+    materialByGrade: { "카라자드": "카라자드 귀걸이" },
+    anvilTable: ANCIENT_ANVIL.accessory, recoveryKey: "accessory", recoveryTable: ACCESSORY_RECOVERY_TABLE },
+  { id: "bracelet", name: "팔찌", maxLevel: 10, gradeOptions: ["태고", "혼돈", "공허", "카라자드"],
+    cpPerLevel: 10, cpEditable: true, cpTable: ACCESSORY_CP_TABLE, cpTableKey: "bracelet",
+    materialOptions: ["팔찌(강화용 동일품)", "카라자드 팔찌"], defaultMaterial: "팔찌(강화용 동일품)",
+    materialByGrade: { "카라자드": "카라자드 팔찌" },
+    anvilTable: ANCIENT_ANVIL.accessory, recoveryKey: "accessory", recoveryTable: ACCESSORY_RECOVERY_TABLE },
   // 균열의 토템 기준 — 등급별 돌파 재료·최대 단계가 다릅니다(태고: 주술의 근원/+40,
   // 혼돈: 혼돈의 핵/+20, 공허: 공허의 주술핵/+40). 출처: 공식 가이드(wikiNo=4006).
   { id: "totem", name: "토템(균열의 토템)", maxLevel: 40, maxLevelByGrade: { "태고": 40, "혼돈": 20, "공허": 40 },
