@@ -145,13 +145,14 @@ export function equipStepCost(step, method, materialPrice, ticketPrice, prices) 
 // 계산합니다. ②탭 순위표의 하드코딩된 기본 전략과 달리 여기서는 완전히 자유롭게 설정할 수
 // 있습니다. 돌파 복구권 사용 구간 밖의 단계는 실패 시 방어 없이 100% 이전 단계로 하락합니다
 // (사용자 확인, 2026-07-29 — "혼돈의 그림자 장비" 100% 방어 옵션은 이 계산기에서는 단순화를
-// 위해 제외). FROM단계는 계산의 바닥으로 취급해 그 아래로는 하락 비용을 계산하지 않습니다
-// (밤·달빛 영혼석의 0강과 같은 방식). 하락 방어는 돌파 복구권(200개)만 소모하고 은화는 들지
-// 않습니다(사용자 확인, 2026-07-29 — 은화 500 병행 소모는 제거). 상승권·복구권·재료는 전부
-// raw 개수로 반환합니다. silverDirect는 자리만 유지해두고 0으로 고정했습니다 — 장비 강화의
-// 은화는 "복구 가격"이 아니라 "시도 가격"이라는 사용자 피드백이 있었으나 정확한 값을 아직
-// 확인 중입니다.
+// 위해 제외). 하락은 진짜 바닥인 0강까지 재귀적으로 이어질 수 있습니다 — FROM은 "이 계산에
+// 얼마나 많은 구간을 합산할지"만 정할 뿐, FROM 아래로 떨어져도 그만큼 다시 올라오는 비용이
+// 그대로 반영됩니다(사용자 확인, 2026-07-29 — 이전엔 FROM을 바닥으로 잘못 취급해 FROM 밑으로
+// 떨어지는 하락 비용이 누락돼 있었습니다). 재료(순도 높은 흑결정)와 별개로 시도 1회당(성공/
+// 실패 모두) 은화 500이 고정으로 듭니다(사용자 확인). 하락 방어는 돌파 복구권(200개)만
+// 소모하고 별도 은화는 들지 않습니다. 상승권·복구권·재료는 전부 raw 개수로 반환합니다.
 const EQUIP_RANGE_BOOST_MULT = { "10": 1.1, "50": 1.5, "100": 2 };
+const EQUIP_RANGE_ATTEMPT_SILVER = 500;
 
 function equipRangeBoostTypeAt(label, boostConfig) {
   if (boostConfig.boost10.use && label >= boostConfig.boost10.start && label <= boostConfig.boost10.end) return "10";
@@ -193,7 +194,7 @@ export function computeEquipRangePlan(from, to, boostConfig, recoveryConfig) {
   const memo = {};
   function zero() { return { attempts: 0, silverDirect: 0, boost10: 0, boost50: 0, boost100: 0, recoveryTicket: 0 }; }
   function solve(step) {
-    if (step < from) return zero();
+    if (step < 0) return zero(); // 0강→1강 자체는 여전히 계산해야 함 — 그 아래(음수)만 진짜 바닥
     if (memo[step] !== undefined) return memo[step];
     const label = step + 1;
     const boostType = equipRangeBoostTypeAt(label, boostConfig);
@@ -206,13 +207,14 @@ export function computeEquipRangePlan(from, to, boostConfig, recoveryConfig) {
     const usesRecovery = equipRangeUsesRecoveryAt(label, recoveryConfig);
     const dropChance = usesRecovery ? 0.5 : 1;
     const protectTicket = usesRecovery ? failures * EQUIP_DROP_PROTECT.plainTicket : 0;
+    const attemptSilver = attempts * EQUIP_RANGE_ATTEMPT_SILVER;
 
     const reclimb = solve(step - 1);
     const factor = failures * dropChance;
 
     const result = {
       attempts: attempts + reclimb.attempts * factor,
-      silverDirect: 0 + reclimb.silverDirect * factor,
+      silverDirect: attemptSilver + reclimb.silverDirect * factor,
       boost10: (boostType === "10" ? attempts : 0) + reclimb.boost10 * factor,
       boost50: (boostType === "50" ? attempts : 0) + reclimb.boost50 * factor,
       boost100: (boostType === "100" ? attempts : 0) + reclimb.boost100 * factor,
