@@ -10,7 +10,7 @@ import {
   SOUL_BREAKTHROUGH_CURVE, ANCIENT_ANVIL, RELIC_SERIES_CP_GAIN, RELIC_SERIES_RECOVERY_QTY, RELIC_SERIES_ATTEMPT_COST,
   FAMILY_ITEMS, EQUIP_DROP_PROTECT, EQUIP_SHADOW_PROTECT, EQUIP_PROBABILITY_BOOST, EQUIP_PROBABILITY_BOOST_ITEM,
   UNPRICED_MATERIALS, MATERIAL_PRICE_SUBSTITUTE, LIGHTSTONE_GRADE_UP_TABLE, EMBLEM_DECORATION_UNLOCK,
-  KARAZAD_CRAFT, KARAZAD_ITEM_MATERIAL, KARAZAD_BREAKTHROUGH_CURVE
+  KARAZAD_CRAFT, KARAZAD_ITEM_MATERIAL, KARAZAD_BREAKTHROUGH_CURVE, KARAZAD_CRAFT_CP_GAIN
 } from "../data/gameData.js";
 
 export function familyItem(id) { return FAMILY_ITEMS.filter(function (x) { return x.id === id; })[0]; }
@@ -322,10 +322,12 @@ export function computeKarazadCraft(itemId, fam, prices) {
   if (!entry) return null;
   if (!(fam.awakened && fam.awakened["공허"])) return null;
   const basePrice = priceOf(materialName, prices);
+  const gainTable = KARAZAD_CRAFT_CP_GAIN[itemId];
+  const gain = gainTable ? gainTable[entry.resultStep] : undefined;
   return {
     label: "공허 → 카라자드 제작(카라자드 " + entry.resultStep + "단계부터 시작)",
     materialLabel: materialName + "(+0) 1개 × " + fmt(basePrice) + "은화 (선행조건: " + entry.prereq + ")",
-    cost: basePrice
+    cost: basePrice, gain: gain
   };
 }
 

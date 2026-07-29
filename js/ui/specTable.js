@@ -181,11 +181,14 @@ export function renderSpecTable() {
 
     const karazadCraft = KARAZAD_ITEM_MATERIAL[item.id] ? computeKarazadCraft(item.id, fam, state.prices) : null;
     if (karazadCraft) {
+      const hasRealKarazadGain = karazadCraft.gain !== undefined;
       rows.push({
-        item: item.name, action: karazadCraft.label, cost: karazadCraft.cost, gain: fam.gradeUpGain,
+        item: item.name, action: karazadCraft.label, cost: karazadCraft.cost,
+        gain: hasRealKarazadGain ? karazadCraft.gain : fam.gradeUpGain,
         buildMaterialCell: staticLabelCell(karazadCraft.materialLabel),
         buildQtyCell: null,
-        buildGainCell: function (fam) { return function (td) { td.appendChild(buildNumberInput(fam.gradeUpGain, function (v) { fam.gradeUpGain = v; persist(); renderSpecTable(); })); }; }(fam)
+        buildGainCell: hasRealKarazadGain ? null
+          : function (fam) { return function (td) { td.appendChild(buildNumberInput(fam.gradeUpGain, function (v) { fam.gradeUpGain = v; persist(); renderSpecTable(); })); }; }(fam)
       });
     }
 
