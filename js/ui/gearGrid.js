@@ -1,10 +1,10 @@
 // 프레젠테이션 계층 — ① 탭 "장비 & 장신구"(인게임 화면과 같은 배치) 그리드와
 // "기타 가문 콘텐츠" 3칸을 그립니다.
 
-import { PARTS, RING_GRADE_ORDER, RING_QTY_PER_STEP, SOUL_ITEMS, SOUL_BREAKTHROUGH_CURVE, GRADE_ORDER, ANCIENT_ANVIL } from "../data/gameData.js";
+import { PARTS, RING_GRADE_ORDER, RING_QTY_PER_STEP, GRADE_ORDER, ANCIENT_ANVIL } from "../data/gameData.js";
 import { state, persist } from "../data/userState.js";
-import { familyGradeOptions, familyMaxLevel, familyItem, fmt, soulCumulativeQty } from "../logic/calculations.js";
-import { buildTile, gradeStepTile, stepOnlyTile, levelOnlyTile, levelWithGradeTile } from "./tiles.js";
+import { familyGradeOptions, familyMaxLevel, familyItem } from "../logic/calculations.js";
+import { gradeStepTile, stepOnlyTile, levelOnlyTile, levelWithGradeTile } from "./tiles.js";
 import { renderSpecTable } from "./specTable.js";
 
 export function renderGearGrid() {
@@ -31,7 +31,7 @@ export function renderGearGrid() {
     function (g) { return RING_QTY_PER_STEP[g].length; }
   ));
 
-  // 오른쪽 2열: 주무기·보조무기 / 투구·갑옷 / 장갑·신발 / 반지·목걸이 / 허리띠·귀걸이 / 토템·팔찌 / 밤·달빛 영혼석
+  // 오른쪽 2열: 주무기·보조무기 / 투구·갑옷 / 장갑·신발 / 반지·목걸이 / 허리띠·귀걸이 / 토템·팔찌
   PARTS.forEach(function (part) {
     const rec = state.status[part.id];
     main.appendChild(gradeStepTile(part.name, GRADE_ORDER, rec,
@@ -71,29 +71,6 @@ export function renderGearGrid() {
       persist(); renderGearGrid(); renderSpecTable();
     }
   ));
-
-  // 밤·달빛 영혼석은 구매 불가 재화라 스펙업 순위에서 빼고, 목표 강화 단계를 입력하면
-  // 0강부터 그 단계까지 필요한 재료 기대 개수만 여기서 바로 보여줍니다.
-  SOUL_ITEMS.forEach(function (item) {
-    const rec = state.soul[item.id];
-    const built = buildTile(item.name + " (목표)");
-    const stepSel = document.createElement("select");
-    for (let i = 0; i <= SOUL_BREAKTHROUGH_CURVE.length; i++) {
-      const o = document.createElement("option"); o.value = i; o.textContent = i + "단계";
-      if (i === rec.step) o.selected = true;
-      stepSel.appendChild(o);
-    }
-    const note = document.createElement("div");
-    note.style.cssText = "color:var(--text-faint);font-size:10px;margin-top:4px;white-space:normal;max-width:150px;";
-    function updateNote() {
-      note.textContent = "0→" + rec.step + "단계 재료 기대값 " + fmt(soulCumulativeQty(rec.step)) + "개(" + item.material + ")";
-    }
-    stepSel.addEventListener("change", function () { rec.step = parseInt(stepSel.value, 10); persist(); updateNote(); });
-    updateNote();
-    built.controls.appendChild(stepSel);
-    built.controls.appendChild(note);
-    main.appendChild(built.tile);
-  });
 
   // 마지막 줄 3개: 조화의 연금석, 유물1, 유물2. 유물1/2는 공허 등급 전용 "계열돌파"(마력각인)
   // 단계도 함께 관리해 바로 아래에 타일을 추가합니다(다른 항목처럼 현재 상태는 ①에서 관리).

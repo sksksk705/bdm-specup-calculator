@@ -30,6 +30,7 @@
   <div class="tabbar" role="tablist">
     <button class="tab-btn active" data-tab="state">① 현재 상태</button>
     <button class="tab-btn" data-tab="specs">② 스펙업 방식</button>
+    <button class="tab-btn" data-tab="souls">③ 밤·달빛 영혼석</button>
   </div>
 
   <!-- ============ TAB 1: CURRENT STATE (all user input) ============ -->
@@ -101,6 +102,15 @@
       </div>
       <div class="note" id="specEmptyNote">모든 항목이 최고 단계에 도달했습니다.</div>
       <div class="note"><b>전승의 고리</b>처럼 공식 문서에 회당 소모량이 정해져 있는 항목은 그 실제 수치를 그대로 계산에 사용합니다. <b>휘장(영광의 증표 81,301개)·실비아 여신상(여신의 눈물 1,201,057개)·균형의 돌(혼돈의 결정 42,355개)</b>도 사용자 제공 실수치를 씁니다(기본 재료 기준). <b>(더미)</b> 표시가 붙은 항목(장비 돌파, 장신구·유물·조화의 연금석·광원석 등 나머지 “동일 아이템/전용 재화 1개 소모” 계열)은 회당 <b>1개</b>로 가정합니다 — 장신구는 공식 문서에 “돌파 1회당 동일 아이템 1개”로 명시돼 있고, 그 외 항목도 같은 방식일 것이라는 가정입니다. 다른 값이 확인되면 알려주세요.</div>
+    </div>
+  </section>
+
+  <!-- ============ TAB 3: NIGHT/MOONLIGHT SOUL STONE (구매 불가, 목표단계 재료 계산기) ============ -->
+  <section class="panel" id="panel-souls">
+    <div class="card">
+      <h2>밤·달빛 영혼석 — 목표 단계 재료 계산기</h2>
+      <div class="desc">밤·달빛 영혼석은 거래소에서 구매할 수 없는 재화라 은화 스펙업 순위(② 탭)에는 넣지 않습니다. 대신 목표 강화 단계를 고르면 0강부터 그 단계까지 필요한 재료 기대 개수를 보여줍니다.</div>
+      <div class="gear-triple" id="soulGrid"></div>
     </div>
   </section>
 
