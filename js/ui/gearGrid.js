@@ -71,6 +71,11 @@ export function renderGearGrid() {
       persist(); renderGearGrid(); renderSpecTable();
     }
   ));
+  // 균열의 토템 — 등급 구분이 없는 별도 항목이라 토템 바로 아래에 레벨만 입력하는 타일로 둡니다.
+  const riftTotemItem = familyItem("riftTotem"), riftTotemFam = state.family["riftTotem"];
+  main.appendChild(levelOnlyTile(riftTotemItem.name, riftTotemItem.maxLevel, riftTotemFam.level, function (v) {
+    riftTotemFam.level = v; persist(); renderSpecTable();
+  }));
 
   // 마지막 줄 3개: 조화의 연금석, 유물1, 유물2. 유물1/2는 공허 등급 전용 "계열돌파"(마력각인)
   // 단계도 함께 관리해 바로 아래에 타일을 추가합니다(다른 항목처럼 현재 상태는 ①에서 관리).

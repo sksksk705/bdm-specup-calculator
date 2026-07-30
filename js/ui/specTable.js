@@ -85,9 +85,13 @@ export function renderSpecTable() {
       const failures = attempts - 1;
       const recTable = item.recoveryTable && item.recoveryTable[fam.grade];
       const hasRealRecovery = !!(recTable && recTable.silver[fam.level] !== undefined);
-      const recoveryCost = item.noRecovery ? 0 : (hasRealRecovery
-        ? failures * recTable.silver[fam.level]
-        : failures * (fam.recoveryQty * priceOf("돌파 복구권", state.prices) + fam.recoverySilver));
+      // 균열의 토템처럼 복구 비용이 은화가 아니라 재료 개수(단계별로 재료명까지 달라짐)로 정해진
+      // 항목 — recoveryMaterial/recoveryQtyByLevel이 있으면 이 방식을 우선 씁니다.
+      const hasMaterialRecovery = !!(item.recoveryMaterial && item.recoveryMaterial[fam.level] !== undefined);
+      const recoveryCost = item.noRecovery ? 0
+        : hasMaterialRecovery ? failures * item.recoveryQtyByLevel[fam.level] * priceOf(item.recoveryMaterial[fam.level], state.prices)
+        : hasRealRecovery ? failures * recTable.silver[fam.level]
+        : failures * (fam.recoveryQty * priceOf("돌파 복구권", state.prices) + fam.recoverySilver);
       const cost = materialCost + recoveryCost;
       const actionLabel = fam.level + " → " + (fam.level + 1) + (isKarazad ? " (기대값 " + fmt(attempts) + "회)"
         : item.anvilTable ? " (고대의 모루 확정까지 최대 " + attempts + "회)" : "");
@@ -117,6 +121,11 @@ export function renderSpecTable() {
               }
               if (item.noRecovery) {
                 // 실패해도 단계가 하락하지 않아 복구가 필요 없는 항목(휘장 장식) — 복구 UI 자체를 생략합니다.
+              } else if (hasMaterialRecovery) {
+                const matNote = document.createElement("div");
+                matNote.style.cssText = "color:var(--text-dim);font-size:10.5px;margin-top:4px;";
+                matNote.textContent = "실패당 " + item.recoveryMaterial[fam.level] + " " + fmt(item.recoveryQtyByLevel[fam.level]) + "개";
+                td.appendChild(matNote);
               } else if (hasRealRecovery) {
                 const realNote = document.createElement("div");
                 realNote.style.cssText = "color:var(--text-dim);font-size:10.5px;margin-top:4px;";
