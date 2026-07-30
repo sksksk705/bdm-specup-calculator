@@ -34,16 +34,38 @@ export function appendAwakenCheckbox(controls, awakenedObj, grade) {
   controls.appendChild(wrap);
 }
 
-export function gradeStepTile(name, gradeOptions, rec, onGradeChange, onStepChange, maxStepFor) {
-  const built = buildTile(name);
+// 등급별 대표 색상 — 선택창 앞에 작은 점으로 표시합니다(사용자 제공값).
+const GRADE_COLORS = { "태고": "#EC4899", "혼돈": "#6366F1", "공허": "#8B5CF6", "검은별": "#EAB308" };
+
+// 등급 <select> 앞에 현재 등급의 대표 색상 점을 붙인 묶음(색상이 없는 등급은 점을 숨김).
+function buildGradeSelect(gradeOptions, currentGrade, onChange) {
+  const wrap = document.createElement("div");
+  wrap.style.cssText = "display:flex;align-items:center;gap:5px;min-width:0;flex:1 1 0;width:100%;";
+  const dot = document.createElement("span");
+  dot.style.cssText = "display:inline-block;width:8px;height:8px;border-radius:50%;flex:none;";
+  function syncDot(g) {
+    const color = GRADE_COLORS[g];
+    dot.style.background = color || "transparent";
+    dot.style.visibility = color ? "visible" : "hidden";
+  }
+  syncDot(currentGrade);
+  wrap.appendChild(dot);
+
   const gradeSel = document.createElement("select");
+  gradeSel.style.cssText = "flex:1;min-width:0;padding:5px 6px;font-size:12px;";
   gradeOptions.forEach(function (g) {
     const o = document.createElement("option"); o.value = g; o.textContent = g;
-    if (g === rec.grade) o.selected = true;
+    if (g === currentGrade) o.selected = true;
     gradeSel.appendChild(o);
   });
-  gradeSel.addEventListener("change", function () { onGradeChange(gradeSel.value); });
-  built.controls.appendChild(gradeSel);
+  gradeSel.addEventListener("change", function () { syncDot(gradeSel.value); onChange(gradeSel.value); });
+  wrap.appendChild(gradeSel);
+  return wrap;
+}
+
+export function gradeStepTile(name, gradeOptions, rec, onGradeChange, onStepChange, maxStepFor) {
+  const built = buildTile(name);
+  built.controls.appendChild(buildGradeSelect(gradeOptions, rec.grade, onGradeChange));
 
   const stepSel = document.createElement("select");
   const maxStep = maxStepFor(rec.grade);
@@ -83,14 +105,7 @@ export function levelOnlyTile(name, maxLevel, level, onChange) {
 // 등급업(제작) 경로가 있는 항목용 — 등급 선택 + 현재 단계 숫자 입력을 함께 보여준다.
 export function levelWithGradeTile(name, gradeOptions, maxLevel, fam, onLevelChange, onGradeChange) {
   const built = buildTile(name);
-  const gradeSel = document.createElement("select");
-  gradeOptions.forEach(function (g) {
-    const o = document.createElement("option"); o.value = g; o.textContent = g;
-    if (g === fam.grade) o.selected = true;
-    gradeSel.appendChild(o);
-  });
-  gradeSel.addEventListener("change", function () { onGradeChange(gradeSel.value); });
-  built.controls.appendChild(gradeSel);
+  built.controls.appendChild(buildGradeSelect(gradeOptions, fam.grade, onGradeChange));
 
   const input = document.createElement("input");
   input.type = "number"; input.min = "0"; input.max = String(maxLevel); input.value = fam.level;
