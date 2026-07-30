@@ -24,15 +24,30 @@ function renderSoulSection() {
       if (i === rec.step) o.selected = true;
       stepSel.appendChild(o);
     }
-    const note = document.createElement("div");
-    note.style.cssText = "color:var(--text-faint);font-size:10px;margin-top:4px;white-space:normal;max-width:220px;";
+    built.controls.appendChild(stepSel);
+
+    // 재료 기대 개수가 이 카드의 핵심 정보라 큰 강조 숫자로 따로 빼고, 나머지(구간·재료명)는
+    // 작은 보조 텍스트로 둡니다(사용자 요청, 2026-07-30). .tile-controls는 가로 플렉스라
+    // 여러 줄 텍스트를 넣기엔 맞지 않아, 별도 세로 스택 묶음을 만들어 타일에 직접 붙입니다.
+    const info = document.createElement("div");
+    info.style.cssText = "display:flex;flex-direction:column;margin-top:2px;";
+    const stepLabel = document.createElement("div");
+    stepLabel.style.cssText = "color:var(--text-faint);font-size:10px;";
+    const qtyValue = document.createElement("div");
+    qtyValue.style.cssText = "font-size:20px;font-weight:800;line-height:1.3;margin-top:1px;color:" + (SOUL_COLORS[item.id] || "var(--num-strong)") + ";";
+    const matLabel = document.createElement("div");
+    matLabel.style.cssText = "color:var(--text-faint);font-size:10px;margin-top:1px;white-space:normal;max-width:220px;";
     function updateNote() {
-      note.textContent = "0→" + rec.step + "단계 재료 기대값 " + fmt(soulCumulativeQty(rec.step)) + "개(" + item.material + ")";
+      stepLabel.textContent = "0 → " + rec.step + "단계 재료 기대값";
+      qtyValue.textContent = fmt(soulCumulativeQty(rec.step)) + "개";
+      matLabel.textContent = item.material;
     }
     stepSel.addEventListener("change", function () { rec.step = parseInt(stepSel.value, 10); persist(); updateNote(); });
     updateNote();
-    built.controls.appendChild(stepSel);
-    built.controls.appendChild(note);
+    info.appendChild(stepLabel);
+    info.appendChild(qtyValue);
+    info.appendChild(matLabel);
+    built.tile.appendChild(info);
     wrap.appendChild(built.tile);
   });
 }
