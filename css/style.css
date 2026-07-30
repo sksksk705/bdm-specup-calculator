@@ -169,13 +169,19 @@ button.icon-btn:hover { color: var(--bad); background: var(--bad-soft); }
 .gear-triple { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 10px; }
 @media (max-width: 460px) { .gear-triple { grid-template-columns: 1fr; } }
 .gear-tile {
+  position: relative;
   background: var(--ink); border: 1px solid var(--line-strong); border-radius: 10px;
   padding: 10px 11px; display: flex; flex-direction: column; gap: 6px; min-width: 0;
 }
-.gear-tile .tile-name { font-size: 11.5px; font-weight: 800; color: var(--text); letter-spacing: -0.01em; }
+.gear-tile .tile-name { font-size: 11.5px; font-weight: 800; color: var(--text); letter-spacing: -0.01em; padding-right: 34px; }
 .gear-tile .tile-controls { display: flex; gap: 5px; }
 .gear-tile .tile-controls > * { flex: 1 1 0; min-width: 0; width: 100%; padding: 5px 6px; font-size: 12px; }
 .gear-tile.maxed { opacity: 0.55; }
+/* 인게임처럼 현재 강화 수치("+N")를 카드 우상단에 겹쳐 표시 */
+.tile-level-badge {
+  position: absolute; top: 8px; right: 9px; font-size: 12px; font-weight: 800;
+  letter-spacing: -0.01em; pointer-events: none;
+}
 
 /* ---------- Tables ---------- */
 .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }

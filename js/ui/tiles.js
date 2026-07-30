@@ -6,13 +6,23 @@ import { renderSpecTable } from "./specTable.js";
 export function buildTile(name, extraClass) {
   const tile = document.createElement("div");
   tile.className = "gear-tile" + (extraClass ? " " + extraClass : "");
+  const badge = document.createElement("div");
+  badge.className = "tile-level-badge";
+  tile.appendChild(badge);
   const nameEl = document.createElement("div");
   nameEl.className = "tile-name"; nameEl.textContent = name;
   tile.appendChild(nameEl);
   const controls = document.createElement("div");
   controls.className = "tile-controls";
   tile.appendChild(controls);
-  return { tile: tile, controls: controls };
+  return { tile: tile, controls: controls, badge: badge };
+}
+
+// 인게임처럼 현재 강화 수치를 아이콘(카드) 위에 겹쳐 보여주는 배지. 등급 색이 있으면 그 색을,
+// 없으면 기본 강조색을 씁니다.
+function setLevelBadge(badge, value, gradeColor) {
+  badge.textContent = "+" + value;
+  badge.style.color = gradeColor || "var(--accent)";
 }
 
 // 각성은 1회성이라 "이미 각성함"을 사용자가 직접 표시해야 다시 추천되지 않습니다.
@@ -81,6 +91,7 @@ function buildGradeSelect(gradeOptions, currentGrade, onChange) {
 export function gradeStepTile(name, gradeOptions, rec, onGradeChange, onStepChange, maxStepFor) {
   const built = buildTile(name);
   applyGradeTint(built.tile, rec.grade);
+  setLevelBadge(built.badge, rec.step, GRADE_COLORS[rec.grade]);
   built.controls.appendChild(buildGradeSelect(gradeOptions, rec.grade, onGradeChange));
 
   const stepSel = document.createElement("select");
@@ -90,7 +101,11 @@ export function gradeStepTile(name, gradeOptions, rec, onGradeChange, onStepChan
     if (i === rec.step) o2.selected = true;
     stepSel.appendChild(o2);
   }
-  stepSel.addEventListener("change", function () { onStepChange(parseInt(stepSel.value, 10)); });
+  stepSel.addEventListener("change", function () {
+    const v = parseInt(stepSel.value, 10);
+    setLevelBadge(built.badge, v, GRADE_COLORS[rec.grade]);
+    onStepChange(v);
+  });
   built.controls.appendChild(stepSel);
   if (rec.awakened) appendAwakenCheckbox(built.controls, rec.awakened, rec.grade);
   return built.tile;
@@ -98,22 +113,32 @@ export function gradeStepTile(name, gradeOptions, rec, onGradeChange, onStepChan
 
 export function stepOnlyTile(name, maxStep, rec, onStepChange) {
   const built = buildTile(name);
+  setLevelBadge(built.badge, rec.step, null);
   const stepSel = document.createElement("select");
   for (let i = 0; i <= maxStep; i++) {
     const o = document.createElement("option"); o.value = i; o.textContent = i + "단계";
     if (i === rec.step) o.selected = true;
     stepSel.appendChild(o);
   }
-  stepSel.addEventListener("change", function () { onStepChange(parseInt(stepSel.value, 10)); });
+  stepSel.addEventListener("change", function () {
+    const v = parseInt(stepSel.value, 10);
+    setLevelBadge(built.badge, v, null);
+    onStepChange(v);
+  });
   built.controls.appendChild(stepSel);
   return built.tile;
 }
 
 export function levelOnlyTile(name, maxLevel, level, onChange) {
   const built = buildTile(name);
+  setLevelBadge(built.badge, level, null);
   const input = document.createElement("input");
   input.type = "number"; input.min = "0"; input.max = String(maxLevel); input.value = level;
-  input.addEventListener("input", function () { onChange(Math.max(0, parseFloat(input.value) || 0)); });
+  input.addEventListener("input", function () {
+    const v = Math.max(0, parseFloat(input.value) || 0);
+    setLevelBadge(built.badge, v, null);
+    onChange(v);
+  });
   built.controls.appendChild(input);
   return built.tile;
 }
@@ -122,11 +147,16 @@ export function levelOnlyTile(name, maxLevel, level, onChange) {
 export function levelWithGradeTile(name, gradeOptions, maxLevel, fam, onLevelChange, onGradeChange) {
   const built = buildTile(name);
   applyGradeTint(built.tile, fam.grade);
+  setLevelBadge(built.badge, fam.level, GRADE_COLORS[fam.grade]);
   built.controls.appendChild(buildGradeSelect(gradeOptions, fam.grade, onGradeChange));
 
   const input = document.createElement("input");
   input.type = "number"; input.min = "0"; input.max = String(maxLevel); input.value = fam.level;
-  input.addEventListener("input", function () { onLevelChange(Math.max(0, parseFloat(input.value) || 0)); });
+  input.addEventListener("input", function () {
+    const v = Math.max(0, parseFloat(input.value) || 0);
+    setLevelBadge(built.badge, v, GRADE_COLORS[fam.grade]);
+    onLevelChange(v);
+  });
   built.controls.appendChild(input);
   if (fam.awakened) appendAwakenCheckbox(built.controls, fam.awakened, fam.grade);
   return built.tile;
