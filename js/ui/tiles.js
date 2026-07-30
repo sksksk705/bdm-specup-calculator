@@ -6,23 +6,30 @@ import { renderSpecTable } from "./specTable.js";
 export function buildTile(name, extraClass) {
   const tile = document.createElement("div");
   tile.className = "gear-tile" + (extraClass ? " " + extraClass : "");
-  const badge = document.createElement("div");
-  badge.className = "tile-level-badge";
-  tile.appendChild(badge);
   const nameEl = document.createElement("div");
   nameEl.className = "tile-name"; nameEl.textContent = name;
   tile.appendChild(nameEl);
   const controls = document.createElement("div");
   controls.className = "tile-controls";
   tile.appendChild(controls);
-  return { tile: tile, controls: controls, badge: badge };
+  return { tile: tile, controls: controls };
 }
 
-// 인게임처럼 현재 강화 수치를 아이콘(카드) 위에 겹쳐 보여주는 배지. 등급 색이 있으면 그 색을,
-// 없으면 기본 강조색을 씁니다.
-function setLevelBadge(badge, value, gradeColor) {
-  badge.textContent = "+" + value;
+// 인게임처럼 현재 강화 수치를 카드 우상단에 겹쳐 보여주는 배지 — 그 자체가 <select>라
+// 클릭하면 바로 수정할 수 있습니다(범위가 정해진 값이라 드랍다운, "+N" 형식). 등급 색이
+// 있으면 그 색을, 없으면 기본 강조색을 텍스트 색으로 씁니다.
+function buildLevelBadge(maxLevel, currentLevel, gradeColor, onChange) {
+  const badge = document.createElement("select");
+  badge.className = "tile-level-badge";
   badge.style.color = gradeColor || "var(--accent)";
+  for (let i = 0; i <= maxLevel; i++) {
+    const o = document.createElement("option");
+    o.value = i; o.textContent = "+" + i;
+    if (i === currentLevel) o.selected = true;
+    badge.appendChild(o);
+  }
+  badge.addEventListener("change", function () { onChange(parseInt(badge.value, 10)); });
+  return badge;
 }
 
 // 각성은 1회성이라 "이미 각성함"을 사용자가 직접 표시해야 다시 추천되지 않습니다.
@@ -44,7 +51,7 @@ export function appendAwakenCheckbox(controls, awakenedObj, grade) {
   controls.appendChild(wrap);
 }
 
-// 등급별 대표 색상 — 선택창 앞 점과 카드 배경/테두리에 함께 씁니다(사용자 제공값).
+// 등급별 대표 색상 — 선택창 앞 점과 카드 배경/테두리/배지 텍스트에 함께 씁니다(사용자 제공값).
 const GRADE_COLORS = { "태고": "#EC4899", "혼돈": "#6366F1", "공허": "#8B5CF6", "검은별": "#EAB308" };
 
 function hexToRgbParts(hex) {
@@ -91,73 +98,30 @@ function buildGradeSelect(gradeOptions, currentGrade, onChange) {
 export function gradeStepTile(name, gradeOptions, rec, onGradeChange, onStepChange, maxStepFor) {
   const built = buildTile(name);
   applyGradeTint(built.tile, rec.grade);
-  setLevelBadge(built.badge, rec.step, GRADE_COLORS[rec.grade]);
+  built.tile.appendChild(buildLevelBadge(maxStepFor(rec.grade), rec.step, GRADE_COLORS[rec.grade], onStepChange));
   built.controls.appendChild(buildGradeSelect(gradeOptions, rec.grade, onGradeChange));
-
-  const stepSel = document.createElement("select");
-  const maxStep = maxStepFor(rec.grade);
-  for (let i = 0; i <= maxStep; i++) {
-    const o2 = document.createElement("option"); o2.value = i; o2.textContent = i + "단계";
-    if (i === rec.step) o2.selected = true;
-    stepSel.appendChild(o2);
-  }
-  stepSel.addEventListener("change", function () {
-    const v = parseInt(stepSel.value, 10);
-    setLevelBadge(built.badge, v, GRADE_COLORS[rec.grade]);
-    onStepChange(v);
-  });
-  built.controls.appendChild(stepSel);
   if (rec.awakened) appendAwakenCheckbox(built.controls, rec.awakened, rec.grade);
   return built.tile;
 }
 
 export function stepOnlyTile(name, maxStep, rec, onStepChange) {
   const built = buildTile(name);
-  setLevelBadge(built.badge, rec.step, null);
-  const stepSel = document.createElement("select");
-  for (let i = 0; i <= maxStep; i++) {
-    const o = document.createElement("option"); o.value = i; o.textContent = i + "단계";
-    if (i === rec.step) o.selected = true;
-    stepSel.appendChild(o);
-  }
-  stepSel.addEventListener("change", function () {
-    const v = parseInt(stepSel.value, 10);
-    setLevelBadge(built.badge, v, null);
-    onStepChange(v);
-  });
-  built.controls.appendChild(stepSel);
+  built.tile.appendChild(buildLevelBadge(maxStep, rec.step, null, onStepChange));
   return built.tile;
 }
 
 export function levelOnlyTile(name, maxLevel, level, onChange) {
   const built = buildTile(name);
-  setLevelBadge(built.badge, level, null);
-  const input = document.createElement("input");
-  input.type = "number"; input.min = "0"; input.max = String(maxLevel); input.value = level;
-  input.addEventListener("input", function () {
-    const v = Math.max(0, parseFloat(input.value) || 0);
-    setLevelBadge(built.badge, v, null);
-    onChange(v);
-  });
-  built.controls.appendChild(input);
+  built.tile.appendChild(buildLevelBadge(maxLevel, level, null, onChange));
   return built.tile;
 }
 
-// 등급업(제작) 경로가 있는 항목용 — 등급 선택 + 현재 단계 숫자 입력을 함께 보여준다.
+// 등급업(제작) 경로가 있는 항목용 — 등급 선택 + 현재 단계(배지 드랍다운)를 함께 보여준다.
 export function levelWithGradeTile(name, gradeOptions, maxLevel, fam, onLevelChange, onGradeChange) {
   const built = buildTile(name);
   applyGradeTint(built.tile, fam.grade);
-  setLevelBadge(built.badge, fam.level, GRADE_COLORS[fam.grade]);
+  built.tile.appendChild(buildLevelBadge(maxLevel, fam.level, GRADE_COLORS[fam.grade], onLevelChange));
   built.controls.appendChild(buildGradeSelect(gradeOptions, fam.grade, onGradeChange));
-
-  const input = document.createElement("input");
-  input.type = "number"; input.min = "0"; input.max = String(maxLevel); input.value = fam.level;
-  input.addEventListener("input", function () {
-    const v = Math.max(0, parseFloat(input.value) || 0);
-    setLevelBadge(built.badge, v, GRADE_COLORS[fam.grade]);
-    onLevelChange(v);
-  });
-  built.controls.appendChild(input);
   if (fam.awakened) appendAwakenCheckbox(built.controls, fam.awakened, fam.grade);
   return built.tile;
 }
