@@ -16,7 +16,8 @@ export const MATERIAL_PRICE_SUBSTITUTE = { "공허의 주술핵": "공허의 눈
 export const MATERIAL_CRAFT_MULTIPLIER = {
   "피어나는 오기에르의 가호": { from: "오기에르의 가호", qty: 3 },
   "구원하는 오기에르의 가호": { from: "오기에르의 가호", qty: 10 },
-  "혼돈의 핵": { from: "혼돈의 축", qty: 0.01 }
+  "혼돈의 핵": { from: "혼돈의 축", qty: 0.01 },
+  "홍익의 불꽃": { from: "홍익의 불씨", qty: 30 }
 };
 
 // "유료 재화" — 은화로 살 수 없고 실제 게임 화폐(프리미엄)로만 얻을 수 있는 재화입니다.
