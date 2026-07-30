@@ -3,7 +3,7 @@
 // data/prices.json이 아니라 로컬 저장소에 둡니다.
 
 import {
-  PARTS, GRADE_ORDER, RING_GRADE_ORDER, SOUL_ITEMS, FAMILY_ITEMS, ACCESSORY_AWAKEN, PAID_MATERIALS
+  PARTS, GRADE_ORDER, RING_GRADE_ORDER, FAMILY_ITEMS, ACCESSORY_AWAKEN, PAID_MATERIALS
 } from "./gameData.js";
 import { familyGradeOptions } from "../logic/calculations.js";
 
@@ -32,7 +32,6 @@ export const state = {
   prices: {},   // name -> price
   status: {},   // partId -> { grade, step, material, qtyPerAttempt, cpGain }
   ring: null,   // { grade, step }
-  soul: {},     // soulId -> { step, material, qtyPerAttempt, cpGain }
   family: {},   // itemId -> { level, material, qtyPerLevel, cpPerLevel }
   equipPlan: null, // ③ 탭 "강화 기대값 계산기"의 장비 돌파 설정(구간/확률 상승권/돌파 복구권)
   paidMaterials: {} // 재료명 -> { use, silverRate } — 유료 재화를 실제로 쓸지, 은화로 환산할지
@@ -68,14 +67,6 @@ export function initState(defaultPrices) {
 
   state.ring = (saved && saved.ring) || { grade: "혼돈", step: 0 };
   if (RING_GRADE_ORDER.indexOf(state.ring.grade) === -1) state.ring = { grade: "혼돈", step: 0 };
-
-  // 밤·달빛 영혼석은 구매 불가 재화라 스펙업 순위에 넣지 않고, 목표 강화 단계를 입력하면
-  // 0강부터 그 단계까지 필요한 재료 기대 개수만 보여줍니다(① 탭) — 그래서 현재 단계(step) 외에
-  // 다른 상태가 필요 없습니다.
-  SOUL_ITEMS.forEach(function (item) {
-    const savedSoul = saved && saved.soul ? saved.soul[item.id] : null;
-    state.soul[item.id] = savedSoul || { step: 0 };
-  });
 
   // 장비 돌파 "강화 기대값 계산기"(③ 탭) 설정 — 확률 상승권 10%/50%/100% 각각 사용 여부+구간,
   // 돌파 복구권 사용 여부+구간(단일 구간만 허용), 계산할 강화 단계(from→to).
@@ -121,7 +112,7 @@ export function initState(defaultPrices) {
 export function persist() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      prices: state.prices, status: state.status, ring: state.ring, soul: state.soul, family: state.family,
+      prices: state.prices, status: state.status, ring: state.ring, family: state.family,
       equipPlan: state.equipPlan, paidMaterials: state.paidMaterials
     }));
   } catch (e) {}

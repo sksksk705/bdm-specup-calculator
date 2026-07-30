@@ -3,53 +3,31 @@
 // (1) 밤·달빛 영혼석: 구매 불가 재화라 목표 단계까지 재료 기대 개수만.
 // (2) 장비 돌파: 확률 상승권 10%/50%/100%·돌파 복구권을 어느 구간에 쓸지 직접 설정.
 
-import { SOUL_ITEMS, SOUL_BREAKTHROUGH_CURVE, SHADOW_GEAR } from "../data/gameData.js";
+import { SOUL_ITEMS, SHADOW_GEAR } from "../data/gameData.js";
 import { state, persist } from "../data/userState.js";
-import { buildTile, applyColorTint } from "./tiles.js";
+import { applyColorTint } from "./tiles.js";
 import { fmt, soulCumulativeQty, computeEquipRangePlan, validateEquipRangeConfig } from "../logic/calculations.js";
 
-// 밤·달빛 영혼석 카드 그라데이션 색(사용자 제공값).
-const SOUL_COLORS = { nightsoul: "#AF39C5", moonsoul: "#6B90C6" };
+// 밤·달빛 영혼석은 확률·기대값이 완전히 같아(사용자 확인, 2026-07-30) 달빛 영혼석 기준
+// 하나로 통합해 0~15강 전체를 표로 보여줍니다. 카드 색도 달빛 영혼석 색만 남깁니다.
+const MOON_COLOR = "#6B90C6";
 
 function renderSoulSection() {
-  const wrap = document.getElementById("soulGrid");
-  wrap.innerHTML = "";
-  SOUL_ITEMS.forEach(function (item) {
-    const rec = state.soul[item.id];
-    const built = buildTile(item.name);
-    applyColorTint(built.tile, SOUL_COLORS[item.id]);
-    const stepSel = document.createElement("select");
-    for (let i = 0; i <= SOUL_BREAKTHROUGH_CURVE.length; i++) {
-      const o = document.createElement("option"); o.value = i; o.textContent = i + "단계";
-      if (i === rec.step) o.selected = true;
-      stepSel.appendChild(o);
-    }
-    built.controls.appendChild(stepSel);
-
-    // 재료 기대 개수가 이 카드의 핵심 정보라 큰 강조 숫자로 따로 빼고, 나머지(구간·재료명)는
-    // 작은 보조 텍스트로 둡니다(사용자 요청, 2026-07-30). .tile-controls는 가로 플렉스라
-    // 여러 줄 텍스트를 넣기엔 맞지 않아, 별도 세로 스택 묶음을 만들어 타일에 직접 붙입니다.
-    const info = document.createElement("div");
-    info.style.cssText = "display:flex;flex-direction:column;margin-top:2px;";
-    const stepLabel = document.createElement("div");
-    stepLabel.style.cssText = "color:var(--text-faint);font-size:10px;";
-    const qtyValue = document.createElement("div");
-    qtyValue.style.cssText = "font-size:20px;font-weight:800;line-height:1.3;margin-top:1px;color:" + (SOUL_COLORS[item.id] || "var(--num-strong)") + ";";
-    const matLabel = document.createElement("div");
-    matLabel.style.cssText = "color:var(--text-faint);font-size:10px;margin-top:1px;white-space:normal;max-width:220px;";
-    function updateNote() {
-      stepLabel.textContent = "0 → " + rec.step + "단계 재료 기대값";
-      qtyValue.textContent = fmt(soulCumulativeQty(rec.step)) + "개";
-      matLabel.textContent = item.material;
-    }
-    stepSel.addEventListener("change", function () { rec.step = parseInt(stepSel.value, 10); persist(); updateNote(); });
-    updateNote();
-    info.appendChild(stepLabel);
-    info.appendChild(qtyValue);
-    info.appendChild(matLabel);
-    built.tile.appendChild(info);
-    wrap.appendChild(built.tile);
-  });
+  const moon = SOUL_ITEMS.filter(function (item) { return item.id === "moonsoul"; })[0];
+  applyColorTint(document.getElementById("soulCard"), MOON_COLOR, "--ink-2");
+  const qtyHeader = document.getElementById("soulQtyHeader");
+  if (qtyHeader) qtyHeader.textContent = moon.material + " 기대 개수";
+  const body = document.getElementById("soulGrid");
+  body.innerHTML = "";
+  for (let step = 0; step < 16; step++) {
+    const tr = document.createElement("tr");
+    const tdStep = document.createElement("td"); tdStep.className = "name"; tdStep.textContent = step + "강";
+    const tdQty = document.createElement("td"); tdQty.className = "num";
+    tdQty.style.cssText = "color:" + MOON_COLOR + ";font-weight:800;";
+    tdQty.textContent = fmt(soulCumulativeQty(step)) + "개";
+    tr.appendChild(tdStep); tr.appendChild(tdQty);
+    body.appendChild(tr);
+  }
 }
 
 // 확률 상승권(10%/50%/100%) 또는 돌파 복구권 1종의 "사용 여부 + 구간(N강~N강)" 입력 줄.
