@@ -32,21 +32,22 @@ function buildLevelBadge(maxLevel, currentLevel, gradeColor, onChange) {
   return badge;
 }
 
-// 각성은 1회성이라 "이미 각성함"을 사용자가 직접 표시해야 다시 추천되지 않습니다.
-// awakenedObj는 등급별로 따로 저장하므로(rec.awakened[grade]) 등급을 바꾸면 자동으로 그 등급의
-// 체크 상태를 보여줍니다.
-export function appendAwakenCheckbox(controls, awakenedObj, grade) {
+// 각성은 1회성이라 "이미 각성함"을 사용자가 직접 표시해야 다시 추천되지 않습니다. rec/fam은
+// 단순 boolean(rec.awakened)만 가지고 있고, 등급이 바뀌면 gearGrid.js가 false로 초기화합니다.
+// 켜져 있으면 카드에 "각성 후광" 비주얼(.awakened 클래스)도 함께 토글합니다.
+export function appendAwakenCheckbox(tile, controls, rec) {
   const wrap = document.createElement("label");
-  wrap.style.cssText = "display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-faint);margin-top:3px;cursor:pointer;";
+  wrap.style.cssText = "display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-faint);margin-top:3px;cursor:pointer;white-space:nowrap;position:relative;z-index:1;";
   const cb = document.createElement("input");
   cb.type = "checkbox";
-  cb.checked = !!awakenedObj[grade];
+  cb.checked = !!rec.awakened;
   cb.addEventListener("change", function () {
-    awakenedObj[grade] = cb.checked;
+    rec.awakened = cb.checked;
+    tile.classList.toggle("awakened", cb.checked);
     persist(); renderSpecTable();
   });
   wrap.appendChild(cb);
-  const span = document.createElement("span"); span.textContent = grade + " 각성완료";
+  const span = document.createElement("span"); span.textContent = "각성완료";
   wrap.appendChild(span);
   controls.appendChild(wrap);
 }
@@ -100,7 +101,10 @@ export function gradeStepTile(name, gradeOptions, rec, onGradeChange, onStepChan
   applyGradeTint(built.tile, rec.grade);
   built.tile.appendChild(buildLevelBadge(maxStepFor(rec.grade), rec.step, GRADE_COLORS[rec.grade], onStepChange));
   built.controls.appendChild(buildGradeSelect(gradeOptions, rec.grade, onGradeChange));
-  if (rec.awakened) appendAwakenCheckbox(built.controls, rec.awakened, rec.grade);
+  if (rec.awakened !== undefined) {
+    if (rec.awakened) built.tile.classList.add("awakened");
+    appendAwakenCheckbox(built.tile, built.controls, rec);
+  }
   return built.tile;
 }
 
@@ -122,6 +126,9 @@ export function levelWithGradeTile(name, gradeOptions, maxLevel, fam, onLevelCha
   applyGradeTint(built.tile, fam.grade);
   built.tile.appendChild(buildLevelBadge(maxLevel, fam.level, GRADE_COLORS[fam.grade], onLevelChange));
   built.controls.appendChild(buildGradeSelect(gradeOptions, fam.grade, onGradeChange));
-  if (fam.awakened) appendAwakenCheckbox(built.controls, fam.awakened, fam.grade);
+  if (fam.awakened !== undefined) {
+    if (fam.awakened) built.tile.classList.add("awakened");
+    appendAwakenCheckbox(built.tile, built.controls, fam);
+  }
   return built.tile;
 }

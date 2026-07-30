@@ -318,7 +318,7 @@ export function computeEquipNextAction(part, rec, prices) {
   // 각성해야만 다음 등급으로 제작(등급업)할 수 있습니다(잠재력 돌파 단계와는 무관 — 각성은 언제든
   // 가능하지만, 등급업의 필수 선행조건입니다). 아직 각성 전이면 등급업 액션 대신 별도로 계산되는
   // "각성" 액션(computeEquipAwaken)만 표시합니다.
-  if (EQUIP_AWAKEN[grade] && !(rec.awakened && rec.awakened[grade])) {
+  if (EQUIP_AWAKEN[grade] && !rec.awakened) {
     return { label: "각성 필요(등급업 선행조건)", cost: 0, gain: 0, maxed: true, editable: {} };
   }
   const recipe = GRADE_UP_RECIPES.filter(function (r) { return r.from === grade && r.to === nextGrade; })[0];
@@ -336,12 +336,14 @@ export function computeEquipNextAction(part, rec, prices) {
 
 // 각성 — 잠재력 돌파 단계와 무관하게 해당 등급에서 언제든 가능하지만(선행조건 없음), 다음 등급으로
 // 등급업하려면 반드시 먼저 각성해야 합니다. 아직 그 등급에서 각성하지 않았을 때만 액션으로
-// 제시합니다(1회성, 완료하면 ① 탭의 체크박스로 표시 후 다시 나타나지 않습니다).
+// 제시합니다(1회성, 완료하면 ① 탭의 체크박스로 표시 후 다시 나타나지 않습니다). rec.awakened/
+// fam.awakened는 등급별 객체가 아니라 단순 boolean이고(사용자 확인, 2026-07-30), 등급이
+// 바뀌면 gearGrid.js에서 false로 초기화합니다.
 export function computeEquipAwaken(part, rec, prices) {
   const grade = rec.grade;
   const table = EQUIP_AWAKEN[grade] && EQUIP_AWAKEN[grade][part.id];
   if (!table) return null;
-  if (rec.awakened && rec.awakened[grade]) return null;
+  if (rec.awakened) return null;
   let matTotal = 0;
   const matParts = [];
   Object.keys(table.materials).forEach(function (m) {
@@ -359,7 +361,7 @@ export function computeAccessoryAwaken(item, fam, prices) {
   const grade = fam.grade;
   const table = ACCESSORY_AWAKEN[grade] && ACCESSORY_AWAKEN[grade][item.id];
   if (!table) return null;
-  if (fam.awakened && fam.awakened[grade]) return null;
+  if (fam.awakened) return null;
   let matTotal = 0;
   const matParts = [];
   Object.keys(table.materials).forEach(function (m) {
@@ -422,7 +424,7 @@ export function computeAccessoryGradeUp(itemId, grade, fam, prices) {
   // 각성해야만 다음 등급으로 제작할 수 있습니다. 아직 각성 전이면 등급업 액션을 감추고
   // 별도로 계산되는 "각성" 액션(computeAccessoryAwaken)만 보여줍니다.
   const awakenTable = ACCESSORY_AWAKEN[grade] && ACCESSORY_AWAKEN[grade][itemId];
-  if (awakenTable && !(fam.awakened && fam.awakened[grade])) return null;
+  if (awakenTable && !fam.awakened) return null;
   const entry = table[grade];
   let total = entry.silver || 0;
   const parts = [];
@@ -451,7 +453,7 @@ export function computeKarazadCraft(itemId, fam, prices) {
   if (!materialName) return null;
   const entry = KARAZAD_CRAFT[fam.level];
   if (!entry) return null;
-  if (!(fam.awakened && fam.awakened["공허"])) return null;
+  if (!fam.awakened) return null;
   const basePrice = priceOf(materialName, prices);
   return {
     label: "공허 → 카라자드 제작(카라자드 " + entry.resultStep + "단계부터 시작)",

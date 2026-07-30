@@ -62,7 +62,7 @@ export function initState(defaultPrices) {
     rec.cpGain = healZero(rec.cpGain, 10);
     if (GRADE_ORDER.indexOf(rec.grade) === -1) rec.grade = "혼돈";
     if (materialNames.indexOf(rec.material) === -1) rec.material = "순도 높은 흑결정";
-    if (!rec.awakened) rec.awakened = {};
+    if (typeof rec.awakened !== "boolean") rec.awakened = false;
     state.status[p.id] = rec;
   });
 
@@ -113,7 +113,7 @@ export function initState(defaultPrices) {
     // 맞춥니다 — 등급 변경 시점에만 동기화하면 이런 어긋남을 놓칠 수 있기 때문입니다.
     if (item.materialByGrade && item.materialByGrade[fam.grade]) fam.material = item.materialByGrade[fam.grade];
     const hasAwakenData = Object.keys(ACCESSORY_AWAKEN).some(function (g) { return !!ACCESSORY_AWAKEN[g][item.id]; });
-    if (hasAwakenData && !fam.awakened) fam.awakened = {};
+    if (hasAwakenData && typeof fam.awakened !== "boolean") fam.awakened = false;
     state.family[item.id] = fam;
   });
 }

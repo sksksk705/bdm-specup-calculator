@@ -35,7 +35,7 @@ export function renderGearGrid() {
   PARTS.forEach(function (part) {
     const rec = state.status[part.id];
     main.appendChild(gradeStepTile(part.name, GRADE_ORDER, rec,
-      function (rec) { return function (g) { rec.grade = g; persist(); renderGearGrid(); renderSpecTable(); }; }(rec),
+      function (rec) { return function (g) { rec.grade = g; rec.awakened = false; persist(); renderGearGrid(); renderSpecTable(); }; }(rec),
       function (rec) { return function (s) { rec.step = s; persist(); renderSpecTable(); }; }(rec),
       function () { return 10; }
     ));
@@ -47,6 +47,7 @@ export function renderGearGrid() {
       function (fam) { return function (v) { fam.level = v; persist(); renderSpecTable(); }; }(fam),
       function (item, fam) { return function (g) {
         fam.grade = g; fam.level = 0;
+        if (fam.awakened !== undefined) fam.awakened = false;
         if (item.materialByGrade && item.materialByGrade[g]) fam.material = item.materialByGrade[g];
         persist(); renderGearGrid(); renderSpecTable();
       }; }(item, fam)
@@ -67,6 +68,7 @@ export function renderGearGrid() {
     function (v) { braceletFam.level = v; persist(); renderSpecTable(); },
     function (g) {
       braceletFam.grade = g; braceletFam.level = 0;
+      if (braceletFam.awakened !== undefined) braceletFam.awakened = false;
       if (braceletItem.materialByGrade && braceletItem.materialByGrade[g]) braceletFam.material = braceletItem.materialByGrade[g];
       persist(); renderGearGrid(); renderSpecTable();
     }
