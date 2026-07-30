@@ -9,8 +9,11 @@ import { renderGearGrid, renderGearExtra } from "./ui/gearGrid.js";
 import { renderSpecTable } from "./ui/specTable.js";
 import { renderEvCalcTab } from "./ui/evCalcTab.js";
 import { renderReferenceTab } from "./ui/referenceTab.js";
+import { initThemeToggle } from "./ui/theme.js";
 
 async function boot() {
+  initThemeToggle();
+
   let defaultPrices;
   try {
     defaultPrices = await loadDefaultPrices();

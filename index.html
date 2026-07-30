@@ -4,12 +4,24 @@
 <meta charset="utf-8" />
 <title>은화 스펙업 계산기 — 검은사막 모바일</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<script>
+// 화면이 그려지기 전에 최대한 일찍 테마를 정해야 깜빡임(FOUC) 없이 적용됩니다.
+// 저장된 값이 없으면 다크 모드가 기본입니다.
+(function () {
+  var saved = null;
+  try { saved = localStorage.getItem("bdm_theme"); } catch (e) {}
+  document.documentElement.setAttribute("data-theme", saved === "light" ? "light" : "dark");
+})();
+</script>
 <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 <div class="shell">
   <div class="page-head">
-    <div class="eyebrow">Black Desert Mobile · 은화 기준 스펙업 계산기</div>
+    <div class="page-head-top">
+      <div class="eyebrow">Black Desert Mobile · 은화 기준 스펙업 계산기</div>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="라이트/다크 테마 전환"></button>
+    </div>
     <h1>은화 1냥으로 전투력을 가장 많이 사는 법</h1>
     <p>①에서 인게임 장비 화면과 같은 배치로 현재 상태와 재료 시세를 입력하면, ②에서 다음 한 스텝마다 드는 은화와 전투력 1당 필요 은화를 전부 계산해 표로 보여줍니다.</p>
   </div>

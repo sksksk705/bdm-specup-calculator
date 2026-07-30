@@ -99,10 +99,17 @@ a { color: var(--accent); }
 
 /* ---------- Header ---------- */
 .page-head { display: flex; flex-direction: column; gap: 6px; margin-bottom: 22px; }
+.page-head-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .eyebrow {
   font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
   color: var(--accent);
 }
+.theme-toggle {
+  appearance: none; border: 1px solid var(--line-strong); background: var(--ink-2);
+  color: var(--text-dim); border-radius: 999px; padding: 6px 12px; font-size: 12px; font-weight: 600;
+  cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 6px; flex: none;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
 .page-head h1 { font-size: 25px; font-weight: 800; letter-spacing: -0.01em; }
 .page-head p { margin: 2px 0 0; color: var(--text-dim); font-size: 13.5px; max-width: 66ch; }
 
