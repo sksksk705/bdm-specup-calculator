@@ -619,7 +619,7 @@ export const FAMILY_ITEMS = [
   // 균열의 토템 — 등급 구분 없이 0~10단계인 별도 항목. 회당 소모량은 정보가 없어 결정화된
   // 토템 1개(더미)로 가정합니다.
   { id: "riftTotem", name: "균열의 토템", maxLevel: 10, gradeOptions: ["기본"],
-    cpPerLevel: 10, cpEditable: true, cpTable: { "기본": RIFT_TOTEM_CP_TABLE }, cpTableKey: "기본",
+    cpPerLevel: 10, cpEditable: true, cpTable: { "기본": RIFT_TOTEM_CP_TABLE },
     materialOptions: ["결정화된 토템"], defaultMaterial: "결정화된 토템",
     anvilTable: RIFT_TOTEM_ANVIL, recoveryKey: "riftTotem",
     recoveryMaterial: RIFT_TOTEM_RECOVERY_MATERIAL, recoveryQtyByLevel: RIFT_TOTEM_RECOVERY_QTY },
