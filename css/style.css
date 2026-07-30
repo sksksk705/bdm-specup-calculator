@@ -113,24 +113,21 @@ a { color: var(--accent); }
 .page-head h1 { font-size: 25px; font-weight: 800; letter-spacing: -0.01em; }
 .page-head p { margin: 2px 0 0; color: var(--text-dim); font-size: 13.5px; max-width: 66ch; }
 
-/* ---------- Onboarding banner (첫 방문 안내, 닫으면 다시 안 뜸) ---------- */
-.onboard-banner {
-  position: relative;
+/* ---------- Onboarding card (첫 방문 안내, 카드 형식 + 접고 펼 수 있음) ---------- */
+/* .card와 클래스 2개짜리 선택자를 써서 카드 규칙(뒤에서 정의됨)에 배경이 덮이지 않게 합니다. */
+.card.onboard-card {
   background: linear-gradient(135deg, var(--accent-soft), transparent 70%), var(--ink-2);
-  border: 1px solid var(--line-strong); border-radius: 14px;
-  padding: 15px 44px 15px 18px; margin-bottom: 16px; box-shadow: var(--shadow);
 }
-.onboard-banner.hidden { display: none; }
-.onboard-banner .onboard-title { font-size: 13.5px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
-.onboard-banner ol { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
-.onboard-banner li { font-size: 12.5px; color: var(--text-dim); line-height: 1.6; }
-.onboard-banner li b { color: var(--text); }
-.onboard-close {
-  position: absolute; top: 9px; right: 9px;
-  appearance: none; border: none; background: none; cursor: pointer;
-  color: var(--text-faint); font-size: 14px; padding: 4px 8px; border-radius: 6px; line-height: 1;
+.onboard-card summary {
+  cursor: pointer; list-style: none; font-size: 15px; font-weight: 700; color: var(--text);
 }
-.onboard-close:hover { color: var(--bad); background: var(--bad-soft); }
+.onboard-card summary::-webkit-details-marker { display: none; }
+.onboard-card summary::before { content: "▾ "; color: var(--accent); }
+.onboard-card:not([open]) summary::before { content: "▸ "; }
+.onboard-card[open] summary { margin-bottom: 10px; }
+.onboard-card ol { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+.onboard-card li { font-size: 12.5px; color: var(--text-dim); line-height: 1.6; }
+.onboard-card li b { color: var(--text); }
 
 /* ---------- Recommendation banner ---------- */
 .reco-bar {

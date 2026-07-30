@@ -1,17 +1,17 @@
-// 프레젠테이션 계층 — 첫 방문 안내 배너. 닫으면 localStorage에 기록해 다시 뜨지 않습니다.
+// 프레젠테이션 계층 — 첫 방문 안내 카드. <details>라 클릭 한 번으로 접고 펼 수 있고,
+// 마지막으로 남긴 열림/닫힘 상태를 localStorage에 기억합니다(첫 방문 기본값은 열림).
 
-const STORAGE_KEY = "bdm_onboard_dismissed";
+const STORAGE_KEY = "bdm_onboard_open";
 
 export function initOnboarding() {
-  const banner = document.getElementById("onboardBanner");
-  const closeBtn = document.getElementById("onboardClose");
+  const details = document.getElementById("onboardCard");
 
-  let dismissed = false;
-  try { dismissed = localStorage.getItem(STORAGE_KEY) === "1"; } catch (e) {}
-  if (dismissed) { banner.classList.add("hidden"); return; }
+  let saved = null;
+  try { saved = localStorage.getItem(STORAGE_KEY); } catch (e) {}
+  if (saved === "0") details.open = false;
+  else if (saved === "1") details.open = true;
 
-  closeBtn.addEventListener("click", function () {
-    banner.classList.add("hidden");
-    try { localStorage.setItem(STORAGE_KEY, "1"); } catch (e) {}
+  details.addEventListener("toggle", function () {
+    try { localStorage.setItem(STORAGE_KEY, details.open ? "1" : "0"); } catch (e) {}
   });
 }
