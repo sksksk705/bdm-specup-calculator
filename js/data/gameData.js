@@ -76,6 +76,27 @@ export const EQUIP_SHADOW_PROTECT = {
   8: { label: "피어나는 그림자 장비", shadowTicket: 1050, shadowSilver: 5000 }
 };
 
+// 그림자 장비(③ 탭 "강화 기대값 계산기" 전용, 위 EQUIP_SHADOW_PROTECT와 별개 모델) — 기존 7·8강
+// 장비를 그림자 장비로 전환해 완전히 별도의 자체 강화 트랙(칠흑=0~5강, 피어나는=0~10강)을 밟고,
+// 그 최종 단계에 도달하면 다음 실제 강화 단계(8강/9강)로 교환됩니다. 실패해도 단계가 떨어지지
+// 않고 복구 비용도 없습니다(100% 방어, 확률/모루/하락 재귀 로직 전부 건너뜀). 자체 단계마다
+// 모루(최대 실패 허용) 17(=시도 18회 확정), 시도 1회당(성공/실패 모두) 고결한 흑결정(칠흑 1개·
+// 피어나는 7개)+은화 5000이 듭니다. 고결한 흑결정 1개는 돌파 복구권 1050개 + 확률 상승권
+// (10% 50개 / 50% 10개 / 100% 2개 중 하나, 섞어 쓸 수 없음)으로 제작하며, 계산기는 현재 시세
+// 기준 가장 저렴한 조합을 자동으로 고릅니다. 사용자 제공값, 2026-07-30 확인.
+export const SHADOW_GEAR = {
+  7: { label: "칠흑같은 그림자 장비", targetSteps: 5, crystalPerAttempt: 1 },
+  8: { label: "피어나는 그림자 장비", targetSteps: 10, crystalPerAttempt: 7 }
+};
+export const SHADOW_GEAR_ANVIL = 17;
+export const SHADOW_GEAR_ATTEMPT_SILVER = 5000;
+export const BLACK_CRYSTAL_TICKET_QTY = 1050;
+export const BLACK_CRYSTAL_BOOST_RECIPES = [
+  { boostType: "10", boostQty: 50 },
+  { boostType: "50", boostQty: 10 },
+  { boostType: "100", boostQty: 2 }
+];
+
 // 장비 부위별 잠재력 돌파 1단계당 실수치 상승분 (공식 포럼 가이드 22편 기준, 혼돈/공허 등급).
 // 원자료는 "공격력"(보조무기는 공격력:방어력) 단위이며, 전투력 근사값으로 그대로 사용합니다.
 // 보조무기는 공격력+방어력 합산값. 인덱스 i = i단계→(i+1)단계 상승분.

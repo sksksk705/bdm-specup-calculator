@@ -84,8 +84,11 @@ export function initState(defaultPrices) {
     boost10: { use: false, start: 1, end: 1 },
     boost50: { use: false, start: 1, end: 1 },
     boost100: { use: false, start: 1, end: 1 },
-    recovery: { use: false, start: 1, end: 1 }
+    recovery: { use: false, start: 1, end: 1 },
+    shadowStep7: false, shadowStep8: false
   };
+  if (state.equipPlan.shadowStep7 === undefined) state.equipPlan.shadowStep7 = false;
+  if (state.equipPlan.shadowStep8 === undefined) state.equipPlan.shadowStep8 = false;
 
   FAMILY_ITEMS.forEach(function (item) {
     const savedFam = saved && saved.family ? saved.family[item.id] : null;

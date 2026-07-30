@@ -3,7 +3,7 @@
 // (1) 밤·달빛 영혼석: 구매 불가 재화라 목표 단계까지 재료 기대 개수만.
 // (2) 장비 돌파: 확률 상승권 10%/50%/100%·돌파 복구권을 어느 구간에 쓸지 직접 설정.
 
-import { SOUL_ITEMS, SOUL_BREAKTHROUGH_CURVE } from "../data/gameData.js";
+import { SOUL_ITEMS, SOUL_BREAKTHROUGH_CURVE, SHADOW_GEAR } from "../data/gameData.js";
 import { state, persist } from "../data/userState.js";
 import { buildTile } from "./tiles.js";
 import { fmt, soulCumulativeQty, computeEquipRangePlan, validateEquipRangeConfig } from "../logic/calculations.js";
@@ -73,6 +73,36 @@ function buildRangeRow(labelText, config, onChange) {
   return row;
 }
 
+// 그림자 장비(칠흑같은/피어나는) 사용 체크박스 — 해당 단계(7강 또는 8강)가 계산 범위
+// [plan.from, plan.to)에 들어있을 때만 표시합니다.
+function renderShadowRows(plan, onChange) {
+  const wrap = document.getElementById("equipShadowRows");
+  const field = document.getElementById("equipShadowField");
+  wrap.innerHTML = "";
+  const rows = [
+    { step: 7, key: "shadowStep7" },
+    { step: 8, key: "shadowStep8" }
+  ].filter(function (s) { return plan.from <= s.step && s.step < plan.to; });
+  field.style.display = rows.length ? "" : "none";
+  rows.forEach(function (s) {
+    const label = document.createElement("label");
+    label.style.cssText = "display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;";
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = plan[s.key];
+    label.appendChild(checkbox);
+    const labelSpan = document.createElement("span");
+    labelSpan.textContent = SHADOW_GEAR[s.step].label + " 사용 (" + s.step + "→" + (s.step + 1) + "강, 100% 방어)";
+    label.appendChild(labelSpan);
+    checkbox.addEventListener("change", function () {
+      plan[s.key] = checkbox.checked;
+      persist();
+      onChange();
+    });
+    wrap.appendChild(label);
+  });
+}
+
 function renderEquipPlanSection() {
   const plan = state.equipPlan;
   const fromInput = document.getElementById("equipPlanFrom");
@@ -90,8 +120,14 @@ function renderEquipPlanSection() {
   recoveryWrap.innerHTML = "";
   recoveryWrap.appendChild(buildRangeRow("돌파 복구권 사용", plan.recovery, updateOutput));
 
-  fromInput.addEventListener("input", function () { plan.from = parseInt(fromInput.value, 10) || 0; persist(); updateOutput(); });
-  toInput.addEventListener("input", function () { plan.to = parseInt(toInput.value, 10) || 0; persist(); updateOutput(); });
+  renderShadowRows(plan, updateOutput);
+
+  fromInput.addEventListener("input", function () {
+    plan.from = parseInt(fromInput.value, 10) || 0; persist(); renderShadowRows(plan, updateOutput); updateOutput();
+  });
+  toInput.addEventListener("input", function () {
+    plan.to = parseInt(toInput.value, 10) || 0; persist(); renderShadowRows(plan, updateOutput); updateOutput();
+  });
 
   function updateOutput() {
     const errorEl = document.getElementById("equipPlanError");
@@ -113,10 +149,12 @@ function renderEquipPlanSection() {
     }
     errorEl.style.display = "none";
 
-    const result = computeEquipRangePlan(plan.from, plan.to, boostConfig, plan.recovery);
+    const shadowConfig = { step7: plan.shadowStep7, step8: plan.shadowStep8 };
+    const result = computeEquipRangePlan(plan.from, plan.to, boostConfig, plan.recovery, state.prices, shadowConfig);
     outputBody.innerHTML = "";
     [
       ["순도 높은 흑결정", result.attempts, "개"],
+      ["고결한 흑결정(그림자 장비용)", result.blackCrystal, "개"],
       ["은화(복구 시 직접 소모)", result.silverDirect, "은화"],
       ["확률 상승권(10%)", result.boost10, "개"],
       ["확률 상승권(50%)", result.boost50, "개"],

@@ -10,7 +10,8 @@ import {
   SOUL_CUMULATIVE_QTY_TABLE, ANCIENT_ANVIL, RELIC_SERIES_CP_GAIN, RELIC_SERIES_RECOVERY_QTY, RELIC_SERIES_ATTEMPT_COST,
   FAMILY_ITEMS, EQUIP_DROP_PROTECT, EQUIP_SHADOW_PROTECT, EQUIP_PROBABILITY_BOOST, EQUIP_PROBABILITY_BOOST_ITEM,
   UNPRICED_MATERIALS, MATERIAL_PRICE_SUBSTITUTE, LIGHTSTONE_GRADE_UP_TABLE, EMBLEM_DECORATION_UNLOCK,
-  KARAZAD_CRAFT, KARAZAD_ITEM_MATERIAL, KARAZAD_BREAKTHROUGH_CURVE
+  KARAZAD_CRAFT, KARAZAD_ITEM_MATERIAL, KARAZAD_BREAKTHROUGH_CURVE,
+  SHADOW_GEAR, SHADOW_GEAR_ANVIL, SHADOW_GEAR_ATTEMPT_SILVER, BLACK_CRYSTAL_TICKET_QTY, BLACK_CRYSTAL_BOOST_RECIPES
 } from "../data/gameData.js";
 
 export function familyItem(id) { return FAMILY_ITEMS.filter(function (x) { return x.id === id; })[0]; }
@@ -190,12 +191,45 @@ export function validateEquipRangeConfig(boostConfig, recoveryConfig) {
   return null;
 }
 
-export function computeEquipRangePlan(from, to, boostConfig, recoveryConfig) {
+// 그림자 장비 1개 제작 재료(돌파 복구권 1050개 고정 + 확률 상승권 10%/50%/100% 중 하나, 섞어
+// 쓸 수 없음)에서 현재 시세 기준 가장 저렴한 조합을 고릅니다.
+function cheapestBlackCrystalRecipe(prices) {
+  let best = null;
+  BLACK_CRYSTAL_BOOST_RECIPES.forEach(function (r) {
+    const cost = BLACK_CRYSTAL_TICKET_QTY * priceOf("돌파 복구권", prices) + r.boostQty * priceOf("확률 상승권(" + r.boostType + "%)", prices);
+    if (!best || cost < best.cost) best = { boostType: r.boostType, boostQty: r.boostQty, cost: cost };
+  });
+  return best;
+}
+
+// 그림자 장비 트랙 — 100% 방어(실패해도 하락 없음, 복구 비용 없음)라 확률/모루/하락 재귀를 전부
+// 건너뛰고 결정론적으로 계산합니다(자체 단계마다 모루 17 → 시도 18회 확정).
+function computeShadowGearResult(step, prices) {
+  const shadow = SHADOW_GEAR[step];
+  const attempts = (SHADOW_GEAR_ANVIL + 1) * shadow.targetSteps;
+  const crystalQty = attempts * shadow.crystalPerAttempt;
+  const recipe = cheapestBlackCrystalRecipe(prices);
+  const result = {
+    attempts: 0, silverDirect: attempts * SHADOW_GEAR_ATTEMPT_SILVER,
+    boost10: 0, boost50: 0, boost100: 0,
+    recoveryTicket: crystalQty * BLACK_CRYSTAL_TICKET_QTY, blackCrystal: crystalQty
+  };
+  result["boost" + recipe.boostType] = crystalQty * recipe.boostQty;
+  return result;
+}
+
+export function computeEquipRangePlan(from, to, boostConfig, recoveryConfig, prices, shadowConfig) {
+  shadowConfig = shadowConfig || {};
   const memo = {};
-  function zero() { return { attempts: 0, silverDirect: 0, boost10: 0, boost50: 0, boost100: 0, recoveryTicket: 0 }; }
+  function zero() { return { attempts: 0, silverDirect: 0, boost10: 0, boost50: 0, boost100: 0, recoveryTicket: 0, blackCrystal: 0 }; }
   function solve(step) {
     if (step < 0) return zero(); // 0강→1강 자체는 여전히 계산해야 함 — 그 아래(음수)만 진짜 바닥
     if (memo[step] !== undefined) return memo[step];
+    if (SHADOW_GEAR[step] && shadowConfig["step" + step]) {
+      const shadowResult = computeShadowGearResult(step, prices);
+      memo[step] = shadowResult;
+      return shadowResult;
+    }
     const label = step + 1;
     const boostType = equipRangeBoostTypeAt(label, boostConfig);
     const mult = boostType ? EQUIP_RANGE_BOOST_MULT[boostType] : 1;
@@ -218,7 +252,8 @@ export function computeEquipRangePlan(from, to, boostConfig, recoveryConfig) {
       boost10: (boostType === "10" ? attempts : 0) + reclimb.boost10 * factor,
       boost50: (boostType === "50" ? attempts : 0) + reclimb.boost50 * factor,
       boost100: (boostType === "100" ? attempts : 0) + reclimb.boost100 * factor,
-      recoveryTicket: protectTicket + reclimb.recoveryTicket * factor
+      recoveryTicket: protectTicket + reclimb.recoveryTicket * factor,
+      blackCrystal: reclimb.blackCrystal * factor
     };
     memo[step] = result;
     return result;
@@ -228,6 +263,7 @@ export function computeEquipRangePlan(from, to, boostConfig, recoveryConfig) {
   for (let s = from; s < to; s++) {
     const r = solve(s);
     total.attempts += r.attempts;
+    total.blackCrystal += r.blackCrystal;
     total.silverDirect += r.silverDirect;
     total.boost10 += r.boost10;
     total.boost50 += r.boost50;
