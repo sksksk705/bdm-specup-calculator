@@ -34,8 +34,23 @@ export function appendAwakenCheckbox(controls, awakenedObj, grade) {
   controls.appendChild(wrap);
 }
 
-// 등급별 대표 색상 — 선택창 앞에 작은 점으로 표시합니다(사용자 제공값).
+// 등급별 대표 색상 — 선택창 앞 점과 카드 배경/테두리에 함께 씁니다(사용자 제공값).
 const GRADE_COLORS = { "태고": "#EC4899", "혼돈": "#6366F1", "공허": "#8B5CF6", "검은별": "#EAB308" };
+
+function hexToRgbParts(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  return ((n >> 16) & 255) + "," + ((n >> 8) & 255) + "," + (n & 255);
+}
+
+// 등급 색상을 카드 배경(약한 그라데이션)·테두리에도 반영해 등급이 한눈에 보이게 합니다.
+// (색상이 없는 등급은 스타일시트 기본값으로 되돌립니다.)
+function applyGradeTint(tile, grade) {
+  const color = GRADE_COLORS[grade];
+  if (!color) { tile.style.background = ""; tile.style.borderColor = ""; return; }
+  const rgb = hexToRgbParts(color);
+  tile.style.background = "linear-gradient(135deg, rgba(" + rgb + ",0.16), transparent 70%), var(--ink)";
+  tile.style.borderColor = "rgba(" + rgb + ",0.5)";
+}
 
 // 등급 <select> 앞에 현재 등급의 대표 색상 점을 붙인 묶음(색상이 없는 등급은 점을 숨김).
 function buildGradeSelect(gradeOptions, currentGrade, onChange) {
@@ -65,6 +80,7 @@ function buildGradeSelect(gradeOptions, currentGrade, onChange) {
 
 export function gradeStepTile(name, gradeOptions, rec, onGradeChange, onStepChange, maxStepFor) {
   const built = buildTile(name);
+  applyGradeTint(built.tile, rec.grade);
   built.controls.appendChild(buildGradeSelect(gradeOptions, rec.grade, onGradeChange));
 
   const stepSel = document.createElement("select");
@@ -105,6 +121,7 @@ export function levelOnlyTile(name, maxLevel, level, onChange) {
 // 등급업(제작) 경로가 있는 항목용 — 등급 선택 + 현재 단계 숫자 입력을 함께 보여준다.
 export function levelWithGradeTile(name, gradeOptions, maxLevel, fam, onLevelChange, onGradeChange) {
   const built = buildTile(name);
+  applyGradeTint(built.tile, fam.grade);
   built.controls.appendChild(buildGradeSelect(gradeOptions, fam.grade, onGradeChange));
 
   const input = document.createElement("input");
