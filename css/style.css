@@ -180,6 +180,10 @@ button.icon-btn:hover { color: var(--bad); background: var(--bad-soft); }
 /* ---------- Tables ---------- */
 .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
 table { width: 100%; border-collapse: collapse; font-size: 12.8px; min-width: 640px; }
+/* ② 스펙업 방식 표 — 긴 "다음 액션"/"소모 재료" 텍스트가 표 전체 가로 폭을 늘리지 않도록
+   고정 열 너비(colgroup)로 줄바꿈시킵니다(표는 항상 컨테이너 너비 안에 들어옵니다). */
+.spec-table { table-layout: fixed; }
+.spec-table td { white-space: normal; }
 thead th {
   text-align: left; padding: 9px 11px; background: var(--ink-3); color: var(--text-faint);
   font-weight: 700; font-size: 11px; letter-spacing: 0.03em; text-transform: uppercase;
