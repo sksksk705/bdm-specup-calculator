@@ -58,7 +58,7 @@ function applyGradeTint(tile, grade) {
   const color = GRADE_COLORS[grade];
   if (!color) { tile.style.background = ""; tile.style.borderColor = ""; return; }
   const rgb = hexToRgbParts(color);
-  tile.style.background = "linear-gradient(135deg, rgba(" + rgb + ",0.16), transparent 70%), var(--ink)";
+  tile.style.background = "linear-gradient(135deg, rgba(" + rgb + ",0.16), transparent 70%), var(--card-2)";
   tile.style.borderColor = "rgba(" + rgb + ",0.5)";
 }
 
