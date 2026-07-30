@@ -542,8 +542,8 @@ export const FAMILY_ITEMS = [
   // 등급 전환 시 자동으로 바뀌게 했습니다.
   { id: "ring1", name: "반지", maxLevel: 10, gradeOptions: ["태고", "혼돈", "공허", "카라자드"],
     cpPerLevel: 10, cpEditable: true, cpTable: ACCESSORY_CP_TABLE, cpTableKey: "ring1",
-    materialOptions: ["반지(강화용 동일품)", "카라자드 반지"], defaultMaterial: "반지(강화용 동일품)",
-    materialByGrade: { "카라자드": "카라자드 반지" },
+    materialOptions: ["반지(강화용 동일품)", "카프라스 반지", "카라자드 반지"], defaultMaterial: "반지(강화용 동일품)",
+    materialByGrade: { "공허": "카프라스 반지", "카라자드": "카라자드 반지" },
     anvilTable: ANCIENT_ANVIL.accessory, recoveryKey: "accessory", recoveryTable: ACCESSORY_RECOVERY_TABLE },
   { id: "necklace", name: "목걸이", maxLevel: 10, gradeOptions: ["태고", "혼돈", "공허", "카라자드"],
     cpPerLevel: 10, cpEditable: true, cpTable: ACCESSORY_CP_TABLE, cpTableKey: "necklace",
