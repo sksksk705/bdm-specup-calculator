@@ -113,6 +113,25 @@ a { color: var(--accent); }
 .page-head h1 { font-size: 25px; font-weight: 800; letter-spacing: -0.01em; }
 .page-head p { margin: 2px 0 0; color: var(--text-dim); font-size: 13.5px; max-width: 66ch; }
 
+/* ---------- Onboarding banner (첫 방문 안내, 닫으면 다시 안 뜸) ---------- */
+.onboard-banner {
+  position: relative;
+  background: linear-gradient(135deg, var(--accent-soft), transparent 70%), var(--ink-2);
+  border: 1px solid var(--line-strong); border-radius: 14px;
+  padding: 15px 44px 15px 18px; margin-bottom: 16px; box-shadow: var(--shadow);
+}
+.onboard-banner.hidden { display: none; }
+.onboard-banner .onboard-title { font-size: 13.5px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+.onboard-banner ol { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+.onboard-banner li { font-size: 12.5px; color: var(--text-dim); line-height: 1.6; }
+.onboard-banner li b { color: var(--text); }
+.onboard-close {
+  position: absolute; top: 9px; right: 9px;
+  appearance: none; border: none; background: none; cursor: pointer;
+  color: var(--text-faint); font-size: 14px; padding: 4px 8px; border-radius: 6px; line-height: 1;
+}
+.onboard-close:hover { color: var(--bad); background: var(--bad-soft); }
+
 /* ---------- Recommendation banner ---------- */
 .reco-bar {
   display: grid; grid-template-columns: auto 1fr auto; gap: 18px; align-items: center;
@@ -262,3 +281,17 @@ footer.disclaimer {
   font-size: 11.5px; color: var(--text-faint); line-height: 1.7;
 }
 footer.disclaimer ul { margin: 6px 0 0; padding-left: 18px; }
+footer.disclaimer details {
+  border: 1px solid var(--line); border-radius: 8px; margin-top: 8px; overflow: hidden;
+}
+footer.disclaimer summary {
+  cursor: pointer; padding: 9px 12px; font-size: 12px; font-weight: 700; color: var(--text-dim);
+  list-style: none;
+}
+footer.disclaimer summary::-webkit-details-marker { display: none; }
+footer.disclaimer summary::before { content: "▸ "; color: var(--accent); }
+footer.disclaimer details[open] summary { border-bottom: 1px solid var(--line); }
+footer.disclaimer details[open] summary::before { content: "▾ "; }
+footer.disclaimer details ul { margin: 0; padding: 10px 14px 10px 30px; }
+footer.disclaimer details li { margin-bottom: 8px; }
+footer.disclaimer details li:last-child { margin-bottom: 0; }

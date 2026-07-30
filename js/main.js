@@ -10,9 +10,11 @@ import { renderSpecTable } from "./ui/specTable.js";
 import { renderEvCalcTab } from "./ui/evCalcTab.js";
 import { renderReferenceTab } from "./ui/referenceTab.js";
 import { initThemeToggle } from "./ui/theme.js";
+import { initOnboarding } from "./ui/onboarding.js";
 
 async function boot() {
   initThemeToggle();
+  initOnboarding();
 
   let defaultPrices;
   try {
