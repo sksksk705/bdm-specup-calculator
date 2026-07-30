@@ -209,6 +209,9 @@ button.icon-btn:hover { color: var(--bad); background: var(--bad-soft); }
 .gear-main { display: grid; grid-template-columns: repeat(2, minmax(150px, 210px)); gap: 10px; justify-content: end; }
 .gear-triple { display: grid; grid-template-columns: repeat(3, minmax(140px, 190px)); gap: 10px; margin-top: 10px; justify-content: end; }
 @media (max-width: 460px) { .gear-triple { grid-template-columns: 1fr; } }
+/* 밤·달빛 영혼석(③ 탭) — 항목이 2개뿐이라 gear-triple(3열)을 쓰면 빈 칸이 남아 어색해서
+   전용 2열 그리드를 씁니다. auto-fit이라 좁은 화면에서는 자연스럽게 1열로 접힙니다. */
+.soul-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 300px)); gap: 12px; }
 .gear-tile {
   position: relative;
   background: var(--card-2); border: 1px solid var(--line-strong); border-radius: 10px;

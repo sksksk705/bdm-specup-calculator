@@ -5,8 +5,11 @@
 
 import { SOUL_ITEMS, SOUL_BREAKTHROUGH_CURVE, SHADOW_GEAR } from "../data/gameData.js";
 import { state, persist } from "../data/userState.js";
-import { buildTile } from "./tiles.js";
+import { buildTile, applyColorTint } from "./tiles.js";
 import { fmt, soulCumulativeQty, computeEquipRangePlan, validateEquipRangeConfig } from "../logic/calculations.js";
+
+// 밤·달빛 영혼석 카드 그라데이션 색(사용자 제공값).
+const SOUL_COLORS = { nightsoul: "#AF39C5", moonsoul: "#6B90C6" };
 
 function renderSoulSection() {
   const wrap = document.getElementById("soulGrid");
@@ -14,6 +17,7 @@ function renderSoulSection() {
   SOUL_ITEMS.forEach(function (item) {
     const rec = state.soul[item.id];
     const built = buildTile(item.name);
+    applyColorTint(built.tile, SOUL_COLORS[item.id]);
     const stepSel = document.createElement("select");
     for (let i = 0; i <= SOUL_BREAKTHROUGH_CURVE.length; i++) {
       const o = document.createElement("option"); o.value = i; o.textContent = i + "단계";
