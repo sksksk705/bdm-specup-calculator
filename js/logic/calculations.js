@@ -4,11 +4,11 @@
 // 을 쓰든 그대로 재사용할 수 있습니다.
 
 import {
-  GRADE_ORDER, BREAKTHROUGH_GRADES, EQUIP_BREAKTHROUGH_CURVE, EQUIP_CP_TABLE, GRADE_UP_RECIPES,
+  GRADE_ORDER, EQUIP_BREAKTHROUGH_CURVE, EQUIP_CP_TABLE, EQUIP_BASE_STAT, GRADE_UP_RECIPES,
   EQUIP_AWAKEN, ACCESSORY_AWAKEN, ACCESSORY_GRADE_UP, ACCESSORY_GRADE_NEXT, GRADE_UP_BUY_ITEM,
   RING_QTY_PER_STEP, RING_STAT_AT_STEP, RING_GRADE_UP, RING_ATTEMPT_SILVER,
   SOUL_CUMULATIVE_QTY_TABLE, ANCIENT_ANVIL, RELIC_SERIES_CP_GAIN, RELIC_SERIES_RECOVERY_QTY, RELIC_SERIES_ATTEMPT_COST,
-  FAMILY_ITEMS, EQUIP_DROP_PROTECT, EQUIP_SHADOW_PROTECT, EQUIP_PROBABILITY_BOOST, EQUIP_PROBABILITY_BOOST_ITEM,
+  FAMILY_ITEMS, EQUIP_DROP_PROTECT,
   UNPRICED_MATERIALS, MATERIAL_PRICE_SUBSTITUTE, MATERIAL_CRAFT_MULTIPLIER, LIGHTSTONE_GRADE_UP_TABLE, EMBLEM_DECORATION_UNLOCK,
   KARAZAD_CRAFT, KARAZAD_ITEM_MATERIAL, KARAZAD_BREAKTHROUGH_CURVE,
   SHADOW_GEAR, SHADOW_GEAR_ANVIL, SHADOW_GEAR_ATTEMPT_SILVER, BLACK_CRYSTAL_TICKET_QTY, BLACK_CRYSTAL_BOOST_RECIPES,
@@ -86,12 +86,6 @@ export function recipeCostForPart(recipe, partId, prices) {
   return { total: total, label: parts.join(", ") };
 }
 
-// 확률 상승권(1회당 1개, EQUIP_PROBABILITY_BOOST 배율)을 적용한 실제 성공 확률.
-export function equipBoostedProbability(step) {
-  const base = EQUIP_BREAKTHROUGH_CURVE[step] / 100;
-  return Math.min(1, base * EQUIP_PROBABILITY_BOOST[step]);
-}
-
 // 실제 성공 확률 p로, 고대의 모루 확정 시도 횟수(N)를 상한으로 하는 절단 기하분포 기대 시도
 // 횟수. 공식 E = (1-(1-p)^N)/p — N번째는 모루로 확정 성공하고, 그 전에 확률 p로 먼저 성공할
 // 수도 있어 기댓값은 항상 N 이하입니다.
@@ -100,55 +94,12 @@ function truncatedGeometricExpectedAttempts(p, n) {
   return (1 - Math.pow(1 - p, n)) / p;
 }
 
-// ANCIENT_ANVIL 값은 "허용되는 최대 실패 횟수"라 총 시도 횟수 상한 N은 그 값+1(실패를 다
-// 채운 다음 시도가 확정 성공, 사용자 확인 2026-07-28)입니다.
-export function equipExpectedAttempts(step) {
-  const p = equipBoostedProbability(step);
-  const n = ANCIENT_ANVIL.equip[step] + 1;
-  return truncatedGeometricExpectedAttempts(p, n);
-}
-
 // 카라자드(신성 등급) 장신구 — 다른 장신구 등급과 달리 실제 성공 확률표(KARAZAD_BREAKTHROUGH_CURVE)와
 // 전용 모루표(ANCIENT_ANVIL.karazad)가 있어, 장비 돌파와 같은 방식으로 둘을 함께 반영합니다.
 export function karazadExpectedAttempts(step) {
   const p = KARAZAD_BREAKTHROUGH_CURVE[step] / 100;
   const n = ANCIENT_ANVIL.karazad[step] + 1;
   return truncatedGeometricExpectedAttempts(p, n);
-}
-
-// 기대 시도 횟수만큼의 재료+확률 상승권 비용. 상승권은 실패분이 아니라 "매 시도"마다 씁니다
-// (어느 시도가 성공할지 미리 알 수 없으므로). 회당 재료 소모량(qtyPerAttempt)은 다른 항목과
-// 동일하게 공식 문서에 없어 1개(더미)로 가정합니다 — 시도 횟수 자체는 더 이상 더미가 아닙니다.
-export function equipAttemptCost(step, materialPrice, prices) {
-  const attempts = equipExpectedAttempts(step);
-  const qtyPerAttempt = dummyQtyPerAttempt(step);
-  const totalQty = attempts * qtyPerAttempt;
-  const boostItem = EQUIP_PROBABILITY_BOOST_ITEM[step];
-  const boostCost = boostItem ? priceOf(boostItem, prices) : 0;
-  return { attempts: attempts, qtyPerAttempt: qtyPerAttempt, totalQty: totalQty, cost: totalQty * materialPrice + attempts * boostCost };
-}
-
-// 장비 돌파는 "그냥 강화"로 진행하면 0강 초과 모든 단계에서 실패 시 50% 확률로 1단계 하락할 수
-// 있고, 돌파 복구권을 필수로 소모해 방어를 시도합니다(사용자 확인, 그래도 50%만 방어됨). 고대의
-// 모루는 "실패 시 기운 +1, 성공 시 그 단계만 초기화되고 그보다 아래 단계는 유지"라 하락 여부와
-// 무관하다고 확인돼(사용자 확인), 하락하면 그 아래 단계까지 같은 방어 정책(및 같은 확률 상승권
-// 전략)으로 다시 돌파해야 한다고 가정해 기댓값을 재귀적으로 계산합니다. 정확히 몇 단계까지
-// 떨어지는지는 공식 문서에 없어 1단계 하락으로 가정했습니다. 0강은 더 떨어질 곳이 없어 방어가
-// 필요 없습니다(하락 위험 자체가 없음). method: "plain"(그냥 강화, 50% 방어) 또는 "shadow"
-// (7·8강 전용 혼돈의 그림자 장비 사용, 100% 방어 — 그 외 단계는 100% 방어 수단이 없어 자동으로
-// plain 방식으로 처리됩니다).
-export function equipStepCost(step, method, materialPrice, ticketPrice, prices) {
-  const { attempts, cost: attemptCost } = equipAttemptCost(step, materialPrice, prices);
-  const failures = attempts - 1; // 회당 재료 소모량은 1로 가정하므로 attempts == totalQty
-  if (step <= 0) return attemptCost;
-  const shadow = EQUIP_SHADOW_PROTECT[step];
-  const useShadow = method === "shadow" && !!shadow;
-  const protectCost = useShadow
-    ? shadow.shadowTicket * ticketPrice + shadow.shadowSilver
-    : EQUIP_DROP_PROTECT.plainTicket * ticketPrice + EQUIP_DROP_PROTECT.plainSilver;
-  const dropChance = useShadow ? 0 : 0.5;
-  const reclimbCost = dropChance > 0 ? equipStepCost(step - 1, method, materialPrice, ticketPrice, prices) : 0;
-  return attemptCost + failures * protectCost + failures * dropChance * reclimbCost;
 }
 
 // 장비 돌파 "강화 기대값 계산기"(③ 탭) — 사용자가 직접 확률 상승권 10%/50%/100% 사용 구간과
@@ -283,63 +234,34 @@ export function computeEquipRangePlan(from, to, boostConfig, recoveryConfig, pri
   return total;
 }
 
-function equipBoostLabel(step) {
-  const item = EQUIP_PROBABILITY_BOOST_ITEM[step];
-  return item ? " + 시도당 " + item : "";
+// 장비 등급업(혼돈→공허)은 각성이 필수 선행조건이지만(장신구와 동일 규칙), 강화(잠재력 돌파)
+// 단계는 무관하게 아무 때나 할 수 있습니다 — 현재 단계 그대로 다음 등급으로 넘어갑니다(사용자
+// 확인, 2026-07-31). 전투력 증가치는 "등급업 전(현재 등급 0강 기준치 + 지금까지 강화로 쌓은
+// 증가분 + 이미 각성했다면 그 보너스) vs 등급업 후(다음 등급 0강 기준치 + 같은 강화 단계까지의
+// 증가분)"의 차이로 계산합니다.
+function equipCumulativeCp(grade, partId, uptoStep) {
+  const arr = EQUIP_CP_TABLE[grade] && EQUIP_CP_TABLE[grade][partId];
+  if (!arr) return 0;
+  let sum = 0;
+  for (let i = 0; i < uptoStep; i++) sum += arr[i];
+  return sum;
 }
-
-export function computeEquipNextAction(part, rec, prices) {
-  const grade = rec.grade, step = rec.step;
-  if (BREAKTHROUGH_GRADES[grade] && step < 10) {
-    const cpTable = EQUIP_CP_TABLE[grade] && EQUIP_CP_TABLE[grade][part.id];
-    const hasRealCp = !!cpTable;
-    const gain = hasRealCp ? cpTable[step] : (rec.cpGain || 0);
-    const materialPrice = priceOf(rec.material, prices);
-    const ticketPrice = priceOf("돌파 복구권", prices);
-    const attempts = equipExpectedAttempts(step);
-    const shadow = EQUIP_SHADOW_PROTECT[step];
-    // 0강은 더 떨어질 곳이 없어 하락 위험·복구권 소모가 없습니다. 그 외 단계는 "그냥 강화"도
-    // 하락 50% 방어를 위해 돌파 복구권을 필수로 소모합니다(사용자 확인, 2026-07-28).
-    const plainSuffix = step > 0
-      ? " + 실패당 돌파 복구권 " + EQUIP_DROP_PROTECT.plainTicket + "개·은화 " + fmt(EQUIP_DROP_PROTECT.plainSilver) + "(하락 50% 방어, 하락 시 재돌파 비용 포함)"
-      : "";
-    const variants = [
-      {
-        label: grade + " 돌파 " + step + " → " + (step + 1) + "단계" + (step > 0 ? " (그냥 강화, 하락 50% 방어)" : ""),
-        materialLabel: rec.material + " × 기대값 " + fmt(attempts) + equipBoostLabel(step) + plainSuffix,
-        cost: equipStepCost(step, "plain", materialPrice, ticketPrice, prices), gain: gain, maxed: false,
-        editable: { material: false, qty: false, cp: !hasRealCp }
-      }
-    ];
-    if (shadow) {
-      variants.push({
-        label: grade + " 돌파 " + step + " → " + (step + 1) + "단계 (" + shadow.label + " 사용, 하락 100% 방어)",
-        materialLabel: rec.material + " × 기대값 " + fmt(attempts) + equipBoostLabel(step) + " + 실패당 " + shadow.label + "(돌파 복구권 " + shadow.shadowTicket + "개·은화 " + fmt(shadow.shadowSilver) + " 제작)",
-        cost: equipStepCost(step, "shadow", materialPrice, ticketPrice, prices), gain: gain, maxed: false,
-        editable: { material: false, qty: false, cp: !hasRealCp }
-      });
-    }
-    return { variants: variants };
-  }
+export function computeEquipGradeUp(part, rec, prices) {
+  const grade = rec.grade;
   const nextGrade = nextGradeOf(grade);
-  if (!nextGrade) return { label: "최고 단계 도달", cost: 0, gain: 0, maxed: true, editable: {} };
-  // 각성해야만 다음 등급으로 제작(등급업)할 수 있습니다(잠재력 돌파 단계와는 무관 — 각성은 언제든
-  // 가능하지만, 등급업의 필수 선행조건입니다). 아직 각성 전이면 등급업 액션 대신 별도로 계산되는
-  // "각성" 액션(computeEquipAwaken)만 표시합니다.
-  if (EQUIP_AWAKEN[grade] && !rec.awakened) {
-    return { label: "각성 필요(등급업 선행조건)", cost: 0, gain: 0, maxed: true, editable: {} };
-  }
+  if (!nextGrade) return null;
+  const awakenTable = EQUIP_AWAKEN[grade] && EQUIP_AWAKEN[grade][part.id];
+  if (awakenTable && !rec.awakened) return null; // computeEquipAwaken이 별도로 각성 액션을 보여줌
   const recipe = GRADE_UP_RECIPES.filter(function (r) { return r.from === grade && r.to === nextGrade; })[0];
-  if (recipe) {
-    const c = recipeCostForPart(recipe, part.id, prices);
-    return {
-      label: grade + " → " + nextGrade + " 등급업",
-      materialLabel: c.label,
-      cost: c.total, gain: rec.cpGain || 0, maxed: false,
-      editable: { material: false, qty: false, cp: true }
-    };
-  }
-  return { label: "데이터 없음", cost: 0, gain: 0, maxed: true, editable: {} };
+  if (!recipe) return null;
+  const c = recipeCostForPart(recipe, part.id, prices);
+  const currentCp = EQUIP_BASE_STAT[grade][part.id] + equipCumulativeCp(grade, part.id, rec.step) + (awakenTable ? awakenTable.cpGain : 0);
+  const nextCp = EQUIP_BASE_STAT[nextGrade][part.id] + equipCumulativeCp(nextGrade, part.id, rec.step);
+  return {
+    label: grade + "(" + rec.step + "강) → " + nextGrade + "(" + rec.step + "강) 등급업",
+    materialLabel: c.label,
+    cost: c.total, gain: nextCp - currentCp
+  };
 }
 
 // 각성 — 잠재력 돌파 단계와 무관하게 해당 등급에서 언제든 가능하지만(선행조건 없음), 다음 등급으로

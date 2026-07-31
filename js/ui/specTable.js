@@ -7,7 +7,7 @@ import {
 import { state, persist } from "../data/userState.js";
 import {
   fmt, efficiencySortKey, dummyQtyPerAttempt, familyMaxLevel, familyCpGainArray, priceOf,
-  computeEquipNextAction, computeEquipAwaken, computeAccessoryAwaken, computeRingNextAction,
+  computeEquipAwaken, computeEquipGradeUp, computeAccessoryAwaken, computeRingNextAction,
   computeAccessoryGradeUp, computeRelicSeriesAction, computeLightstoneGradeUp,
   isEmblemDecorationUnlocked, karazadExpectedAttempts, computeKarazadCraft,
   computeInsigniaGradeUp, emblemDecoRealLevel
@@ -22,22 +22,23 @@ export function renderSpecTable() {
   PARTS.forEach(function (part) {
     const rec = state.status[part.id];
     // 장비 돌파(0~10강) 자체는 사용자가 확률 상승권·돌파 복구권 구간을 직접 설정하는
-    // ③ 탭 "강화 기대값 계산기"로 옮겼습니다 — 여기서는 등급업(혼돈→공허)만 다룹니다.
-    const action = computeEquipNextAction(part, rec, state.prices);
-    if (!action.variants && !action.maxed) {
-      rows.push({
-        item: part.name, action: action.label, cost: action.cost, gain: action.gain, qty: action.qty, isDummyQty: action.isDummyQty,
-        buildMaterialCell: staticLabelCell(action.materialLabel),
-        buildQtyCell: null,
-        buildGainCell: action.editable.cp ? function (rec) { return function (td) { td.appendChild(buildNumberInput(rec.cpGain, function (v) { rec.cpGain = v; persist(); renderSpecTable(); })); }; }(rec) : null
-      });
-    }
-
+    // ③ 탭 "강화 기대값 계산기"로 옮겼습니다 — 여기서는 각성·등급업(혼돈→공허)만 다룹니다.
+    // 등급업은 강화 단계와 무관하게 각성만 되면 언제든 가능합니다(사용자 확인, 2026-07-31).
     const awaken = computeEquipAwaken(part, rec, state.prices);
     if (awaken) {
       rows.push({
         item: part.name, action: awaken.label, cost: awaken.cost, gain: awaken.gain,
         buildMaterialCell: staticLabelCell(awaken.materialLabel),
+        buildQtyCell: null,
+        buildGainCell: null
+      });
+    }
+
+    const gradeUp = computeEquipGradeUp(part, rec, state.prices);
+    if (gradeUp) {
+      rows.push({
+        item: part.name, action: gradeUp.label, cost: gradeUp.cost, gain: gradeUp.gain,
+        buildMaterialCell: staticLabelCell(gradeUp.materialLabel),
         buildQtyCell: null,
         buildGainCell: null
       });
