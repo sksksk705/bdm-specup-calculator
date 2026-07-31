@@ -9,7 +9,8 @@ import {
   fmt, efficiencySortKey, dummyQtyPerAttempt, familyMaxLevel, familyCpGainArray, priceOf,
   computeEquipNextAction, computeEquipAwaken, computeAccessoryAwaken, computeRingNextAction,
   computeAccessoryGradeUp, computeRelicSeriesAction, computeLightstoneGradeUp,
-  isEmblemDecorationUnlocked, emblemDecorationGain, karazadExpectedAttempts, computeKarazadCraft
+  isEmblemDecorationUnlocked, emblemDecorationGain, karazadExpectedAttempts, computeKarazadCraft,
+  computeInsigniaGradeUp
 } from "../logic/calculations.js";
 import { buildNumberInput, staticLabelCell } from "./domHelpers.js";
 
@@ -97,8 +98,7 @@ export function renderSpecTable() {
         : item.anvilTable ? " (고대의 모루 확정까지 최대 " + attempts + "회)" : "");
       const cpArr = familyCpGainArray(item, fam.grade);
       const hasRealCp = !!(cpArr && cpArr[fam.level] !== undefined) || item.cpMin !== undefined;
-      const gain = item.dualStatByGrade ? (fam.atkGain || 0) + (fam.defGain || 0)
-        : item.cpMin !== undefined ? emblemDecorationGain(item.cpMin, item.cpMax, fam.level)
+      const gain = item.cpMin !== undefined ? emblemDecorationGain(item.cpMin, item.cpMax, fam.level)
         : (hasRealCp ? cpArr[fam.level] : fam.cpPerLevel);
       rows.push({
         item: item.name, action: actionLabel, cost: cost, gain: gain, qty: qtyPerAttempt,
@@ -150,21 +150,7 @@ export function renderSpecTable() {
           };
         }(item, fam, totalQty, hasRealRecovery, recTable),
         buildQtyCell: null,
-        buildGainCell: item.dualStatByGrade
-          ? function (fam) { return function (td) {
-              const wrap = document.createElement("div");
-              wrap.style.cssText = "display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:flex-end;";
-              const atkLabel = document.createElement("span");
-              atkLabel.style.cssText = "color:var(--text-faint);font-size:10px;"; atkLabel.textContent = "공격력";
-              wrap.appendChild(atkLabel);
-              wrap.appendChild(buildNumberInput(fam.atkGain, function (v) { fam.atkGain = v; persist(); renderSpecTable(); }, "55px"));
-              const defLabel = document.createElement("span");
-              defLabel.style.cssText = "color:var(--text-faint);font-size:10px;"; defLabel.textContent = "방어력";
-              wrap.appendChild(defLabel);
-              wrap.appendChild(buildNumberInput(fam.defGain, function (v) { fam.defGain = v; persist(); renderSpecTable(); }, "55px"));
-              td.appendChild(wrap);
-            }; }(fam)
-          : (item.cpEditable && !hasRealCp) ? function (td) { td.appendChild(buildNumberInput(fam.cpPerLevel, function (v) { fam.cpPerLevel = v; persist(); renderSpecTable(); })); } : null
+        buildGainCell: (item.cpEditable && !hasRealCp) ? function (td) { td.appendChild(buildNumberInput(fam.cpPerLevel, function (v) { fam.cpPerLevel = v; persist(); renderSpecTable(); })); } : null
       });
     }
 
@@ -173,6 +159,20 @@ export function renderSpecTable() {
       rows.push({
         item: item.name, action: accAwaken.label, cost: accAwaken.cost, gain: accAwaken.gain,
         buildMaterialCell: staticLabelCell(accAwaken.materialLabel),
+        buildQtyCell: null,
+        buildGainCell: null
+      });
+    }
+
+    // 문양 각인서 — 강화가 아니라 "다음 등급 책으로 교체 구매"가 스펙업 액션입니다(위 강화
+    // 블록은 maxLevel이 없어 자연히 건너뜁니다). 전투력 상승량은 computeInsigniaGradeUp이
+    // 다음 등급 중앙값에서 ①탭의 현재 실제 감정 결과를 뺀 값으로 계산해, 여기서는 그대로
+    // 표시만 합니다(직접 입력 불가).
+    const insigniaGradeUp = item.id === "insigniaBook" ? computeInsigniaGradeUp(item, fam, state.prices) : null;
+    if (insigniaGradeUp) {
+      rows.push({
+        item: item.name, action: insigniaGradeUp.label, cost: insigniaGradeUp.cost, gain: insigniaGradeUp.gain,
+        buildMaterialCell: staticLabelCell(insigniaGradeUp.materialLabel),
         buildQtyCell: null,
         buildGainCell: null
       });

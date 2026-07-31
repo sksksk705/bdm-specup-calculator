@@ -125,6 +125,35 @@ export function levelOnlyTile(name, maxLevel, level, onChange) {
   return built.tile;
 }
 
+// 문양 각인서처럼 강화 단계 대신 "실제 감정 결과(공격력/방어력)"를 직접 고르는 항목용 —
+// +N 배지 하나 대신 값 배지 두 개(공격력/방어력)를 우상단에 세로로 겹쳐 둡니다. 배지 자체가
+// <select>라 클릭해서 바로 수정할 수 있고, 범위는 현재 등급 기준입니다(사용자 확인, 2026-07-31).
+function buildStatBadge(range, currentValue, label, gradeColor, onChange) {
+  const badge = document.createElement("select");
+  badge.className = "tile-stat-badge";
+  badge.style.color = gradeColor || "var(--accent)";
+  for (let i = range[0]; i <= range[1]; i++) {
+    const o = document.createElement("option");
+    o.value = i; o.textContent = label + " " + i;
+    if (i === currentValue) o.selected = true;
+    badge.appendChild(o);
+  }
+  badge.addEventListener("change", function () { onChange(parseInt(badge.value, 10)); });
+  return badge;
+}
+
+export function dualStatWithGradeTile(name, gradeOptions, fam, statRangeByGrade, onAtkChange, onDefChange, onGradeChange) {
+  const built = buildTile(name);
+  applyGradeTint(built.tile, fam.grade);
+  const badgeWrap = document.createElement("div");
+  badgeWrap.className = "tile-stat-badges";
+  badgeWrap.appendChild(buildStatBadge(statRangeByGrade.atk[fam.grade], fam.atkGain, "공격력", GRADE_COLORS[fam.grade], onAtkChange));
+  badgeWrap.appendChild(buildStatBadge(statRangeByGrade.def[fam.grade], fam.defGain, "방어력", GRADE_COLORS[fam.grade], onDefChange));
+  built.tile.appendChild(badgeWrap);
+  built.controls.appendChild(buildGradeSelect(gradeOptions, fam.grade, onGradeChange));
+  return built.tile;
+}
+
 // 등급업(제작) 경로가 있는 항목용 — 등급 선택 + 현재 단계(배지 드랍다운)를 함께 보여준다.
 export function levelWithGradeTile(name, gradeOptions, maxLevel, fam, onLevelChange, onGradeChange) {
   const built = buildTile(name);

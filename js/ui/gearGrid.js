@@ -1,10 +1,10 @@
 // 프레젠테이션 계층 — ① 탭 "장비 & 장신구"(인게임 화면과 같은 배치) 그리드와
 // "기타 가문 콘텐츠" 3칸을 그립니다.
 
-import { PARTS, RING_GRADE_ORDER, RING_QTY_PER_STEP, GRADE_ORDER, ANCIENT_ANVIL } from "../data/gameData.js";
+import { PARTS, RING_GRADE_ORDER, RING_QTY_PER_STEP, GRADE_ORDER, ANCIENT_ANVIL, INSIGNIA_BOOK_MEDIAN_STAT } from "../data/gameData.js";
 import { state, persist } from "../data/userState.js";
 import { familyGradeOptions, familyMaxLevel, familyItem } from "../logic/calculations.js";
-import { gradeStepTile, stepOnlyTile, levelOnlyTile, levelWithGradeTile } from "./tiles.js";
+import { gradeStepTile, stepOnlyTile, levelOnlyTile, levelWithGradeTile, dualStatWithGradeTile } from "./tiles.js";
 import { renderSpecTable } from "./specTable.js";
 
 export function renderGearGrid() {
@@ -98,17 +98,17 @@ export function renderGearGrid() {
     }
   });
 
-  // 문양 각인서 — 유물 아래에 등급 하나만 골라 1개 구매+감정하는 1회성 항목.
+  // 문양 각인서 — 유물 아래에 등급 하나만 골라 현재 보유 중인 실제 감정 결과(공격력/방어력)를
+  // 직접 고르는 항목. 스펙업 액션(다음 등급 교체 구매)은 ②탭에서 계산합니다.
   const insigniaItem = familyItem("insigniaBook"), insigniaFam = state.family["insigniaBook"];
-  triple.appendChild(levelWithGradeTile(insigniaItem.name, familyGradeOptions(insigniaItem), familyMaxLevel(insigniaItem, insigniaFam.grade), insigniaFam,
-    function (v) { insigniaFam.level = v; persist(); renderSpecTable(); },
+  triple.appendChild(dualStatWithGradeTile(insigniaItem.name, familyGradeOptions(insigniaItem), insigniaFam, insigniaItem.statRangeByGrade,
+    function (v) { insigniaFam.atkGain = v; persist(); renderSpecTable(); },
+    function (v) { insigniaFam.defGain = v; persist(); renderSpecTable(); },
     function (g) {
-      insigniaFam.grade = g; insigniaFam.level = 0;
+      insigniaFam.grade = g;
+      insigniaFam.atkGain = INSIGNIA_BOOK_MEDIAN_STAT[g].atk;
+      insigniaFam.defGain = INSIGNIA_BOOK_MEDIAN_STAT[g].def;
       if (insigniaItem.materialByGrade && insigniaItem.materialByGrade[g]) insigniaFam.material = insigniaItem.materialByGrade[g];
-      if (insigniaItem.dualStatByGrade) {
-        insigniaFam.atkGain = insigniaItem.dualStatByGrade[g].atk;
-        insigniaFam.defGain = insigniaItem.dualStatByGrade[g].def;
-      }
       persist(); renderGearGrid(); renderSpecTable();
     }
   ));

@@ -11,7 +11,8 @@ import {
   FAMILY_ITEMS, EQUIP_DROP_PROTECT, EQUIP_SHADOW_PROTECT, EQUIP_PROBABILITY_BOOST, EQUIP_PROBABILITY_BOOST_ITEM,
   UNPRICED_MATERIALS, MATERIAL_PRICE_SUBSTITUTE, MATERIAL_CRAFT_MULTIPLIER, LIGHTSTONE_GRADE_UP_TABLE, EMBLEM_DECORATION_UNLOCK,
   KARAZAD_CRAFT, KARAZAD_ITEM_MATERIAL, KARAZAD_BREAKTHROUGH_CURVE,
-  SHADOW_GEAR, SHADOW_GEAR_ANVIL, SHADOW_GEAR_ATTEMPT_SILVER, BLACK_CRYSTAL_TICKET_QTY, BLACK_CRYSTAL_BOOST_RECIPES
+  SHADOW_GEAR, SHADOW_GEAR_ANVIL, SHADOW_GEAR_ATTEMPT_SILVER, BLACK_CRYSTAL_TICKET_QTY, BLACK_CRYSTAL_BOOST_RECIPES,
+  INSIGNIA_BOOK_MEDIAN_STAT
 } from "../data/gameData.js";
 
 export function familyItem(id) { return FAMILY_ITEMS.filter(function (x) { return x.id === id; })[0]; }
@@ -476,6 +477,24 @@ export function computeLightstoneGradeUp(fam, prices) {
     label: "태고 → 혼돈 등급업(혼돈 " + entry.resultStep + "강부터 시작)",
     materialLabel: "혼돈의 원소 ×" + entry.oreQty + ", 혼돈의 축 ×5, 아크라드 ×10",
     cost: total
+  };
+}
+
+// 문양 각인서 — 강화가 아니라 "다음 등급 책으로 교체 구매"가 스펙업 액션입니다. 전투력
+// 상승량은 다음 등급 중앙값(공격력+방어력)에서 ①탭에서 고른 현재 실제 감정 결과를 뺀 값입니다
+// (사용자 확인, 2026-07-31). 이미 최고 등급(혼돈)이면 더 살 게 없어 null.
+export function computeInsigniaGradeUp(item, fam, prices) {
+  const grades = item.gradeOptions;
+  const next = grades[grades.indexOf(fam.grade) + 1];
+  if (!next) return null;
+  const material = item.materialByGrade[next];
+  const target = INSIGNIA_BOOK_MEDIAN_STAT[next];
+  const current = (fam.atkGain || 0) + (fam.defGain || 0);
+  return {
+    label: fam.grade + " → " + next + " 교체 구매",
+    materialLabel: material + " × 1",
+    cost: priceOf(material, prices),
+    gain: (target.atk + target.def) - current
   };
 }
 

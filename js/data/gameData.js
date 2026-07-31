@@ -448,23 +448,18 @@ export const LIGHTSTONE_RECOVERY_TABLE = {
 const RELIC_CP_TABLE_VALUES = [28, 28, 32, 36, 40, 60, 66, 74, 86, 100];
 export const RELIC_CP_TABLE = { "태고": RELIC_CP_TABLE_VALUES, "혼돈": RELIC_CP_TABLE_VALUES, "공허": RELIC_CP_TABLE_VALUES };
 
-// 문양 각인서 — 1회성 구매+감정 소모품(강화 단계 개념 없음, maxLevel 1). 감정 결과는 공격력과
-// 방어력이 그룹별로 함께 정해집니다(그룹마다 "모험가에게 주는 피해량"도 나오지만 단위가 달라
-// 전투력 근사에서 제외). 실제 감정 결과는 사기 전엔 알 수 없어, 스펙업 표의 전투력 증가량은
-// 산 등급보다 한 단계 위 등급의 공격력·방어력 중앙값 합을 기대값으로 씁니다(최고 등급 혼돈은
-// 위 등급이 없어 자기 자신의 중앙값을 씁니다 — 사용자 확인, 2026-07-31). 출처: 공식 확률 정보
+// 문양 각인서 — 현재 보유 중인 등급의 실제 감정 결과(공격력·방어력)를 ①탭에서 직접 고르고,
+// ②탭에서는 "한 단계 위 등급 책으로 교체 구매"를 스펙업 액션으로 계산합니다(강화 반복이 아니라
+// 등급업 1회 구매). 감정 결과는 공격력·방어력이 그룹별로 함께 정해집니다(그룹마다 "모험가에게
+// 주는 피해량"도 나오지만 단위가 달라 전투력 근사에서 제외). 출처: 공식 확률 정보
 // (wikiNo=1001013, 2026-07-31 확인).
 export const INSIGNIA_BOOK_ATK_RANGE = { "심연": [54, 67], "태고": [68, 93], "혼돈": [94, 133] };
 export const INSIGNIA_BOOK_DEF_RANGE = { "심연": [27, 33], "태고": [33, 47], "혼돈": [48, 71] };
 // 중앙값 쌍(공격력/방어력) — 각 등급 그룹 목록(11/21/27개, 모두 홀수개)의 가운데 그룹 실수치.
+// ①탭 공격력/방어력 입력칸의 기본값(자기 등급 중앙값)이자, ②탭 "다음 등급 교체" 전투력
+// 상승량 계산의 목표값(다음 등급 중앙값)으로 함께 씁니다 — 사용자 확인, 2026-07-31.
 export const INSIGNIA_BOOK_MEDIAN_STAT = {
   "심연": { atk: 60, def: 30 }, "태고": { atk: 80, def: 40 }, "혼돈": { atk: 114, def: 59 }
-};
-// 스펙업 표의 공격력/방어력 입력칸 기본값 — 실제 감정 결과는 사기 전엔 알 수 없어, 산 등급보다
-// 한 단계 위 등급의 중앙값을 기본으로 채우고 사용자가 실제 감정 결과로 직접 덮어씁니다(최고
-// 등급 혼돈은 위 등급이 없어 자기 자신의 중앙값 — 사용자 확인, 2026-07-31).
-export const INSIGNIA_BOOK_DEFAULT_STAT = {
-  "심연": INSIGNIA_BOOK_MEDIAN_STAT["태고"], "태고": INSIGNIA_BOOK_MEDIAN_STAT["혼돈"], "혼돈": INSIGNIA_BOOK_MEDIAN_STAT["혼돈"]
 };
 
 // 유물 잠재력 돌파(신화급 이상 = 태고/혼돈/공허 공통) 실패 시 복구 비용. 4강부터 고정.
@@ -657,11 +652,12 @@ export const FAMILY_ITEMS = [
   { id: "relic2", name: "유물2", maxLevel: 10, cpPerLevel: 10, cpEditable: true, cpTable: RELIC_CP_TABLE,
     materialOptions: ["유물2(강화용 동일품)"], defaultMaterial: "유물2(강화용 동일품)", anvilTable: ANCIENT_ANVIL.relic, recoveryKey: "relic", recoveryTable: RELIC_RECOVERY_TABLE,
     hasSeries: true },
-  // 문양 각인서 — 등급 하나당 1개만 구매+감정하면 끝(강화 반복 없음). qtyPerAttempt:1은 실수치.
-  { id: "insigniaBook", name: "문양 각인서", maxLevel: 1, maxLevelByGrade: { "심연": 1, "태고": 1, "혼돈": 1 },
-    gradeOptions: ["심연", "태고", "혼돈"], dualStatByGrade: INSIGNIA_BOOK_DEFAULT_STAT,
+  // 문양 각인서 — 강화 반복이 아니라 "다음 등급 책으로 교체 구매"가 스펙업 액션입니다(아래
+  // computeInsigniaGradeUp 참고). statRangeByGrade는 ①탭에서 현재 보유 감정 결과(공격력/방어력)를
+  // 직접 고르는 드랍다운 범위입니다.
+  { id: "insigniaBook", name: "문양 각인서", gradeOptions: ["심연", "태고", "혼돈"],
+    statRangeByGrade: { atk: INSIGNIA_BOOK_ATK_RANGE, def: INSIGNIA_BOOK_DEF_RANGE },
     materialOptions: ["심연 미확인 문양 각인서", "태고 미확인 문양 각인서", "혼돈 미확인 문양 각인서"],
     defaultMaterial: "심연 미확인 문양 각인서",
-    materialByGrade: { "심연": "심연 미확인 문양 각인서", "태고": "태고 미확인 문양 각인서", "혼돈": "혼돈 미확인 문양 각인서" },
-    qtyPerAttempt: 1 }
+    materialByGrade: { "심연": "심연 미확인 문양 각인서", "태고": "태고 미확인 문양 각인서", "혼돈": "혼돈 미확인 문양 각인서" } }
 ];

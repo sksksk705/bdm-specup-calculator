@@ -232,6 +232,19 @@ button.icon-btn:hover { color: var(--bad); background: var(--bad-soft); }
   font-family: inherit; cursor: pointer;
 }
 .tile-level-badge:hover, .tile-level-badge:focus { text-decoration: underline; }
+/* 문양 각인서처럼 값 배지가 두 개(공격력/방어력)인 경우 — 위 배지 하나짜리 자리에 세로로
+   쌓습니다. */
+.tile-stat-badges {
+  position: absolute; top: 7px; right: 8px; z-index: 2;
+  display: flex; flex-direction: column; align-items: flex-end; gap: 1px;
+}
+.tile-stat-badge {
+  font-size: 10.5px; font-weight: 800; letter-spacing: -0.01em; text-align: right;
+  appearance: none; -webkit-appearance: none; -moz-appearance: none;
+  background: none; border: none; padding: 0; margin: 0; max-width: 100%;
+  font-family: inherit; cursor: pointer; color: inherit;
+}
+.tile-stat-badge:hover, .tile-stat-badge:focus { text-decoration: underline; }
 /* 각성완료 카드 — 햇빛이 한쪽에서 비스듬히 비쳐드는 듯한 대각선 광채. */
 .gear-tile.awakened::before {
   content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
