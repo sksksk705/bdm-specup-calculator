@@ -5,7 +5,7 @@
 
 import {
   GRADE_ORDER, BREAKTHROUGH_GRADES, EQUIP_BREAKTHROUGH_CURVE, EQUIP_CP_TABLE, GRADE_UP_RECIPES,
-  EQUIP_AWAKEN, ACCESSORY_AWAKEN, ACCESSORY_GRADE_UP, ACCESSORY_GRADE_NEXT,
+  EQUIP_AWAKEN, ACCESSORY_AWAKEN, ACCESSORY_GRADE_UP, ACCESSORY_GRADE_NEXT, GRADE_UP_BUY_ITEM,
   RING_QTY_PER_STEP, RING_STAT_AT_STEP, RING_GRADE_UP, RING_ATTEMPT_SILVER,
   SOUL_CUMULATIVE_QTY_TABLE, ANCIENT_ANVIL, RELIC_SERIES_CP_GAIN, RELIC_SERIES_RECOVERY_QTY, RELIC_SERIES_ATTEMPT_COST,
   FAMILY_ITEMS, EQUIP_DROP_PROTECT, EQUIP_SHADOW_PROTECT, EQUIP_PROBABILITY_BOOST, EQUIP_PROBABILITY_BOOST_ITEM,
@@ -425,7 +425,10 @@ export function soulCumulativeQty(targetStep) {
 
 // 반지/목걸이/허리띠/귀걸이/팔찌/휘장/토템/연금석/유물1/유물2의 등급업(제작) 경로.
 // 이미 각성 완료된 "자기 자신"(이전 등급 아이템)을 재료로 소모하지만 은화로 값을 매기지 않고,
-// 그 외 부재료·직접 소모 은화만 계산합니다.
+// 그 외 부재료·직접 소모 은화만 계산합니다. 반지/목걸이/귀걸이/허리띠/팔찌의 혼돈→공허는
+// 재료 제작 대신 완제품(공허의 OO) 구매로도 할 수 있어(GRADE_UP_BUY_ITEM), 더 싼 쪽을 기본값으로
+// 쓰고 fam.gradeUpMethod("material"/"buy")로 사용자가 직접 고르면 그 선택을 따릅니다
+// (사용자 확인, 2026-07-31).
 export function computeAccessoryGradeUp(itemId, grade, fam, prices) {
   const table = ACCESSORY_GRADE_UP[itemId];
   if (!table || !table[grade]) return null;
@@ -434,18 +437,29 @@ export function computeAccessoryGradeUp(itemId, grade, fam, prices) {
   const awakenTable = ACCESSORY_AWAKEN[grade] && ACCESSORY_AWAKEN[grade][itemId];
   if (awakenTable && !fam.awakened) return null;
   const entry = table[grade];
-  let total = entry.silver || 0;
+  let materialTotal = entry.silver || 0;
   const parts = [];
   Object.keys(entry.materials).forEach(function (matName) {
     const q = entry.materials[matName];
-    total += q * priceOf(matName, prices);
+    materialTotal += q * priceOf(matName, prices);
     parts.push(matName + " ×" + q.toLocaleString("ko-KR"));
   });
   if (entry.silver) parts.push("직접 은화 " + fmt(entry.silver));
+  const materialOption = { materialLabel: parts.join(", ") + " (선행조건: " + entry.prereq + ")", cost: materialTotal };
+
+  const buyItemName = GRADE_UP_BUY_ITEM[itemId];
+  const buyOption = buyItemName ? { materialLabel: buyItemName + " × 1 구매", cost: priceOf(buyItemName, prices) } : null;
+
+  const label = grade + " → " + ACCESSORY_GRADE_NEXT[grade] + " 등급업";
+  if (!buyOption) return { label: label, materialLabel: materialOption.materialLabel, cost: materialOption.cost, methodOptions: null };
+
+  const method = (fam.gradeUpMethod === "material" || fam.gradeUpMethod === "buy")
+    ? fam.gradeUpMethod
+    : (buyOption.cost < materialOption.cost ? "buy" : "material");
+  const chosen = method === "buy" ? buyOption : materialOption;
   return {
-    label: grade + " → " + ACCESSORY_GRADE_NEXT[grade] + " 등급업",
-    materialLabel: parts.join(", ") + " (선행조건: " + entry.prereq + ")",
-    cost: total
+    label: label, materialLabel: chosen.materialLabel, cost: chosen.cost,
+    methodOptions: { material: materialOption, buy: buyOption, current: method }
   };
 }
 

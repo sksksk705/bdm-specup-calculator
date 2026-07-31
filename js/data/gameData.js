@@ -139,6 +139,12 @@ export const BREAKTHROUGH_GRADES = { "혼돈": true, "공허": true };
 // (장신구 wikiNo=4004, 토템 wikiNo=4006, 연금석 wikiNo=4007, 유물 wikiNo=4005, 휘장 wikiNo=4008),
 // 2026-07-27 확인.
 export const ACCESSORY_GRADE_NEXT = { "태고": "혼돈", "혼돈": "공허" };
+// 혼돈→공허 등급업은 재료 제작 대신 완제품(공허의 OO)을 구매해 대체할 수도 있습니다. 시세는
+// 둘 중 더 싼 쪽을 스펙업 표 기본값으로 자동 선택합니다(사용자 제공값, 2026-07-31).
+export const GRADE_UP_BUY_ITEM = {
+  ring1: "공허의 반지", necklace: "공허의 목걸이", earring: "공허의 귀걸이",
+  belt: "공허의 허리띠", bracelet: "공허의 팔찌"
+};
 export const ACCESSORY_GRADE_UP = {
   emblem: {
     "태고": { materials: { "과거의 영광": 7 }, silver: 0, prereq: "찬란한 황금 휘장(태고) 보유" },

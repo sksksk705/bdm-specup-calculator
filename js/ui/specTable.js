@@ -188,7 +188,29 @@ export function renderSpecTable() {
     if (gradeUp) {
       rows.push({
         item: item.name, action: gradeUp.label, cost: gradeUp.cost, gain: fam.gradeUpGain,
-        buildMaterialCell: staticLabelCell(gradeUp.materialLabel),
+        // 혼돈→공허는 재료 제작/완제품 구매 중 더 싼 쪽이 기본이고, methodOptions가 있으면
+        // 드랍다운으로 직접 골라 바꿀 수 있습니다(사용자 확인, 2026-07-31).
+        buildMaterialCell: gradeUp.methodOptions ? function (fam, methodOptions) {
+          return function (td) {
+            const wrap = document.createElement("div");
+            wrap.style.cssText = "display:flex;flex-direction:column;gap:3px;align-items:flex-start;";
+            const sel = document.createElement("select");
+            sel.style.cssText = "font-size:11px;padding:2px 4px;max-width:100%;";
+            [["material", "재료로 제작 (" + fmt(methodOptions.material.cost) + "은화)"],
+              ["buy", "완제품 구매 (" + fmt(methodOptions.buy.cost) + "은화)"]].forEach(function (pair) {
+              const o = document.createElement("option"); o.value = pair[0]; o.textContent = pair[1];
+              if (pair[0] === methodOptions.current) o.selected = true;
+              sel.appendChild(o);
+            });
+            sel.addEventListener("change", function () { fam.gradeUpMethod = sel.value; persist(); renderSpecTable(); });
+            wrap.appendChild(sel);
+            const label = document.createElement("span");
+            label.style.cssText = "color:var(--text-dim);white-space:normal;font-size:11px;";
+            label.textContent = methodOptions[methodOptions.current].materialLabel;
+            wrap.appendChild(label);
+            td.appendChild(wrap);
+          };
+        }(fam, gradeUp.methodOptions) : staticLabelCell(gradeUp.materialLabel),
         buildQtyCell: null,
         buildGainCell: function (fam) { return function (td) { td.appendChild(buildNumberInput(fam.gradeUpGain, function (v) { fam.gradeUpGain = v; persist(); renderSpecTable(); })); }; }(fam)
       });
