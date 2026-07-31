@@ -72,7 +72,11 @@ export function renderSpecTable() {
       || (emblemDecoIds.indexOf(item.id) !== -1 && !isEmblemDecorationUnlocked(item.id, emblemFam, decoLevelSum))
       || usesUncheckedPaidMaterial;
     if (!skipBreakthrough && fam.level < familyMaxLevel(item, fam.grade)) {
-      const qtyPerAttempt = item.qtyPerAttemptTable ? item.qtyPerAttemptTable[fam.level]
+      // 균열의 토템(공허)처럼 등급마다 회당 소모량이 실수치로 다른 항목은 qtyPerAttemptTableByGrade를
+      // 우선 씁니다(그 외엔 기존처럼 등급 무관 공통 표/더미).
+      const qtyByGrade = item.qtyPerAttemptTableByGrade && item.qtyPerAttemptTableByGrade[fam.grade];
+      const qtyPerAttempt = qtyByGrade ? qtyByGrade[fam.level]
+        : item.qtyPerAttemptTable ? item.qtyPerAttemptTable[fam.level]
         : (item.qtyPerAttempt || dummyQtyPerAttempt(fam.level));
       // anvilTable 값 = 허용되는 최대 실패 횟수라, 총 시도 횟수 상한은 그 값+1(실패를 다 채운
       // 다음 시도가 확정 성공)입니다.
@@ -107,7 +111,7 @@ export function renderSpecTable() {
       const gain = hasRealCp ? cpArr[fam.level] : fam.cpPerLevel;
       rows.push({
         item: item.name, action: actionLabel, cost: cost, gain: gain, qty: qtyPerAttempt,
-        isDummyQty: !item.qtyPerAttempt && !item.qtyPerAttemptTable,
+        isDummyQty: !item.qtyPerAttempt && !item.qtyPerAttemptTable && !qtyByGrade,
         buildMaterialCell: function (item, fam, totalQty, hasRealRecovery, recTable) {
           return function (td) {
             const matLabel = document.createElement("span");
