@@ -149,7 +149,7 @@ export function renderSpecTable() {
           };
         }(item, fam, totalQty, hasRealRecovery, recTable),
         buildQtyCell: null,
-        buildGainCell: (item.cpEditable && !hasRealCp) ? function (fam) { return function (td) { td.appendChild(buildNumberInput(fam.cpPerLevel, function (v) { fam.cpPerLevel = v; persist(); renderSpecTable(); })); }; }(fam) : null
+        buildGainCell: (item.cpEditable && !hasRealCp) ? function (td) { td.appendChild(buildNumberInput(fam.cpPerLevel, function (v) { fam.cpPerLevel = v; persist(); renderSpecTable(); })); } : null
       });
     }
 
