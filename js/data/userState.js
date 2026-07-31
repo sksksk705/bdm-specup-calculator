@@ -99,6 +99,13 @@ export function initState(defaultPrices) {
     if (!item.cpEditable) fam.cpPerLevel = item.cpPerLevel;
     if (item.materialOptions.indexOf(fam.material) === -1) fam.material = item.defaultMaterial;
     if (familyGradeOptions(item).indexOf(fam.grade) === -1) fam.grade = familyGradeOptions(item)[0];
+    // 문양 각인서처럼 공격력·방어력을 따로 입력받는 항목 — 처음 생성될 때만 등급 기본값(다음
+    // 등급 중앙값)을 채우고, 이후엔 사용자가 실제 감정 결과로 덮어쓴 값을 그대로 둡니다(등급이
+    // 바뀔 때의 재설정은 gearGrid.js의 등급 변경 핸들러가 담당).
+    if (item.dualStatByGrade) {
+      if (fam.atkGain === undefined) fam.atkGain = item.dualStatByGrade[fam.grade].atk;
+      if (fam.defGain === undefined) fam.defGain = item.dualStatByGrade[fam.grade].def;
+    }
     // 등급별 재료가 정해진 항목(토템, 카라자드 장신구 등)은 저장된 재료가 현재 등급과 안 맞을 수
     // 있어(과거에 다른 등급이었을 때 저장됐거나 등급만 바뀐 경우 등) 매번 등급 기준으로 다시
     // 맞춥니다 — 등급 변경 시점에만 동기화하면 이런 어긋남을 놓칠 수 있기 때문입니다.

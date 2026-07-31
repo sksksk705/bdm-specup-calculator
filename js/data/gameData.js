@@ -460,10 +460,11 @@ export const INSIGNIA_BOOK_DEF_RANGE = { "심연": [27, 33], "태고": [33, 47],
 export const INSIGNIA_BOOK_MEDIAN_STAT = {
   "심연": { atk: 60, def: 30 }, "태고": { atk: 80, def: 40 }, "혼돈": { atk: 114, def: 59 }
 };
-export const INSIGNIA_BOOK_CP_TABLE = {
-  "심연": [INSIGNIA_BOOK_MEDIAN_STAT["태고"].atk + INSIGNIA_BOOK_MEDIAN_STAT["태고"].def],
-  "태고": [INSIGNIA_BOOK_MEDIAN_STAT["혼돈"].atk + INSIGNIA_BOOK_MEDIAN_STAT["혼돈"].def],
-  "혼돈": [INSIGNIA_BOOK_MEDIAN_STAT["혼돈"].atk + INSIGNIA_BOOK_MEDIAN_STAT["혼돈"].def]
+// 스펙업 표의 공격력/방어력 입력칸 기본값 — 실제 감정 결과는 사기 전엔 알 수 없어, 산 등급보다
+// 한 단계 위 등급의 중앙값을 기본으로 채우고 사용자가 실제 감정 결과로 직접 덮어씁니다(최고
+// 등급 혼돈은 위 등급이 없어 자기 자신의 중앙값 — 사용자 확인, 2026-07-31).
+export const INSIGNIA_BOOK_DEFAULT_STAT = {
+  "심연": INSIGNIA_BOOK_MEDIAN_STAT["태고"], "태고": INSIGNIA_BOOK_MEDIAN_STAT["혼돈"], "혼돈": INSIGNIA_BOOK_MEDIAN_STAT["혼돈"]
 };
 
 // 유물 잠재력 돌파(신화급 이상 = 태고/혼돈/공허 공통) 실패 시 복구 비용. 4강부터 고정.
@@ -658,7 +659,7 @@ export const FAMILY_ITEMS = [
     hasSeries: true },
   // 문양 각인서 — 등급 하나당 1개만 구매+감정하면 끝(강화 반복 없음). qtyPerAttempt:1은 실수치.
   { id: "insigniaBook", name: "문양 각인서", maxLevel: 1, maxLevelByGrade: { "심연": 1, "태고": 1, "혼돈": 1 },
-    gradeOptions: ["심연", "태고", "혼돈"], cpTable: INSIGNIA_BOOK_CP_TABLE,
+    gradeOptions: ["심연", "태고", "혼돈"], dualStatByGrade: INSIGNIA_BOOK_DEFAULT_STAT,
     materialOptions: ["심연 미확인 문양 각인서", "태고 미확인 문양 각인서", "혼돈 미확인 문양 각인서"],
     defaultMaterial: "심연 미확인 문양 각인서",
     materialByGrade: { "심연": "심연 미확인 문양 각인서", "태고": "태고 미확인 문양 각인서", "혼돈": "혼돈 미확인 문양 각인서" },

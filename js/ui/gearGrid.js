@@ -105,6 +105,10 @@ export function renderGearGrid() {
     function (g) {
       insigniaFam.grade = g; insigniaFam.level = 0;
       if (insigniaItem.materialByGrade && insigniaItem.materialByGrade[g]) insigniaFam.material = insigniaItem.materialByGrade[g];
+      if (insigniaItem.dualStatByGrade) {
+        insigniaFam.atkGain = insigniaItem.dualStatByGrade[g].atk;
+        insigniaFam.defGain = insigniaItem.dualStatByGrade[g].def;
+      }
       persist(); renderGearGrid(); renderSpecTable();
     }
   ));

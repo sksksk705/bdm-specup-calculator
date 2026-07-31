@@ -7,7 +7,7 @@ import {
   RELIC_CP_TABLE, RELIC_SERIES_CP_GAIN,
   LIGHTSTONE_CP_TABLE, EMBLEM_CP_TABLE, TOTEM_CP_TABLE,
   RING_GRADE_ORDER, RING_STAT_AT_STEP,
-  INSIGNIA_BOOK_ATK_RANGE, INSIGNIA_BOOK_DEF_RANGE, INSIGNIA_BOOK_CP_TABLE, KARAZAD_BASE_STAT,
+  INSIGNIA_BOOK_ATK_RANGE, INSIGNIA_BOOK_DEF_RANGE, INSIGNIA_BOOK_DEFAULT_STAT, KARAZAD_BASE_STAT,
   FAMILY_ITEMS
 } from "../data/gameData.js";
 import { fmt, emblemDecorationGain } from "../logic/calculations.js";
@@ -208,14 +208,14 @@ function renderRingSection(root) {
 
 function renderInsigniaSection(root) {
   const card = buildCard("문양 각인서 (1회성)",
-    "구매+감정 한 번으로 끝나는 소모품입니다(강화 반복 없음). 감정 결과는 공격력·방어력이 등급별 구간 내에서 함께(그룹으로 짝지어) 무작위로 정해집니다. 실제 결과는 사기 전엔 알 수 없어, 계산기의 전투력 증가량은 산 등급보다 한 단계 위 등급의 공격력·방어력 중앙값 합을 기대값으로 씁니다(혼돈은 위 등급이 없어 자기 자신의 중앙값 사용).");
+    "구매+감정 한 번으로 끝나는 소모품입니다(강화 반복 없음). 감정 결과는 공격력·방어력이 등급별 구간 내에서 함께(그룹으로 짝지어) 무작위로 정해집니다. 스펙업 표의 전투력 증가 칸은 공격력·방어력을 각각 직접 입력받으며, 실제 감정 전 기본값은 산 등급보다 한 단계 위 등급의 중앙값을 씁니다(혼돈은 위 등급이 없어 자기 자신의 중앙값 사용) — 감정 후 실제 결과로 값을 덮어쓰세요.");
   card.appendChild(buildTable("등급",
     [{ label: "공격력 하한", key: "atkMin" }, { label: "공격력 상한", key: "atkMax" },
       { label: "방어력 하한", key: "defMin" }, { label: "방어력 상한", key: "defMax" },
       { label: "전투력 기대값", key: "expected" }],
     [{ label: "심연", key: "심연" }, { label: "태고", key: "태고" }, { label: "혼돈", key: "혼돈" }],
     function (r, c) {
-      if (c.key === "expected") return INSIGNIA_BOOK_CP_TABLE[r.key][0];
+      if (c.key === "expected") return INSIGNIA_BOOK_DEFAULT_STAT[r.key].atk + INSIGNIA_BOOK_DEFAULT_STAT[r.key].def;
       const range = c.key.indexOf("atk") === 0 ? INSIGNIA_BOOK_ATK_RANGE[r.key] : INSIGNIA_BOOK_DEF_RANGE[r.key];
       return range[c.key.indexOf("Min") !== -1 ? 0 : 1];
     }));
