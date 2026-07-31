@@ -98,7 +98,10 @@ function buildGradeSelect(gradeOptions, currentGrade, onChange) {
     if (g === currentGrade) o.selected = true;
     gradeSel.appendChild(o);
   });
-  gradeSel.addEventListener("change", function () { syncDot(gradeSel.value); onChange(gradeSel.value); });
+  // change 핸들러가 renderGearGrid()로 이 <select> 자신을 즉시 파괴+재생성하는데, 포커스가
+  // 남아있는 상태로 그렇게 하면 브라우저가 스크롤 위치를 엉뚱한 곳으로 옮기는 경우가 있습니다
+  // (사용자 확인, 2026-07-31). blur로 먼저 포커스를 떼면 사라집니다.
+  gradeSel.addEventListener("change", function () { syncDot(gradeSel.value); gradeSel.blur(); onChange(gradeSel.value); });
   wrap.appendChild(gradeSel);
   return wrap;
 }
