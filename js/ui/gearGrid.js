@@ -3,7 +3,7 @@
 
 import { PARTS, RING_GRADE_ORDER, RING_QTY_PER_STEP, GRADE_ORDER, ANCIENT_ANVIL, INSIGNIA_BOOK_MEDIAN_STAT } from "../data/gameData.js";
 import { state, persist } from "../data/userState.js";
-import { familyGradeOptions, familyMaxLevel, familyItem } from "../logic/calculations.js";
+import { familyGradeOptions, familyMaxLevel, familyItem, emblemDecoRealLevel } from "../logic/calculations.js";
 import { gradeStepTile, stepOnlyTile, levelOnlyTile, levelWithGradeTile, dualStatWithGradeTile } from "./tiles.js";
 import { renderSpecTable } from "./specTable.js";
 
@@ -19,11 +19,15 @@ export function renderGearGrid() {
     function (v) { emblemFam.level = v; persist(); renderSpecTable(); },
     function (g) { emblemFam.grade = g; emblemFam.level = 0; persist(); renderGearGrid(); renderSpecTable(); }
   ));
+  // 철벽/투지는 100단계(=100번째 강화 성공)부터 성공당 실제 단계 번호가 2씩 오릅니다(150번째
+  // 성공 = 200단계). 배지 내부값(fam.level)은 계산용 성공 횟수(0~150)를 그대로 쓰고, 배지에
+  // 보이는 라벨만 실제 단계 번호로 변환합니다(사용자 확인, 2026-07-31).
   ["emblemDeco1", "emblemDeco2", "emblemDeco3", "emblemDeco4", "emblemDeco5"].forEach(function (id) {
     const item = familyItem(id), fam = state.family[id];
+    const labelFn = (id === "emblemDeco4" || id === "emblemDeco5") ? emblemDecoRealLevel : undefined;
     side.appendChild(levelOnlyTile(item.name, item.maxLevel, fam.level, function (fam) {
       return function (v) { fam.level = v; persist(); renderSpecTable(); };
-    }(fam)));
+    }(fam), labelFn));
   });
   side.appendChild(gradeStepTile("고리", RING_GRADE_ORDER, state.ring,
     function (g) { state.ring.grade = g; state.ring.step = 0; persist(); renderGearGrid(); renderSpecTable(); },

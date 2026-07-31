@@ -67,6 +67,13 @@ export function familyCpGainArray(item, grade) {
   return item.cpTableKey ? g[item.cpTableKey] : g;
 }
 
+// 철벽·투지 휘장 장식 — 내부 강화 성공 횟수(0~150)를 실제 인게임 단계 번호로 변환합니다.
+// 100번째 성공까지는 성공당 1단계, 그 이후는 성공당 2단계씩 올라 150번째 성공이 200단계입니다
+// (사용자 확인, 2026-07-31).
+export function emblemDecoRealLevel(successCount) {
+  return successCount <= 100 ? successCount : 100 + (successCount - 100) * 2;
+}
+
 export function recipeCostForPart(recipe, partId, prices) {
   const materials = recipe.byPart[partId] || recipe.byPart.ALL;
   let total = 0;

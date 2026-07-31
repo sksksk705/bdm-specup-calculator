@@ -10,7 +10,7 @@ import {
   computeEquipNextAction, computeEquipAwaken, computeAccessoryAwaken, computeRingNextAction,
   computeAccessoryGradeUp, computeRelicSeriesAction, computeLightstoneGradeUp,
   isEmblemDecorationUnlocked, karazadExpectedAttempts, computeKarazadCraft,
-  computeInsigniaGradeUp
+  computeInsigniaGradeUp, emblemDecoRealLevel
 } from "../logic/calculations.js";
 import { buildNumberInput, staticLabelCell } from "./domHelpers.js";
 
@@ -94,7 +94,12 @@ export function renderSpecTable() {
         : hasRealRecovery ? failures * recTable.silver[fam.level]
         : failures * (fam.recoveryQty * priceOf("돌파 복구권", state.prices) + fam.recoverySilver);
       const cost = materialCost + recoveryCost;
-      const actionLabel = fam.level + " → " + (fam.level + 1) + (isKarazad ? " (기대값 " + fmt(attempts) + "회)"
+      // 철벽/투지는 성공 횟수(fam.level)와 실제 인게임 단계 번호가 100단계 이후 갈라져
+      // (성공당 2단계씩) 실제 단계 번호로 변환해 보여줍니다.
+      const isAccelLevel = item.id === "emblemDeco4" || item.id === "emblemDeco5";
+      const fromLabel = isAccelLevel ? emblemDecoRealLevel(fam.level) : fam.level;
+      const toLabel = isAccelLevel ? emblemDecoRealLevel(fam.level + 1) : fam.level + 1;
+      const actionLabel = fromLabel + " → " + toLabel + (isKarazad ? " (기대값 " + fmt(attempts) + "회)"
         : item.anvilTable ? " (고대의 모루 확정까지 최대 " + attempts + "회)" : "");
       const cpArr = familyCpGainArray(item, fam.grade);
       const hasRealCp = !!(cpArr && cpArr[fam.level] !== undefined);

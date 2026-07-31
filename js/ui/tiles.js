@@ -17,14 +17,16 @@ export function buildTile(name, extraClass) {
 
 // 인게임처럼 현재 강화 수치를 카드 우상단에 겹쳐 보여주는 배지 — 그 자체가 <select>라
 // 클릭하면 바로 수정할 수 있습니다(범위가 정해진 값이라 드랍다운, "+N" 형식). 등급 색이
-// 있으면 그 색을, 없으면 기본 강조색을 텍스트 색으로 씁니다.
-function buildLevelBadge(maxLevel, currentLevel, gradeColor, onChange) {
+// 있으면 그 색을, 없으면 기본 강조색을 텍스트 색으로 씁니다. value(내부 강화 성공 횟수, 0~maxLevel)와
+// 실제 인게임 표시 단계가 다른 항목(철벽/투지 휘장 장식처럼 100단계 이후 성공당 2단계씩 오르는
+// 경우)은 labelFn으로 성공 횟수 → 실제 단계 번호를 변환합니다(생략 시 그대로 표시).
+function buildLevelBadge(maxLevel, currentLevel, gradeColor, onChange, labelFn) {
   const badge = document.createElement("select");
   badge.className = "tile-level-badge";
   badge.style.color = gradeColor || "var(--accent)";
   for (let i = 0; i <= maxLevel; i++) {
     const o = document.createElement("option");
-    o.value = i; o.textContent = "+" + i;
+    o.value = i; o.textContent = "+" + (labelFn ? labelFn(i) : i);
     if (i === currentLevel) o.selected = true;
     badge.appendChild(o);
   }
@@ -119,9 +121,9 @@ export function stepOnlyTile(name, maxStep, rec, onStepChange) {
   return built.tile;
 }
 
-export function levelOnlyTile(name, maxLevel, level, onChange) {
+export function levelOnlyTile(name, maxLevel, level, onChange, labelFn) {
   const built = buildTile(name);
-  built.tile.appendChild(buildLevelBadge(maxLevel, level, null, onChange));
+  built.tile.appendChild(buildLevelBadge(maxLevel, level, null, onChange, labelFn));
   return built.tile;
 }
 
