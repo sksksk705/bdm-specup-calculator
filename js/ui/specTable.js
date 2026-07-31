@@ -9,7 +9,7 @@ import {
   fmt, efficiencySortKey, dummyQtyPerAttempt, familyMaxLevel, familyCpGainArray, priceOf,
   computeEquipNextAction, computeEquipAwaken, computeAccessoryAwaken, computeRingNextAction,
   computeAccessoryGradeUp, computeRelicSeriesAction, computeLightstoneGradeUp,
-  isEmblemDecorationUnlocked, emblemDecorationGain, karazadExpectedAttempts, computeKarazadCraft,
+  isEmblemDecorationUnlocked, karazadExpectedAttempts, computeKarazadCraft,
   computeInsigniaGradeUp
 } from "../logic/calculations.js";
 import { buildNumberInput, staticLabelCell } from "./domHelpers.js";
@@ -97,9 +97,8 @@ export function renderSpecTable() {
       const actionLabel = fam.level + " → " + (fam.level + 1) + (isKarazad ? " (기대값 " + fmt(attempts) + "회)"
         : item.anvilTable ? " (고대의 모루 확정까지 최대 " + attempts + "회)" : "");
       const cpArr = familyCpGainArray(item, fam.grade);
-      const hasRealCp = !!(cpArr && cpArr[fam.level] !== undefined) || item.cpMin !== undefined;
-      const gain = item.cpMin !== undefined ? emblemDecorationGain(item.cpMin, item.cpMax, fam.level)
-        : (hasRealCp ? cpArr[fam.level] : fam.cpPerLevel);
+      const hasRealCp = !!(cpArr && cpArr[fam.level] !== undefined);
+      const gain = hasRealCp ? cpArr[fam.level] : fam.cpPerLevel;
       rows.push({
         item: item.name, action: actionLabel, cost: cost, gain: gain, qty: qtyPerAttempt,
         isDummyQty: !item.qtyPerAttempt && !item.qtyPerAttemptTable,

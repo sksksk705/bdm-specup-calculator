@@ -10,7 +10,7 @@ import {
   INSIGNIA_BOOK_ATK_RANGE, INSIGNIA_BOOK_DEF_RANGE, INSIGNIA_BOOK_MEDIAN_STAT, KARAZAD_BASE_STAT,
   FAMILY_ITEMS
 } from "../data/gameData.js";
-import { fmt, emblemDecorationGain } from "../logic/calculations.js";
+import { fmt, familyCpGainArray } from "../logic/calculations.js";
 
 function familyItem(id) { return FAMILY_ITEMS.filter(function (x) { return x.id === id; })[0]; }
 function familyName(id) { const item = familyItem(id); return item ? item.name : id; }
@@ -171,13 +171,13 @@ function renderEmblemSection(root) {
 
 function renderEmblemDecoSection(root) {
   const card = buildCard("휘장 장식(용맹·침착·격렬·철벽·투지)",
-    "공식 문서에 1단계·150단계 두 지점의 최소~최대 구간만 공개돼 있어, 그 사이를 선형 보간한 근사치입니다(실측 단계별 표 아님). 최대 150단계까지 있습니다.");
+    "단계가 오른 만큼 그대로 공격력(용맹·격렬·투지) 또는 방어력(침착·철벽)이 오릅니다(1단계당 1). 철벽·투지는 100단계 이후 성공당 단계가 2씩 올라(150성공째 200단계) 그만큼도 2씩 오릅니다.");
   const decoIds = ["emblemDeco1", "emblemDeco2", "emblemDeco3", "emblemDeco4", "emblemDeco5"];
   const decoItems = decoIds.map(familyItem);
   const columns = decoItems.map(function (item) { return { label: item.name.replace("휘장 장식", "").replace(/[()]/g, ""), key: item.id }; });
   card.appendChild(buildTable("단계", columns, stepRows(150), function (r, c) {
     const item = familyItem(c.key);
-    return emblemDecorationGain(item.cpMin, item.cpMax, r.step);
+    return familyCpGainArray(item, "태고")[r.step];
   }));
   root.appendChild(card);
 }

@@ -507,17 +507,6 @@ export function isEmblemDecorationUnlocked(itemId, emblemFam, decoLevelSum) {
   return rule.conditions.some(function (c) { return emblemFam.grade === c.grade && emblemFam.level >= c.level; });
 }
 
-// 휘장 장식 전투력 근사 — 공식 문서에 단계별 실수치 표가 없고 1단계(+cpMin)~150단계(+cpMax)
-// 구간값만 있어, 그 사이를 선형 보간해 반올림한 근사치를 씁니다(0단계=0).
-function emblemDecoValueAt(minV, maxV, level) {
-  if (level <= 0) return 0;
-  if (level >= 150) return maxV;
-  return minV + (maxV - minV) * (level - 1) / 149;
-}
-export function emblemDecorationGain(minV, maxV, fromLevel) {
-  return Math.round(emblemDecoValueAt(minV, maxV, fromLevel + 1)) - Math.round(emblemDecoValueAt(minV, maxV, fromLevel));
-}
-
 // 공허 유물 계열 돌파(2026-05-12부터 "유물 마력 각인") — 공허 등급 유물에서만 가능, +20 한도.
 // 시도 1회당(성공/실패 모두) 아크라드 1개+차원의 조각 90개가 고정 소모되고(RELIC_SERIES_ATTEMPT_COST,
 // 사용자 제공값), 고대의 모루 확정까지의 실패(attempts-1)번에 대해서는 별도로 차원의 조각 또는

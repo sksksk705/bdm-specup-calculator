@@ -216,6 +216,15 @@ function buildEmblemDecoBandTable(bandValues) {
 export const EMBLEM_DECORATION_ANVIL = buildEmblemDecoBandTable([1, 2, 4, 10]);
 export const EMBLEM_DECORATION_TICKET_QTY = buildEmblemDecoBandTable([1, 3, 5, 7]);
 
+// 휘장 장식 전투력 증가치 — 단계가 오른 만큼 그대로 공격력(또는 방어력)이 오릅니다(1단계당 1).
+// 철벽·투지는 100단계 이후 성공당 단계가 2씩 올라 그만큼도 2씩 오릅니다(사용자 확인, 2026-07-31).
+// 다른 등급별 cpTable(RELIC_CP_TABLE 등)과 형식을 맞추기 위해 태고/혼돈/공허 키에 같은 배열을 둡니다
+// (이 항목들은 등급 선택 UI 자체가 없어 실제로는 항상 같은 배열을 씁니다).
+const EMBLEM_DECO_CP_STANDARD = Array(150).fill(1);
+const EMBLEM_DECO_CP_ACCEL = Array(100).fill(1).concat(Array(50).fill(2));
+export const EMBLEM_DECO_CP_TABLE_STANDARD = { "태고": EMBLEM_DECO_CP_STANDARD, "혼돈": EMBLEM_DECO_CP_STANDARD, "공허": EMBLEM_DECO_CP_STANDARD };
+export const EMBLEM_DECO_CP_TABLE_ACCEL = { "태고": EMBLEM_DECO_CP_ACCEL, "혼돈": EMBLEM_DECO_CP_ACCEL, "공허": EMBLEM_DECO_CP_ACCEL };
+
 // 휘장 장식 해금 조건 — 슬롯 1~3(용맹/침착/격렬)은 휘장 자체의 등급별 강화 단계 중 하나만
 // 충족하면 되고, 슬롯 4~5(철벽/투지)는 장식 5개의 강화 단계 합이 기준치 이상이어야 합니다.
 // 출처: 공식 가이드(wikiNo=4008), 2026-07-28 확인.
@@ -572,22 +581,23 @@ export const FAMILY_ITEMS = [
     materialOptions: ["영광의 증표"], defaultMaterial: "영광의 증표", qtyPerAttempt: 81301 },
   // 휘장 장식 5종 — 투스의 숨결로 강화(고대의 모루 확정 시도 있음), 실패해도 단계가 하락하지
   // 않아 복구가 필요 없습니다(noRecovery, 최대 150단계). 해금 전(EMBLEM_DECORATION_UNLOCK 조건
-  // 미충족)에는 스펙업 표에 노출하지 않습니다. 전투력 증가치는 공식 문서의 최소~최대 구간을 선형
-  // 보간한 근사치입니다(단계별 실수치 표 미공개 — cpMin/cpMax, 각성 추가 수치·최대생명력 등
-  // 단위가 다른 부가 스탯은 제외). 출처: 공식 가이드(wikiNo=4008), 2026-07-28 확인.
-  { id: "emblemDeco1", name: "휘장 장식(용맹)", maxLevel: 150, cpPerLevel: 10, cpEditable: false, cpMin: 2, cpMax: 150,
+  // 미충족)에는 스펙업 표에 노출하지 않습니다. 전투력 증가치는 공격력 또는 방어력 중 하나이며,
+  // 단계(레벨)가 오른 만큼 그대로 오릅니다(1단계당 1). 철벽·투지는 100단계부터 성공당 단계가
+  // 2씩 올라(150성공째 200단계) 그만큼 전투력도 2씩 오릅니다 — 사용자 확인, 2026-07-31.
+  // 출처: 공식 가이드(wikiNo=1001008, 2026-07-31 확인).
+  { id: "emblemDeco1", name: "휘장 장식(용맹)", maxLevel: 150, cpTable: EMBLEM_DECO_CP_TABLE_STANDARD, // 공격력
     materialOptions: ["투스의 숨결"], defaultMaterial: "투스의 숨결",
     anvilTable: EMBLEM_DECORATION_ANVIL, qtyPerAttemptTable: EMBLEM_DECORATION_TICKET_QTY, noRecovery: true },
-  { id: "emblemDeco2", name: "휘장 장식(침착)", maxLevel: 150, cpPerLevel: 10, cpEditable: false, cpMin: 2, cpMax: 150,
+  { id: "emblemDeco2", name: "휘장 장식(침착)", maxLevel: 150, cpTable: EMBLEM_DECO_CP_TABLE_STANDARD, // 방어력
     materialOptions: ["투스의 숨결"], defaultMaterial: "투스의 숨결",
     anvilTable: EMBLEM_DECORATION_ANVIL, qtyPerAttemptTable: EMBLEM_DECORATION_TICKET_QTY, noRecovery: true },
-  { id: "emblemDeco3", name: "휘장 장식(격렬)", maxLevel: 150, cpPerLevel: 10, cpEditable: false, cpMin: 3, cpMax: 150,
+  { id: "emblemDeco3", name: "휘장 장식(격렬)", maxLevel: 150, cpTable: EMBLEM_DECO_CP_TABLE_STANDARD, // 공격력
     materialOptions: ["투스의 숨결"], defaultMaterial: "투스의 숨결",
     anvilTable: EMBLEM_DECORATION_ANVIL, qtyPerAttemptTable: EMBLEM_DECORATION_TICKET_QTY, noRecovery: true },
-  { id: "emblemDeco4", name: "휘장 장식(철벽)", maxLevel: 150, cpPerLevel: 10, cpEditable: false, cpMin: 2, cpMax: 200,
+  { id: "emblemDeco4", name: "휘장 장식(철벽)", maxLevel: 150, cpTable: EMBLEM_DECO_CP_TABLE_ACCEL, // 방어력
     materialOptions: ["투스의 숨결"], defaultMaterial: "투스의 숨결",
     anvilTable: EMBLEM_DECORATION_ANVIL, qtyPerAttemptTable: EMBLEM_DECORATION_TICKET_QTY, noRecovery: true },
-  { id: "emblemDeco5", name: "휘장 장식(투지)", maxLevel: 150, cpPerLevel: 10, cpEditable: false, cpMin: 3, cpMax: 200,
+  { id: "emblemDeco5", name: "휘장 장식(투지)", maxLevel: 150, cpTable: EMBLEM_DECO_CP_TABLE_ACCEL, // 공격력
     materialOptions: ["투스의 숨결"], defaultMaterial: "투스의 숨결",
     anvilTable: EMBLEM_DECORATION_ANVIL, qtyPerAttemptTable: EMBLEM_DECORATION_TICKET_QTY, noRecovery: true },
   // 카라자드(신성 등급)는 공허 등급 각성 완료 +9·+10단계에서 별도 재료를 소모해 제작하는
