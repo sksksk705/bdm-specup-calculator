@@ -75,7 +75,7 @@ export function renderSpecTable() {
       // 균열의 토템(공허)처럼 등급마다 회당 소모량이 실수치로 다른 항목은 qtyPerAttemptTableByGrade를
       // 우선 씁니다(그 외엔 기존처럼 등급 무관 공통 표/더미).
       const qtyByGrade = item.qtyPerAttemptTableByGrade && item.qtyPerAttemptTableByGrade[fam.grade];
-      const qtyPerAttempt = qtyByGrade ? qtyByGrade[fam.level]
+      let qtyPerAttempt = qtyByGrade ? qtyByGrade[fam.level]
         : item.qtyPerAttemptTable ? item.qtyPerAttemptTable[fam.level]
         : (item.qtyPerAttempt || dummyQtyPerAttempt(fam.level));
       // anvilTable 값 = 허용되는 최대 실패 횟수라, 총 시도 횟수 상한은 그 값+1(실패를 다 채운
@@ -85,8 +85,14 @@ export function renderSpecTable() {
       const isKarazad = !!KARAZAD_ITEM_MATERIAL[item.id] && fam.grade === "카라자드";
       const attempts = isKarazad ? karazadExpectedAttempts(fam.level)
         : (item.anvilTable ? item.anvilTable[fam.level] + 1 : 1);
+      // 실비아 여신상/균형의 돌처럼 일정 레벨 미만은 뉴비 전용 무료 재료로 대체되는 항목
+      // (freeMaterialUntilLevel, 사용자 확인 2026-07-31) — 무료 재료는 1개만 써도 레벨업됩니다.
+      const freeMat = item.freeMaterialUntilLevel;
+      const usesFreeMaterial = !!(freeMat && fam.level < freeMat.maxLevel);
+      const effectiveMaterial = usesFreeMaterial ? freeMat.material : fam.material;
+      if (usesFreeMaterial) qtyPerAttempt = 1;
       const totalQty = attempts * qtyPerAttempt;
-      const materialCost = totalQty * priceOf(fam.material, state.prices)
+      const materialCost = totalQty * priceOf(effectiveMaterial, state.prices)
         + (item.extraMaterial ? totalQty * priceOf(item.extraMaterial, state.prices) : 0);
       const failures = attempts - 1;
       const recTable = item.recoveryTable && item.recoveryTable[fam.grade];
@@ -112,11 +118,11 @@ export function renderSpecTable() {
       rows.push({
         item: item.name, action: actionLabel, cost: cost, gain: gain, qty: qtyPerAttempt,
         isDummyQty: !item.qtyPerAttempt && !item.qtyPerAttemptTable && !qtyByGrade,
-        buildMaterialCell: function (item, fam, totalQty, hasRealRecovery, recTable) {
+        buildMaterialCell: function (item, fam, totalQty, hasRealRecovery, recTable, effectiveMaterial) {
           return function (td) {
             const matLabel = document.createElement("span");
             matLabel.style.cssText = "color:var(--text-dim);font-size:11.8px;";
-            matLabel.textContent = fam.material + (item.extraMaterial ? " + " + item.extraMaterial : "");
+            matLabel.textContent = effectiveMaterial + (item.extraMaterial ? " + " + item.extraMaterial : "");
             td.appendChild(matLabel);
             if (item.anvilTable) {
               const qtyNote = document.createElement("div");
@@ -157,7 +163,7 @@ export function renderSpecTable() {
               }
             }
           };
-        }(item, fam, totalQty, hasRealRecovery, recTable),
+        }(item, fam, totalQty, hasRealRecovery, recTable, effectiveMaterial),
         buildQtyCell: null,
         buildGainCell: (item.cpEditable && !hasRealCp) ? function (td) { td.appendChild(buildNumberInput(fam.cpPerLevel, function (v) { fam.cpPerLevel = v; persist(); renderSpecTable(); })); } : null
       });
