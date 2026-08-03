@@ -704,37 +704,59 @@ export const FAMILY_ITEMS = [
     materialByGrade: { "심연": "심연 미확인 문양 각인서", "태고": "태고 미확인 문양 각인서", "혼돈": "혼돈 미확인 문양 각인서" } }
 ];
 
-// ①탭 첫 입력을 쉽게 해주는 프리셋 — 장비(주무기~신발)·장신구(반지~팔찌)·유물에만 적용되고
-// (사용자가 지정한 범위), 그 외 항목(휘장·토템·조화의 연금석·광원석·문양 각인서·전승의 고리·
-// 실비아 여신상·균형의 돌·카라자드)은 건드리지 않습니다. relic이 null이면 유물은 그대로 둡니다.
-// 사용자 확인, 2026-07-31.
+// ①탭 첫 입력을 쉽게 해주는 프리셋 — 장비(주무기~신발)·장신구(반지~팔찌)·유물(relic이 null이면
+// 그대로 둠)에 더해, 휘장·휘장 장식 5종·전승의 고리·실비아 여신상·균형의 돌·광원석도 각 구간
+// 스펙에 "대략" 맞춰 함께 채웁니다(extra 필드 — 정확한 공식 수치가 아니라 어림값이니 필요하면
+// 직접 조정하세요). 토템·조화의 연금석·문양 각인서·카라자드 제작은 건드리지 않습니다.
+// 3·4번(카라자드 준비/최상위 성장 구간)은 장비·장신구 각성도 모두 완료 상태로 설정합니다.
+// 사용자 확인, 2026-07-31 / 2026-08-03.
 export const GEAR_PRESETS = [
   {
     id: "postseason", name: "시즌 졸업 직후",
     desc: "혼돈 장비 +6 · 혼돈 장신구 +1 · 태고 유물 각성 +7",
     equip: { grade: "혼돈", step: 6, awakened: false },
     accessory: { grade: "혼돈", level: 1, awakened: false },
-    relic: { grade: "태고", level: 7, awakened: true }
+    relic: { grade: "태고", level: 7, awakened: true },
+    extra: {
+      emblem: { grade: "혼돈", level: 8 }, emblemDecoLevel: 15,
+      ring: { grade: "혼돈", step: 2 }, sylvia: 40, balance: 80,
+      lightstone: { grade: "태고", level: 8 }
+    }
   },
   {
     id: "voidEntry", name: "공허 장비 진입",
     desc: "공허 장비 +7 · 혼돈 장신구 +7",
     equip: { grade: "공허", step: 7, awakened: false },
     accessory: { grade: "혼돈", level: 7, awakened: false },
-    relic: null
+    relic: null,
+    extra: {
+      emblem: { grade: "혼돈", level: 20 }, emblemDecoLevel: 40,
+      ring: { grade: "혼돈", step: 5 }, sylvia: 120, balance: 250,
+      lightstone: { grade: "혼돈", level: 4 }
+    }
   },
   {
     id: "karazadPrep", name: "카라자드 준비",
-    desc: "공허 장비 +8 · 공허 장신구 +9",
-    equip: { grade: "공허", step: 8, awakened: false },
-    accessory: { grade: "공허", level: 9, awakened: false },
-    relic: null
+    desc: "공허 장비 +8 · 공허 장신구 +9 · 장비·장신구 각성 완료",
+    equip: { grade: "공허", step: 8, awakened: true },
+    accessory: { grade: "공허", level: 9, awakened: true },
+    relic: null,
+    extra: {
+      emblem: { grade: "공허", level: 30 }, emblemDecoLevel: 70,
+      ring: { grade: "공허", step: 3 }, sylvia: 250, balance: 500,
+      lightstone: { grade: "혼돈", level: 10 }
+    }
   },
   {
     id: "topTier", name: "최상위 성장 구간",
-    desc: "공허 장비 +9 이상 · 카라자드 장신구",
-    equip: { grade: "공허", step: 9, awakened: false },
-    accessory: { grade: "카라자드", level: 0, awakened: false },
-    relic: null
+    desc: "공허 장비 +9 이상 · 카라자드 장신구 · 장비·장신구 각성 완료",
+    equip: { grade: "공허", step: 9, awakened: true },
+    accessory: { grade: "카라자드", level: 0, awakened: true },
+    relic: null,
+    extra: {
+      emblem: { grade: "공허", level: 45 }, emblemDecoLevel: 110,
+      ring: { grade: "공허", step: 6 }, sylvia: 400, balance: 750,
+      lightstone: { grade: "혼돈", level: 16 }
+    }
   }
 ];
