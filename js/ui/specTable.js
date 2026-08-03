@@ -320,4 +320,7 @@ function renderRecoBar(rows) {
   document.getElementById("recoTitle").textContent = best.item + " · " + best.action;
   document.getElementById("recoSub").textContent = "은화 " + fmt(best.cost) + " · 전투력 +" + fmt(best.gain);
   document.getElementById("recoValue").textContent = best.cost <= 0 ? "무료" : fmt(best.cost / best.gain);
+  const matDiv = document.getElementById("recoMat");
+  matDiv.innerHTML = "";
+  best.buildMaterialCell(matDiv);
 }

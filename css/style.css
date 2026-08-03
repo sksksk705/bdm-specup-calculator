@@ -155,6 +155,8 @@ a { color: var(--accent); }
 .reco-bar .body .label { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-faint); }
 .reco-bar .body .title { font-size: 16px; font-weight: 700; margin-top: 2px; }
 .reco-bar .body .sub { font-size: 12.5px; color: var(--text-dim); margin-top: 2px; }
+.reco-bar .body .mat { margin-top: 6px; }
+.reco-bar .body .mat:empty { margin-top: 0; }
 .reco-bar .metric { text-align: right; }
 .reco-bar .metric .value { font-size: 20px; font-weight: 800; color: var(--coin); }
 .reco-bar .metric .caption { font-size: 11px; color: var(--text-faint); }
