@@ -64,6 +64,7 @@
     <button class="tab-btn" data-tab="specs">② 스펙업 방식</button>
     <button class="tab-btn" data-tab="souls">③ 강화 기대값 계산기</button>
     <button class="tab-btn" data-tab="reference">④ 전투력 참고표</button>
+    <button class="tab-btn" data-tab="planner">⑤ 은화 예산 플래너</button>
   </div>
 
   <!-- ============ TAB 1: CURRENT STATE (all user input) ============ -->
@@ -211,6 +212,48 @@
       <div class="desc">이 탭은 조회 전용입니다(값 수정 불가) — 게임에 공개된 각 항목의 등급별·단계별(1강~최대강) 전투력 실수치를 항목별로 모아 보여줍니다. ①·②·③ 탭에서 이미 계산에 쓰이는 값과 같은 원자료입니다. 공개된 단계별 실수치가 없는 항목(조화의 연금석 혼돈 등급, 카라자드 잠재력 돌파, 각종 등급업 자체 등)은 계산기에서 직접 입력을 받고 있으며, 이 표에도 데이터가 없다고 표시됩니다.</div>
     </div>
     <div id="referenceTabRoot"></div>
+  </section>
+
+  <!-- ============ TAB 5: SILVER BUDGET PLANNER ============ -->
+  <section class="panel" id="panel-planner">
+    <div class="card">
+      <h2>은화 예산으로 살 수 있는 전투력</h2>
+      <div class="desc">보유 은화를 입력하면 ① 현재 상태를 기준으로, 은화 1당 전투력이 가장 좋은 스펙업부터 예산이 바닥날 때까지 순서대로 골라 보여줍니다. 매 순간 가장 좋은 선택 하나만 고르는 방식이라 실제 전역 최적 순서와는 살짝 다를 수 있고, 장비 돌파·밤·달빛 영혼석처럼 확률이 얽힌 항목과 카라자드(신성 등급) 제작 경로는 포함하지 않습니다.</div>
+      <div class="field-row">
+        <div>
+          <label for="plannerBudget">보유 은화</label><br />
+          <input type="number" id="plannerBudget" min="0" step="1" placeholder="예: 1000000000" style="width:220px;" />
+        </div>
+        <button class="btn" id="plannerRunBtn" type="button">계산하기</button>
+      </div>
+      <div class="planner-summary" id="plannerSummary" style="display:none;">
+        <div class="planner-stat">
+          <div class="label">총 소모 은화</div>
+          <div class="value" id="plannerTotalCost">–</div>
+        </div>
+        <div class="planner-stat">
+          <div class="label">총 증가 전투력</div>
+          <div class="value accent" id="plannerTotalGain">–</div>
+        </div>
+        <div class="planner-stat">
+          <div class="label">남은 은화</div>
+          <div class="value" id="plannerRemaining">–</div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="spec-table">
+          <colgroup>
+            <col style="width:7%"><col style="width:20%"><col style="width:38%">
+            <col style="width:17%"><col style="width:18%">
+          </colgroup>
+          <thead>
+            <tr><th class="num">순서</th><th>항목</th><th>액션</th><th class="num">소모 은화</th><th class="num">증가 전투력</th></tr>
+          </thead>
+          <tbody id="plannerTableBody"></tbody>
+        </table>
+      </div>
+      <div class="note" id="plannerEmptyNote" style="display:none;">입력한 은화로는 살 수 있는 스펙업이 없습니다 — 모든 항목이 최고 단계이거나 예산이 부족합니다.</div>
+    </div>
   </section>
 
   <footer class="disclaimer">

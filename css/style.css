@@ -160,6 +160,16 @@ a { color: var(--accent); }
 .reco-bar .metric .caption { font-size: 11px; color: var(--text-faint); }
 .reco-bar.empty .body .title { color: var(--text-faint); font-weight: 500; }
 
+/* ---------- Silver budget planner (⑤탭) ---------- */
+.planner-summary { display: flex; gap: 12px; flex-wrap: wrap; margin: 4px 0 16px; }
+.planner-stat {
+  flex: 1 1 160px; background: var(--ink-2); border: 1px solid var(--line-strong);
+  border-radius: 10px; padding: 10px 14px;
+}
+.planner-stat .label { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; color: var(--text-faint); }
+.planner-stat .value { font-size: 18px; font-weight: 800; color: var(--coin); margin-top: 2px; }
+.planner-stat .value.accent { color: var(--accent); }
+
 /* ---------- Tabs ---------- */
 .tabbar { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 20px; overflow-x: auto; }
 .tabbar button {

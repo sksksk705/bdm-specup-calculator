@@ -9,6 +9,7 @@ import { renderGearGrid, renderGearExtra } from "./ui/gearGrid.js";
 import { renderSpecTable } from "./ui/specTable.js";
 import { renderEvCalcTab } from "./ui/evCalcTab.js";
 import { renderReferenceTab } from "./ui/referenceTab.js";
+import { initPlannerTab } from "./ui/plannerTab.js";
 import { initThemeToggle } from "./ui/theme.js";
 import { initOnboarding } from "./ui/onboarding.js";
 
@@ -39,6 +40,7 @@ async function boot() {
   renderSpecTable();
   renderEvCalcTab();
   renderReferenceTab();
+  initPlannerTab();
 }
 
 boot();
