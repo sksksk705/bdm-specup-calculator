@@ -121,10 +121,21 @@ export function renderGearGrid() {
 export function renderGearExtra() {
   const wrap = document.getElementById("gearExtra");
   wrap.innerHTML = "";
-  ["sylvia", "balance", "lightstone"].forEach(function (id) {
+  ["sylvia", "balance"].forEach(function (id) {
     const item = familyItem(id), fam = state.family[id];
     wrap.appendChild(levelOnlyTile(item.name, item.maxLevel, fam.level, function (fam) {
       return function (v) { fam.level = v; persist(); renderSpecTable(); };
     }(fam)));
   });
+
+  // 광원석 — 태고/혼돈 등급이 있어 등급 선택 배지가 함께 필요합니다.
+  const lightstoneItem = familyItem("lightstone"), lightstoneFam = state.family["lightstone"];
+  wrap.appendChild(levelWithGradeTile(lightstoneItem.name, familyGradeOptions(lightstoneItem), familyMaxLevel(lightstoneItem, lightstoneFam.grade), lightstoneFam,
+    function (v) { lightstoneFam.level = v; persist(); renderSpecTable(); },
+    function (g) {
+      lightstoneFam.grade = g; lightstoneFam.level = 0;
+      if (lightstoneItem.materialByGrade && lightstoneItem.materialByGrade[g]) lightstoneFam.material = lightstoneItem.materialByGrade[g];
+      persist(); renderGearExtra(); renderSpecTable();
+    }
+  ));
 }
