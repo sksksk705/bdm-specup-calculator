@@ -5,6 +5,7 @@
 import { state } from "../data/userState.js";
 import { fmt } from "../logic/calculations.js";
 import { planSpecBudget, planSpecByTargetGain } from "../logic/planner.js";
+import { track } from "../analytics.js";
 
 // 같은 항목이 연달아 여러 단계 나오면(특히 실비아 여신상 0~80렙 무료 구간처럼 수십~수백 단계)
 // 표가 너무 길어지니 하나로 묶어 "첫 단계 ~ 마지막 단계 (N회)"로 보여줍니다.
@@ -62,6 +63,7 @@ function runSilverMode() {
   }
 
   const result = planSpecBudget(state, budget);
+  track("planner_run", { mode: "silver" });
   document.getElementById("plannerRemainingStat").style.display = "";
   document.getElementById("plannerRemainingStat").querySelector(".label").textContent = "남은 은화";
   document.getElementById("plannerRemaining").textContent = fmt(result.remaining) + "은화";
@@ -93,6 +95,7 @@ function runGainMode() {
   }
 
   const result = planSpecByTargetGain(state, targetGain);
+  track("planner_run", { mode: "gain" });
 
   summary.style.display = "flex";
   document.getElementById("plannerTotalCost").textContent = fmt(result.totalCost) + "은화";

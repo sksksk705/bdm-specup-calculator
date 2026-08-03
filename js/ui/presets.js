@@ -7,6 +7,7 @@ import { GEAR_PRESETS, PARTS, FAMILY_ITEMS, INSIGNIA_BOOK_MEDIAN_STAT } from "..
 import { state, persist } from "../data/userState.js";
 import { renderGearGrid, renderGearExtra } from "./gearGrid.js";
 import { renderSpecTable } from "./specTable.js";
+import { track } from "../analytics.js";
 
 const ACCESSORY_IDS = ["ring1", "necklace", "earring", "belt", "bracelet"];
 const RELIC_IDS = ["relic1", "relic2"];
@@ -61,6 +62,7 @@ function applyPreset(preset) {
   renderGearGrid();
   renderGearExtra();
   renderSpecTable();
+  track("preset_apply", { preset_id: preset.id });
 }
 
 export function initPresetSelector() {
