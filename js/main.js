@@ -6,6 +6,7 @@ import { initState } from "./data/userState.js";
 import { initTabs } from "./ui/tabs.js";
 import { initPriceTable, renderPriceTable, syncRecoveryTicketInput, renderPaidMaterials } from "./ui/priceTable.js";
 import { renderGearGrid, renderGearExtra } from "./ui/gearGrid.js";
+import { initPresetSelector } from "./ui/presets.js";
 import { renderSpecTable } from "./ui/specTable.js";
 import { renderEvCalcTab } from "./ui/evCalcTab.js";
 import { renderReferenceTab } from "./ui/referenceTab.js";
@@ -37,6 +38,7 @@ async function boot() {
   renderPaidMaterials();
   renderGearGrid();
   renderGearExtra();
+  initPresetSelector();
   renderSpecTable();
   renderEvCalcTab();
   renderReferenceTab();

@@ -703,3 +703,38 @@ export const FAMILY_ITEMS = [
     defaultMaterial: "심연 미확인 문양 각인서",
     materialByGrade: { "심연": "심연 미확인 문양 각인서", "태고": "태고 미확인 문양 각인서", "혼돈": "혼돈 미확인 문양 각인서" } }
 ];
+
+// ①탭 첫 입력을 쉽게 해주는 프리셋 — 장비(주무기~신발)·장신구(반지~팔찌)·유물에만 적용되고
+// (사용자가 지정한 범위), 그 외 항목(휘장·토템·조화의 연금석·광원석·문양 각인서·전승의 고리·
+// 실비아 여신상·균형의 돌·카라자드)은 건드리지 않습니다. relic이 null이면 유물은 그대로 둡니다.
+// 사용자 확인, 2026-07-31.
+export const GEAR_PRESETS = [
+  {
+    id: "postseason", name: "시즌 졸업 직후",
+    desc: "혼돈 장비 +6 · 혼돈 장신구 +1 · 태고 유물 각성 +7",
+    equip: { grade: "혼돈", step: 6, awakened: false },
+    accessory: { grade: "혼돈", level: 1, awakened: false },
+    relic: { grade: "태고", level: 7, awakened: true }
+  },
+  {
+    id: "voidEntry", name: "공허 장비 진입",
+    desc: "공허 장비 +7 · 혼돈 장신구 +7",
+    equip: { grade: "공허", step: 7, awakened: false },
+    accessory: { grade: "혼돈", level: 7, awakened: false },
+    relic: null
+  },
+  {
+    id: "karazadPrep", name: "카라자드 준비",
+    desc: "공허 장비 +8 · 공허 장신구 +9",
+    equip: { grade: "공허", step: 8, awakened: false },
+    accessory: { grade: "공허", level: 9, awakened: false },
+    relic: null
+  },
+  {
+    id: "topTier", name: "최상위 성장 구간",
+    desc: "공허 장비 +9 이상 · 카라자드 장신구",
+    equip: { grade: "공허", step: 9, awakened: false },
+    accessory: { grade: "카라자드", level: 0, awakened: false },
+    relic: null
+  }
+];

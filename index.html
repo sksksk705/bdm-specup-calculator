@@ -89,6 +89,15 @@
     <div class="card">
       <h2>장비 &amp; 장신구</h2>
       <div class="desc">인게임 장비 화면과 같은 배치입니다 — 왼쪽 위부터 휘장·고리, 오른쪽은 주무기/보조무기부터 순서대로. 등급이 있는 항목은 등급+단계를, 그 외에는 현재 레벨(단계)만 입력하세요.</div>
+      <div class="field-row">
+        <div>
+          <label for="gearPreset">내 상태와 가까운 프리셋 선택(장비·장신구만 적용)</label><br />
+          <select id="gearPreset" style="width:340px;">
+            <option value="">직접 입력할래요</option>
+          </select>
+        </div>
+        <button class="btn" id="applyPresetBtn" type="button">프리셋 적용</button>
+      </div>
       <div class="gear-grid">
         <div class="gear-side" id="gearSide"></div>
         <div>
