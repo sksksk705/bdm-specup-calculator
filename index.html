@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8" />
-<title>샤카투 은화연구소 | 검은사막 모바일 스펙업 계산기</title>
+<title data-i18n="샤카투 은화연구소 | 검은사막 모바일 스펙업 계산기">샤카투 은화연구소 | 검은사막 모바일 스펙업 계산기</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="description" content="내 은화로 전투력을 가장 저렴하게 올리는 방법. 검은사막 모바일 장비·장신구 스펙업 방식을 은화 1냥당 전투력 기준으로 비교해 가장 효율적인 다음 스펙업을 자동으로 추천합니다." />
 <link rel="icon" type="image/svg+xml" href="favicon.svg" />
@@ -32,79 +32,82 @@ gtag('config', 'G-YG2FMZ5YES');
 <div class="shell">
   <div class="page-head">
     <div class="page-head-top">
-      <div class="eyebrow">Black Desert Mobile · 샤카투 은화연구소</div>
-      <button class="theme-toggle" id="themeToggle" type="button" aria-label="라이트/다크 테마 전환"></button>
+      <div class="eyebrow" data-i18n="Black Desert Mobile · 샤카투 은화연구소">Black Desert Mobile · 샤카투 은화연구소</div>
+      <div style="display:flex;gap:8px;">
+        <button class="theme-toggle" id="langToggle" type="button" aria-label="Language / 언어"></button>
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="라이트/다크 테마 전환"></button>
+      </div>
     </div>
-    <img class="banner banner-dark" src="asset/57e010d8-53c1-4e2b-8c4c-35c84475bdc1.png" width="2508" height="627"
+    <img class="banner banner-dark" id="bannerDark" src="asset/57e010d8-53c1-4e2b-8c4c-35c84475bdc1.png" width="2508" height="627"
       alt="샤카투 은화연구소 | 검은사막 모바일 스펙업 계산기 — 내 은화로 전투력을 가장 저렴하게 올리는 방법" />
-    <img class="banner banner-light" src="asset/light_mode.png" width="2508" height="627"
+    <img class="banner banner-light" id="bannerLight" src="asset/light_mode.png" width="2508" height="627"
       alt="샤카투 은화연구소 | 검은사막 모바일 스펙업 계산기 — 내 은화로 전투력을 가장 저렴하게 올리는 방법" />
     <h1 class="sr-only">샤카투 은화연구소 | 검은사막 모바일 스펙업 계산기 — 내 은화로 전투력을 가장 저렴하게 올리는 방법</h1>
   </div>
 
   <details class="card onboard-card" id="onboardCard" open>
-    <summary>처음이신가요? 이렇게 쓰면 돼요</summary>
+    <summary data-i18n="처음이신가요? 이렇게 쓰면 돼요">처음이신가요? 이렇게 쓰면 돼요</summary>
     <ol>
-      <li><b>① 현재 상태</b> — 장비·장신구 등급/단계와 재료 시세를 인게임 화면과 같은 배치로 입력하세요.</li>
-      <li><b>② 스펙업 방식</b> — 은화 1냥당 전투력이 가장 높은 순서로 자동 정렬된 표를 확인하세요.</li>
-      <li><b>③ 강화 기대값 계산기</b> — 장비 돌파·밤·달빛 영혼석처럼 확률이 얽힌 항목은 여기서 세부 설정 후 계산하세요.</li>
-      <li><b>④ 전투력 참고표</b> — 항목별 등급·단계별 실수치를 조회만 할 수 있어요(수정 불가).</li>
-      <li><b>⑤ 은화 예산 플래너</b> — 보유 은화 또는 목표 전투력을 입력하면 어떤 순서로 스펙업해야 가장 저렴한지 시뮬레이션해줘요.</li>
+      <li><b data-i18n="① 현재 상태">① 현재 상태</b> <span data-i18n="— 장비·장신구 등급/단계와 재료 시세를 인게임 화면과 같은 배치로 입력하세요.">— 장비·장신구 등급/단계와 재료 시세를 인게임 화면과 같은 배치로 입력하세요.</span></li>
+      <li><b data-i18n="② 스펙업 방식">② 스펙업 방식</b> <span data-i18n="— 은화 1냥당 전투력이 가장 높은 순서로 자동 정렬된 표를 확인하세요.">— 은화 1냥당 전투력이 가장 높은 순서로 자동 정렬된 표를 확인하세요.</span></li>
+      <li><b data-i18n="③ 강화 기대값 계산기">③ 강화 기대값 계산기</b> <span data-i18n="— 장비 돌파·밤·달빛 영혼석처럼 확률이 얽힌 항목은 여기서 세부 설정 후 계산하세요.">— 장비 돌파·밤·달빛 영혼석처럼 확률이 얽힌 항목은 여기서 세부 설정 후 계산하세요.</span></li>
+      <li><b data-i18n="④ 전투력 참고표">④ 전투력 참고표</b> <span data-i18n="— 항목별 등급·단계별 실수치를 조회만 할 수 있어요(수정 불가).">— 항목별 등급·단계별 실수치를 조회만 할 수 있어요(수정 불가).</span></li>
+      <li><b data-i18n="⑤ 은화 예산 플래너">⑤ 은화 예산 플래너</b> <span data-i18n="— 보유 은화 또는 목표 전투력을 입력하면 어떤 순서로 스펙업해야 가장 저렴한지 시뮬레이션해줘요.">— 보유 은화 또는 목표 전투력을 입력하면 어떤 순서로 스펙업해야 가장 저렴한지 시뮬레이션해줘요.</span></li>
     </ol>
   </details>
 
   <div class="reco-bar empty" id="recoBar">
     <div class="icon-badge">☆</div>
     <div class="body">
-      <div class="label">가장 효율적인 다음 스펙업</div>
+      <div class="label" data-i18n="가장 효율적인 다음 스펙업">가장 효율적인 다음 스펙업</div>
       <div class="title" id="recoTitle">① 현재 상태를 입력하면 자동으로 계산됩니다</div>
       <div class="sub" id="recoSub"></div>
       <div class="mat" id="recoMat"></div>
     </div>
     <div class="metric">
       <div class="value" id="recoValue">–</div>
-      <div class="caption">은화 / 전투력 1</div>
+      <div class="caption" data-i18n="은화 / 전투력 1">은화 / 전투력 1</div>
     </div>
   </div>
 
   <div class="tabbar" role="tablist">
-    <button class="tab-btn active" data-tab="state">① 현재 상태</button>
-    <button class="tab-btn" data-tab="specs">② 스펙업 방식</button>
-    <button class="tab-btn" data-tab="souls">③ 강화 기대값 계산기</button>
-    <button class="tab-btn" data-tab="reference">④ 전투력 참고표</button>
-    <button class="tab-btn" data-tab="planner">⑤ 은화 예산 플래너</button>
+    <button class="tab-btn active" data-tab="state" data-i18n="① 현재 상태">① 현재 상태</button>
+    <button class="tab-btn" data-tab="specs" data-i18n="② 스펙업 방식">② 스펙업 방식</button>
+    <button class="tab-btn" data-tab="souls" data-i18n="③ 강화 기대값 계산기">③ 강화 기대값 계산기</button>
+    <button class="tab-btn" data-tab="reference" data-i18n="④ 전투력 참고표">④ 전투력 참고표</button>
+    <button class="tab-btn" data-tab="planner" data-i18n="⑤ 은화 예산 플래너">⑤ 은화 예산 플래너</button>
   </div>
 
   <!-- ============ TAB 1: CURRENT STATE (all user input) ============ -->
   <section class="panel active" id="panel-state">
     <div class="card">
-      <h2>복구 기준 시세</h2>
+      <h2 data-i18n="복구 기준 시세">복구 기준 시세</h2>
       <div class="desc">강화 실패 시 복구에 쓰이는 <b>돌파 복구권 1개를 은화로 환산하면 얼마인지</b> 정해두면, 아래 모든 항목의 복구 비용 계산에 공통으로 쓰입니다. 기본적으로 <b>복구는 은화(인게임 재화)로 하는 것으로 가정</b>하고, 복구권 사용이 강제되는 항목(예: 공허 유물 계열 돌파)만 개별적으로 복구권 개수를 따로 입력합니다.</div>
       <div class="field-row" style="margin-bottom:0;">
         <div class="field">
-          <label>돌파 복구권 1개 = 은화</label>
+          <label data-i18n="돌파 복구권 1개 = 은화">돌파 복구권 1개 = 은화</label>
           <input type="number" id="recoveryTicketPrice" min="0">
         </div>
       </div>
     </div>
 
     <div class="card">
-      <h2>유료 재화</h2>
+      <h2 data-i18n="유료 재화">유료 재화</h2>
       <div class="desc">은화로는 살 수 없고 실제 게임 화폐(프리미엄)로만 얻을 수 있는 재화입니다. 체크하면(기본값) 프리미엄으로 얻을 계획으로 보고 은화 스펙업 표에 그대로 포함하고(은화 비용 0), 체크를 풀면 그 재료가 필요한 스펙업 방식 자체를 표에서 제외합니다.</div>
       <div id="paidMaterialRows" style="display:flex;flex-direction:column;gap:8px;"></div>
     </div>
 
     <div class="card">
-      <h2>장비 &amp; 장신구</h2>
+      <h2 data-i18n="장비 & 장신구">장비 &amp; 장신구</h2>
       <div class="desc">인게임 장비 화면과 같은 배치입니다 — 왼쪽 위부터 휘장·고리, 오른쪽은 주무기/보조무기부터 순서대로. 등급이 있는 항목은 등급+단계를, 그 외에는 현재 레벨(단계)만 입력하세요.</div>
       <div class="field-row">
         <div>
-          <label for="gearPreset">내 상태와 가까운 프리셋 선택(장비·장신구만 적용)</label><br />
+          <label for="gearPreset" data-i18n="내 상태와 가까운 프리셋 선택(장비·장신구만 적용)">내 상태와 가까운 프리셋 선택(장비·장신구만 적용)</label><br />
           <select id="gearPreset" style="width:340px;">
-            <option value="">직접 입력할래요</option>
+            <option value="" data-i18n="직접 입력할래요">직접 입력할래요</option>
           </select>
         </div>
-        <button class="btn" id="applyPresetBtn" type="button">프리셋 적용</button>
+        <button class="btn" id="applyPresetBtn" type="button" data-i18n="프리셋 적용">프리셋 적용</button>
       </div>
       <div class="gear-grid">
         <div class="gear-side" id="gearSide"></div>
@@ -117,22 +120,22 @@ gtag('config', 'G-YG2FMZ5YES');
     </div>
 
     <div class="card">
-      <h2>기타 가문 콘텐츠</h2>
+      <h2 data-i18n="기타 가문 콘텐츠">기타 가문 콘텐츠</h2>
       <div class="desc">장비 화면에는 없지만 가문 전체 전투력에 기여하는 항목입니다.</div>
       <div class="gear-triple" id="gearExtra"></div>
     </div>
 
     <div class="card">
-      <h2>재료 시세 (은화 / 개당)</h2>
+      <h2 data-i18n="재료 시세 (은화 / 개당)">재료 시세 (은화 / 개당)</h2>
       <div class="desc">거래소 시세나 직접 제작 환산가를 입력하세요. 은화로 구매할 수 없는 재화(아크라드, 혼돈의 축, 돌파 복구권 등)는 기본값 0이며, 직접 판단한 “환산 은화 값”을 넣으면 계산에 반영됩니다.</div>
       <div class="field-row">
-        <input type="text" id="priceSearch" placeholder="재료명 검색…" style="width:220px;">
-        <button class="btn ghost" id="addMaterialBtn">+ 재료 추가</button>
+        <input type="text" id="priceSearch" data-i18n-placeholder="재료명 검색…" placeholder="재료명 검색…" style="width:220px;">
+        <button class="btn ghost" id="addMaterialBtn" data-i18n="+ 재료 추가">+ 재료 추가</button>
       </div>
       <div class="table-wrap">
         <table>
           <thead>
-            <tr><th>재료명</th><th>분류</th><th class="num">단가 (은화)</th><th>비고</th><th></th></tr>
+            <tr><th data-i18n="재료명">재료명</th><th data-i18n="분류">분류</th><th class="num" data-i18n="단가 (은화)">단가 (은화)</th><th data-i18n="비고">비고</th><th></th></tr>
           </thead>
           <tbody id="priceTableBody"></tbody>
         </table>
@@ -144,7 +147,7 @@ gtag('config', 'G-YG2FMZ5YES');
   <!-- ============ TAB 2: SPEC-UP METHODS (all computed output) ============ -->
   <section class="panel" id="panel-specs">
     <div class="card">
-      <h2>모든 스펙업 방식과 효율</h2>
+      <h2 data-i18n="모든 스펙업 방식과 효율">모든 스펙업 방식과 효율</h2>
       <div class="desc">① 현재 상태 기준, 각 항목의 “다음 한 스텝”에 드는 은화와 그로 인한 전투력 증가를 계산해 <b>전투력 1당 필요 은화</b> 기준 오름차순으로 정렬합니다. 값이 낮을수록 효율이 좋은 스펙업입니다. 전투력 증가량이 공식적으로 정해지지 않은 칸은 직접 입력할 수 있습니다. 장비 돌파(주무기~신발, 0~10강)와 밤·달빛 영혼석은 «③ 강화 기대값 계산기» 탭에서 별도로 계산합니다.</div>
       <div class="table-wrap">
         <table class="spec-table">
@@ -154,14 +157,14 @@ gtag('config', 'G-YG2FMZ5YES');
           </colgroup>
           <thead>
             <tr>
-              <th>항목</th><th>다음 액션</th><th>소모 재료</th><th class="num">회당 개수</th>
-              <th class="num">총 은화</th><th class="num">전투력 증가</th><th class="num">은화 / 전투력 1</th>
+              <th data-i18n="항목">항목</th><th data-i18n="다음 액션">다음 액션</th><th data-i18n="소모 재료">소모 재료</th><th class="num" data-i18n="회당 개수">회당 개수</th>
+              <th class="num" data-i18n="총 은화">총 은화</th><th class="num" data-i18n="전투력 증가">전투력 증가</th><th class="num" data-i18n="은화 / 전투력 1">은화 / 전투력 1</th>
             </tr>
           </thead>
           <tbody id="specTableBody"></tbody>
         </table>
       </div>
-      <div class="note" id="specEmptyNote">모든 항목이 최고 단계에 도달했습니다.</div>
+      <div class="note" id="specEmptyNote" data-i18n="모든 항목이 최고 단계에 도달했습니다.">모든 항목이 최고 단계에 도달했습니다.</div>
       <div class="note"><b>전승의 고리</b>처럼 공식 문서에 회당 소모량이 정해져 있는 항목은 그 실제 수치를 그대로 계산에 사용합니다. <b>휘장(영광의 증표 81,301개)·실비아 여신상(여신의 눈물 1,201,057개)·균형의 돌(혼돈의 결정 42,355개)</b>도 사용자 제공 실수치를 씁니다(기본 재료 기준). <b>(더미)</b> 표시가 붙은 항목(장비 돌파, 장신구·유물·조화의 연금석·광원석 등 나머지 “동일 아이템/전용 재화 1개 소모” 계열)은 회당 <b>1개</b>로 가정합니다 — 장신구는 공식 문서에 “돌파 1회당 동일 아이템 1개”로 명시돼 있고, 그 외 항목도 같은 방식일 것이라는 가정입니다. 다른 값이 확인되면 알려주세요.</div>
     </div>
   </section>
@@ -169,11 +172,11 @@ gtag('config', 'G-YG2FMZ5YES');
   <!-- ============ TAB 3: NIGHT/MOONLIGHT SOUL STONE (구매 불가, 목표단계 재료 계산기) ============ -->
   <section class="panel" id="panel-souls">
     <div class="card" id="soulCard">
-      <h2>밤·달빛 영혼석 — 0강부터 15강까지 필요 재료 기대 개수</h2>
+      <h2 data-i18n="밤·달빛 영혼석 — 0강부터 15강까지 필요 재료 기대 개수">밤·달빛 영혼석 — 0강부터 15강까지 필요 재료 기대 개수</h2>
       <div class="desc">밤·달빛 영혼석은 거래소에서 구매할 수 없는 재화라 은화 스펙업 순위(② 탭)에는 넣지 않습니다. 두 재화는 확률·기대값이 완전히 같아 <b>달빛 영혼석 기준 하나로</b> 통합해 표로 보여줍니다(밤의 영혼석도 같은 값을 그대로 쓰면 됩니다).</div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>단계</th><th class="num" id="soulQtyHeader">재료 기대 개수</th></tr></thead>
+          <thead><tr><th data-i18n="단계">단계</th><th class="num" id="soulQtyHeader">재료 기대 개수</th></tr></thead>
           <tbody id="soulGrid"></tbody>
         </table>
       </div>
@@ -181,12 +184,12 @@ gtag('config', 'G-YG2FMZ5YES');
     </div>
 
     <div class="card">
-      <h2>장비 돌파 — 강화 기대값 계산기</h2>
+      <h2 data-i18n="장비 돌파 — 강화 기대값 계산기">장비 돌파 — 강화 기대값 계산기</h2>
       <div class="desc">확률 상승권(10%/50%/100%)과 돌파 복구권을 어느 구간에 쓸지 직접 설정하면, 그 설정으로 강화했을 때 필요한 재료·상승권·복구권 기대 개수를 계산합니다. 장비 돌파(주무기~신발, 0~10강)는 순전히 사용자가 설정한 전략에 따라 결과가 크게 달라져 은화 스펙업 순위(② 탭)에서 이 계산기로 옮겼습니다 — 등급업(혼돈→공허)·각성은 그대로 ② 탭에 남아 있습니다.</div>
 
       <div class="field-row">
         <div class="field">
-          <label>계산할 강화 단계</label>
+          <label data-i18n="계산할 강화 단계">계산할 강화 단계</label>
           <div style="display:flex;align-items:center;gap:6px;">
             <input type="number" id="equipPlanFrom" min="0" max="10" style="width:70px;">
             <span>강 →</span>
@@ -198,15 +201,15 @@ gtag('config', 'G-YG2FMZ5YES');
 
       <div class="field-row" style="flex-direction:column;align-items:flex-start;gap:10px;">
         <div class="field" style="width:100%;">
-          <label>확률 상승권 사용 세팅</label>
+          <label data-i18n="확률 상승권 사용 세팅">확률 상승권 사용 세팅</label>
           <div id="equipBoostRows" style="display:flex;flex-direction:column;gap:8px;margin-top:6px;"></div>
         </div>
         <div class="field" style="width:100%;">
-          <label>돌파 복구권 세팅</label>
+          <label data-i18n="돌파 복구권 세팅">돌파 복구권 세팅</label>
           <div id="equipRecoveryRow" style="margin-top:6px;"></div>
         </div>
         <div class="field" style="width:100%;" id="equipShadowField">
-          <label>그림자 장비 사용 (7~8강·8~9강이 계산 범위에 포함될 때만 표시)</label>
+          <label data-i18n="그림자 장비 사용 (7~8강·8~9강이 계산 범위에 포함될 때만 표시)">그림자 장비 사용 (7~8강·8~9강이 계산 범위에 포함될 때만 표시)</label>
           <div id="equipShadowRows" style="display:flex;flex-direction:column;gap:8px;margin-top:6px;"></div>
         </div>
       </div>
@@ -225,7 +228,7 @@ gtag('config', 'G-YG2FMZ5YES');
   <!-- ============ TAB 4: REFERENCE — read-only per-step CP tables ============ -->
   <section class="panel" id="panel-reference">
     <div class="card">
-      <h2>전투력 참고표</h2>
+      <h2 data-i18n="전투력 참고표">전투력 참고표</h2>
       <div class="desc">이 탭은 조회 전용입니다(값 수정 불가) — 게임에 공개된 각 항목의 등급별·단계별(1강~최대강) 전투력 실수치를 항목별로 모아 보여줍니다. ①·②·③ 탭에서 이미 계산에 쓰이는 값과 같은 원자료입니다. 공개된 단계별 실수치가 없는 항목(조화의 연금석 혼돈 등급, 카라자드 잠재력 돌파, 각종 등급업 자체 등)은 계산기에서 직접 입력을 받고 있으며, 이 표에도 데이터가 없다고 표시됩니다.</div>
     </div>
     <div id="referenceTabRoot"></div>
@@ -234,38 +237,38 @@ gtag('config', 'G-YG2FMZ5YES');
   <!-- ============ TAB 5: SILVER BUDGET PLANNER ============ -->
   <section class="panel" id="panel-planner">
     <div class="card">
-      <h2>은화 ↔ 전투력 계산기</h2>
+      <h2 data-i18n="은화 ↔ 전투력 계산기">은화 ↔ 전투력 계산기</h2>
       <div class="desc">① 현재 상태를 기준으로, 은화 1당 전투력이 가장 좋은 스펙업부터 순서대로 골라 보여줍니다. 매 순간 가장 좋은 선택 하나만 고르는 방식이라 실제 전역 최적 순서와는 살짝 다를 수 있고, 장비 돌파·밤·달빛 영혼석처럼 확률이 얽힌 항목과 카라자드(신성 등급) 제작 경로는 포함하지 않습니다.</div>
       <div class="field-row" style="margin-bottom:10px;">
         <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;">
-          <input type="radio" name="plannerMode" id="plannerModeSilver" value="silver" checked /> 보유 은화로 계산
+          <input type="radio" name="plannerMode" id="plannerModeSilver" value="silver" checked /> <span data-i18n="보유 은화로 계산">보유 은화로 계산</span>
         </label>
         <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;">
-          <input type="radio" name="plannerMode" id="plannerModeGain" value="gain" /> 목표 전투력으로 계산
+          <input type="radio" name="plannerMode" id="plannerModeGain" value="gain" /> <span data-i18n="목표 전투력으로 계산">목표 전투력으로 계산</span>
         </label>
       </div>
       <div class="field-row">
         <div id="plannerSilverField">
-          <label for="plannerBudget">보유 은화</label><br />
+          <label for="plannerBudget" data-i18n="보유 은화">보유 은화</label><br />
           <input type="number" id="plannerBudget" min="0" step="1" placeholder="예: 1000000000" style="width:220px;" />
         </div>
         <div id="plannerGainField" style="display:none;">
-          <label for="plannerTargetGain">목표 전투력</label><br />
+          <label for="plannerTargetGain" data-i18n="목표 전투력">목표 전투력</label><br />
           <input type="number" id="plannerTargetGain" min="0" step="1" placeholder="예: 10000" style="width:220px;" />
         </div>
-        <button class="btn" id="plannerRunBtn" type="button">계산하기</button>
+        <button class="btn" id="plannerRunBtn" type="button" data-i18n="계산하기">계산하기</button>
       </div>
       <div class="planner-summary" id="plannerSummary" style="display:none;">
         <div class="planner-stat">
-          <div class="label">총 소모 은화</div>
+          <div class="label" data-i18n="총 소모 은화">총 소모 은화</div>
           <div class="value" id="plannerTotalCost">–</div>
         </div>
         <div class="planner-stat">
-          <div class="label">총 증가 전투력</div>
+          <div class="label" data-i18n="총 증가 전투력">총 증가 전투력</div>
           <div class="value accent" id="plannerTotalGain">–</div>
         </div>
         <div class="planner-stat" id="plannerRemainingStat">
-          <div class="label">남은 은화</div>
+          <div class="label" data-i18n="남은 은화">남은 은화</div>
           <div class="value" id="plannerRemaining">–</div>
         </div>
       </div>
@@ -276,12 +279,12 @@ gtag('config', 'G-YG2FMZ5YES');
             <col style="width:17%"><col style="width:18%">
           </colgroup>
           <thead>
-            <tr><th class="num">순서</th><th>항목</th><th>액션</th><th class="num">소모 은화</th><th class="num">증가 전투력</th></tr>
+            <tr><th class="num" data-i18n="순서">순서</th><th data-i18n="항목">항목</th><th data-i18n="액션">액션</th><th class="num" data-i18n="소모 은화">소모 은화</th><th class="num" data-i18n="증가 전투력">증가 전투력</th></tr>
           </thead>
           <tbody id="plannerTableBody"></tbody>
         </table>
       </div>
-      <div class="note" id="plannerEmptyNote" style="display:none;">입력한 은화로는 살 수 있는 스펙업이 없습니다 — 모든 항목이 최고 단계이거나 예산이 부족합니다.</div>
+      <div class="note" id="plannerEmptyNote" style="display:none;" data-i18n="입력한 은화로는 살 수 있는 스펙업이 없습니다 — 모든 항목이 최고 단계이거나 예산이 부족합니다.">입력한 은화로는 살 수 있는 스펙업이 없습니다 — 모든 항목이 최고 단계이거나 예산이 부족합니다.</div>
     </div>
   </section>
 

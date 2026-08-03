@@ -13,9 +13,12 @@ import { renderReferenceTab } from "./ui/referenceTab.js";
 import { initPlannerTab } from "./ui/plannerTab.js";
 import { initThemeToggle } from "./ui/theme.js";
 import { initOnboarding } from "./ui/onboarding.js";
+import { initLangToggle, onLangChange } from "./i18n.js";
+import { refreshPresetOptions } from "./ui/presets.js";
 
 async function boot() {
   initThemeToggle();
+  initLangToggle();
   initOnboarding();
 
   let defaultPrices;
@@ -43,6 +46,16 @@ async function boot() {
   renderEvCalcTab();
   renderReferenceTab();
   initPlannerTab();
+
+  onLangChange(function () {
+    renderPriceTable(document.getElementById("priceSearch").value);
+    renderPaidMaterials();
+    renderGearGrid();
+    renderGearExtra();
+    refreshPresetOptions();
+    renderSpecTable();
+    renderEvCalcTab();
+  });
 }
 
 boot();

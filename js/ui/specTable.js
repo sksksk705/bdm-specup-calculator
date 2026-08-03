@@ -13,6 +13,7 @@ import {
   computeInsigniaGradeUp, emblemDecoRealLevel
 } from "../logic/calculations.js";
 import { buildNumberInput, staticLabelCell } from "./domHelpers.js";
+import { t } from "../i18n.js";
 
 export function renderSpecTable() {
   const body = document.getElementById("specTableBody");
@@ -122,17 +123,17 @@ export function renderSpecTable() {
           return function (td) {
             const matLabel = document.createElement("span");
             matLabel.style.cssText = "color:var(--text-dim);font-size:11.8px;";
-            matLabel.textContent = effectiveMaterial + (item.extraMaterial ? " + " + item.extraMaterial : "");
+            matLabel.textContent = t(effectiveMaterial + (item.extraMaterial ? " + " + item.extraMaterial : ""));
             td.appendChild(matLabel);
             if (item.anvilTable) {
               const qtyNote = document.createElement("div");
               qtyNote.style.cssText = "color:var(--text-faint);font-size:10px;margin-top:2px;";
-              qtyNote.textContent = "재료 기대 소모량 " + fmt(totalQty) + "개";
+              qtyNote.textContent = t("재료 기대 소모량 " + fmt(totalQty) + "개");
               td.appendChild(qtyNote);
               if (item.recoveryKey && RECOVERY_NOTES[item.recoveryKey]) {
                 const recNote = document.createElement("div");
                 recNote.style.cssText = "color:var(--text-faint);font-size:10px;margin-top:2px;white-space:normal;max-width:220px;";
-                recNote.textContent = RECOVERY_NOTES[item.recoveryKey];
+                recNote.textContent = t(RECOVERY_NOTES[item.recoveryKey]);
                 td.appendChild(recNote);
               }
               if (item.noRecovery) {
@@ -140,23 +141,23 @@ export function renderSpecTable() {
               } else if (hasMaterialRecovery) {
                 const matNote = document.createElement("div");
                 matNote.style.cssText = "color:var(--text-dim);font-size:10.5px;margin-top:4px;";
-                matNote.textContent = "실패당 " + item.recoveryMaterial[fam.level] + " " + fmt(item.recoveryQtyByLevel[fam.level]) + "개";
+                matNote.textContent = t("실패당 " + item.recoveryMaterial[fam.level] + " " + fmt(item.recoveryQtyByLevel[fam.level]) + "개");
                 td.appendChild(matNote);
               } else if (hasRealRecovery) {
                 const realNote = document.createElement("div");
                 realNote.style.cssText = "color:var(--text-dim);font-size:10.5px;margin-top:4px;";
-                realNote.textContent = "실패당 은화 " + fmt(recTable.silver[fam.level])
-                  + (recTable.ticket ? " (또는 돌파 복구권 " + fmt(recTable.ticket[fam.level]) + "장)" : "");
+                realNote.textContent = t("실패당 은화 " + fmt(recTable.silver[fam.level])
+                  + (recTable.ticket ? " (또는 돌파 복구권 " + fmt(recTable.ticket[fam.level]) + "장)" : ""));
                 td.appendChild(realNote);
               } else {
                 const wrap = document.createElement("div");
                 wrap.style.cssText = "display:flex;align-items:center;gap:4px;margin-top:4px;flex-wrap:wrap;";
                 const label2 = document.createElement("span");
-                label2.style.cssText = "color:var(--text-faint);font-size:10px;"; label2.textContent = "실패당 은화(기본)";
+                label2.style.cssText = "color:var(--text-faint);font-size:10px;"; label2.textContent = t("실패당 은화(기본)");
                 wrap.appendChild(label2);
                 wrap.appendChild(buildNumberInput(fam.recoverySilver, function (v) { fam.recoverySilver = v; persist(); renderSpecTable(); }, "70px"));
                 const label1 = document.createElement("span");
-                label1.style.cssText = "color:var(--text-faint);font-size:10px;"; label1.textContent = "복구권(강제인 경우만)";
+                label1.style.cssText = "color:var(--text-faint);font-size:10px;"; label1.textContent = t("복구권(강제인 경우만)");
                 wrap.appendChild(label1);
                 wrap.appendChild(buildNumberInput(fam.recoveryQty, function (v) { fam.recoveryQty = v; persist(); renderSpecTable(); }, "55px"));
                 td.appendChild(wrap);
@@ -209,7 +210,7 @@ export function renderSpecTable() {
             sel.style.cssText = "font-size:11px;padding:2px 4px;max-width:100%;";
             [["material", "재료로 제작 (" + fmt(methodOptions.material.cost) + "은화)"],
               ["buy", "완제품 구매 (" + fmt(methodOptions.buy.cost) + "은화)"]].forEach(function (pair) {
-              const o = document.createElement("option"); o.value = pair[0]; o.textContent = pair[1];
+              const o = document.createElement("option"); o.value = pair[0]; o.textContent = t(pair[1]);
               if (pair[0] === methodOptions.current) o.selected = true;
               sel.appendChild(o);
             });
@@ -217,7 +218,7 @@ export function renderSpecTable() {
             wrap.appendChild(sel);
             const label = document.createElement("span");
             label.style.cssText = "color:var(--text-dim);white-space:normal;font-size:11px;";
-            label.textContent = methodOptions[methodOptions.current].materialLabel;
+            label.textContent = t(methodOptions[methodOptions.current].materialLabel);
             wrap.appendChild(label);
             td.appendChild(wrap);
           };
@@ -262,10 +263,10 @@ export function renderSpecTable() {
     const tr = document.createElement("tr");
     if (idx === 0 && r.gain > 0) tr.className = "rank-1";
 
-    const tdItem = document.createElement("td"); tdItem.className = "name"; tdItem.textContent = r.item;
+    const tdItem = document.createElement("td"); tdItem.className = "name"; tdItem.textContent = t(r.item);
     tr.appendChild(tdItem);
 
-    const tdAction = document.createElement("td"); tdAction.textContent = r.action;
+    const tdAction = document.createElement("td"); tdAction.textContent = t(r.action);
     tr.appendChild(tdAction);
 
     const tdMat = document.createElement("td"); r.buildMaterialCell(tdMat);
@@ -275,7 +276,7 @@ export function renderSpecTable() {
     if (r.buildQtyCell) {
       r.buildQtyCell(tdQty);
     } else if (r.qty !== undefined && r.qty !== null) {
-      tdQty.innerHTML = fmt(r.qty) + (r.isDummyQty ? ' <span style="color:var(--text-faint);font-size:10px;">(더미)</span>' : "");
+      tdQty.innerHTML = fmt(r.qty) + (r.isDummyQty ? ' <span style="color:var(--text-faint);font-size:10px;">' + t("(더미)") + '</span>' : "");
     } else {
       tdQty.innerHTML = '<span style="color:var(--text-faint);">–</span>';
     }
@@ -291,9 +292,9 @@ export function renderSpecTable() {
 
     const tdRatio = document.createElement("td"); tdRatio.className = "num";
     if (r.gain <= 0) {
-      tdRatio.innerHTML = '<span style="color:var(--text-faint);">전투력 미입력</span>';
+      tdRatio.innerHTML = '<span style="color:var(--text-faint);">' + t("전투력 미입력") + '</span>';
     } else if (r.cost <= 0) {
-      tdRatio.innerHTML = '<span class="badge good">무료</span>';
+      tdRatio.innerHTML = '<span class="badge good">' + t("무료") + '</span>';
     } else {
       tdRatio.innerHTML = '<span class="ratio-val">' + fmt(r.cost / r.gain) + "</span>";
     }
@@ -310,16 +311,16 @@ function renderRecoBar(rows) {
   const valid = rows.filter(function (r) { return r.gain > 0; });
   if (!valid.length) {
     bar.classList.add("empty");
-    document.getElementById("recoTitle").textContent = "전투력 증가량을 입력한 항목이 아직 없습니다";
-    document.getElementById("recoSub").textContent = "«② 스펙업 방식» 표에서 전투력 증가 칸을 채워보세요.";
+    document.getElementById("recoTitle").textContent = t("전투력 증가량을 입력한 항목이 아직 없습니다");
+    document.getElementById("recoSub").textContent = t("«② 스펙업 방식» 표에서 전투력 증가 칸을 채워보세요.");
     document.getElementById("recoValue").textContent = "–";
     return;
   }
   bar.classList.remove("empty");
   const best = valid[0];
-  document.getElementById("recoTitle").textContent = best.item + " · " + best.action;
-  document.getElementById("recoSub").textContent = "은화 " + fmt(best.cost) + " · 전투력 +" + fmt(best.gain);
-  document.getElementById("recoValue").textContent = best.cost <= 0 ? "무료" : fmt(best.cost / best.gain);
+  document.getElementById("recoTitle").textContent = t(best.item) + " · " + t(best.action);
+  document.getElementById("recoSub").textContent = t("은화 ") + fmt(best.cost) + " · " + t("전투력 +") + fmt(best.gain);
+  document.getElementById("recoValue").textContent = best.cost <= 0 ? t("무료") : fmt(best.cost / best.gain);
   const matDiv = document.getElementById("recoMat");
   matDiv.innerHTML = "";
   best.buildMaterialCell(matDiv);

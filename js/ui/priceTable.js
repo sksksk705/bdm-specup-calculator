@@ -6,6 +6,7 @@
 import { state, persist } from "../data/userState.js";
 import { PAID_MATERIALS } from "../data/gameData.js";
 import { renderSpecTable } from "./specTable.js";
+import { t } from "../i18n.js";
 
 let materialList = [];
 let priceTableBody = null;
@@ -26,7 +27,7 @@ export function renderPaidMaterials() {
     checkbox.checked = pm.use;
     label.appendChild(checkbox);
     const labelSpan = document.createElement("span");
-    labelSpan.textContent = name + " 보유(프리미엄으로 조달 예정) — 끄면 이 재료가 필요한 스펙업 방식을 표에서 제외";
+    labelSpan.textContent = t(name + " 보유(프리미엄으로 조달 예정) — 끄면 이 재료가 필요한 스펙업 방식을 표에서 제외");
     label.appendChild(labelSpan);
 
     checkbox.addEventListener("change", function () {
@@ -46,12 +47,12 @@ export function renderPriceTable(filter) {
     const tr = document.createElement("tr");
 
     const tdName = document.createElement("td");
-    tdName.className = "name"; tdName.textContent = m.name;
+    tdName.className = "name"; tdName.textContent = t(m.name);
     tr.appendChild(tdName);
 
     const tdCat = document.createElement("td");
     const badge = document.createElement("span");
-    badge.className = "badge muted"; badge.textContent = m.cat;
+    badge.className = "badge muted"; badge.textContent = t(m.cat);
     tdCat.appendChild(badge);
     tr.appendChild(tdCat);
 
@@ -77,7 +78,7 @@ export function renderPriceTable(filter) {
     const tdDel = document.createElement("td");
     if (m.custom) {
       const delBtn = document.createElement("button");
-      delBtn.className = "icon-btn"; delBtn.textContent = "✕"; delBtn.title = "삭제";
+      delBtn.className = "icon-btn"; delBtn.textContent = "✕"; delBtn.title = t("삭제");
       delBtn.addEventListener("click", function () {
         materialList = materialList.filter(function (x) { return x !== m; });
         delete state.prices[m.name];
@@ -115,7 +116,7 @@ export function initPriceTable(defaultPrices) {
   });
 
   document.getElementById("addMaterialBtn").addEventListener("click", function () {
-    let name = prompt("추가할 재료명을 입력하세요.");
+    let name = prompt(t("추가할 재료명을 입력하세요."));
     if (!name) return;
     name = name.trim();
     if (!name || materialList.some(function (m) { return m.name === name; })) return;

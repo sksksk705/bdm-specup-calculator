@@ -2,12 +2,13 @@
 
 import { persist } from "../data/userState.js";
 import { renderSpecTable } from "./specTable.js";
+import { t } from "../i18n.js";
 
 export function buildTile(name, extraClass) {
   const tile = document.createElement("div");
   tile.className = "gear-tile" + (extraClass ? " " + extraClass : "");
   const nameEl = document.createElement("div");
-  nameEl.className = "tile-name"; nameEl.textContent = name;
+  nameEl.className = "tile-name"; nameEl.textContent = t(name);
   tile.appendChild(nameEl);
   const controls = document.createElement("div");
   controls.className = "tile-controls";
@@ -49,7 +50,7 @@ export function appendAwakenCheckbox(tile, controls, rec) {
     persist(); renderSpecTable();
   });
   wrap.appendChild(cb);
-  const span = document.createElement("span"); span.textContent = "각성완료";
+  const span = document.createElement("span"); span.textContent = t("각성완료");
   wrap.appendChild(span);
   controls.appendChild(wrap);
 }
@@ -94,7 +95,7 @@ function buildGradeSelect(gradeOptions, currentGrade, onChange) {
   const gradeSel = document.createElement("select");
   gradeSel.style.cssText = "flex:1;min-width:0;padding:5px 6px;font-size:12px;";
   gradeOptions.forEach(function (g) {
-    const o = document.createElement("option"); o.value = g; o.textContent = g;
+    const o = document.createElement("option"); o.value = g; o.textContent = t(g);
     if (g === currentGrade) o.selected = true;
     gradeSel.appendChild(o);
   });
@@ -139,7 +140,7 @@ function buildStatBadge(range, currentValue, label, gradeColor, onChange) {
   badge.style.color = gradeColor || "var(--accent)";
   for (let i = range[0]; i <= range[1]; i++) {
     const o = document.createElement("option");
-    o.value = i; o.textContent = label + " " + i;
+    o.value = i; o.textContent = t(label) + " " + i;
     if (i === currentValue) o.selected = true;
     badge.appendChild(o);
   }

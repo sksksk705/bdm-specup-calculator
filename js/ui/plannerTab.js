@@ -6,6 +6,7 @@ import { state } from "../data/userState.js";
 import { fmt } from "../logic/calculations.js";
 import { planSpecBudget, planSpecByTargetGain } from "../logic/planner.js";
 import { track } from "../analytics.js";
+import { t } from "../i18n.js";
 
 // 같은 항목이 연달아 여러 단계 나오면(특히 실비아 여신상 0~80렙 무료 구간처럼 수십~수백 단계)
 // 표가 너무 길어지니 하나로 묶어 "첫 단계 ~ 마지막 단계 (N회)"로 보여줍니다.
@@ -39,8 +40,8 @@ function renderSteps(steps) {
   displaySteps.forEach(function (s, idx) {
     const tr = document.createElement("tr");
     const tdIdx = document.createElement("td"); tdIdx.className = "num"; tdIdx.textContent = idx + 1;
-    const tdItem = document.createElement("td"); tdItem.className = "name"; tdItem.textContent = s.item;
-    const tdAction = document.createElement("td"); tdAction.textContent = s.label;
+    const tdItem = document.createElement("td"); tdItem.className = "name"; tdItem.textContent = t(s.item);
+    const tdAction = document.createElement("td"); tdAction.textContent = t(s.label);
     const tdCost = document.createElement("td"); tdCost.className = "num";
     tdCost.innerHTML = '<span class="coin-val">' + fmt(s.cost) + "</span>";
     const tdGain = document.createElement("td"); tdGain.className = "num"; tdGain.textContent = "+" + fmt(s.gain);
@@ -58,23 +59,23 @@ function runSilverMode() {
   if (budget <= 0) {
     summary.style.display = "none";
     emptyNote.style.display = "block";
-    emptyNote.textContent = "먼저 보유 은화를 입력하세요.";
+    emptyNote.textContent = t("먼저 보유 은화를 입력하세요.");
     return;
   }
 
   const result = planSpecBudget(state, budget);
   track("planner_run", { mode: "silver" });
   document.getElementById("plannerRemainingStat").style.display = "";
-  document.getElementById("plannerRemainingStat").querySelector(".label").textContent = "남은 은화";
-  document.getElementById("plannerRemaining").textContent = fmt(result.remaining) + "은화";
+  document.getElementById("plannerRemainingStat").querySelector(".label").textContent = t("남은 은화");
+  document.getElementById("plannerRemaining").textContent = t(fmt(result.remaining) + "은화");
 
   summary.style.display = "flex";
-  document.getElementById("plannerTotalCost").textContent = fmt(result.totalCost) + "은화";
+  document.getElementById("plannerTotalCost").textContent = t(fmt(result.totalCost) + "은화");
   document.getElementById("plannerTotalGain").textContent = "+" + fmt(result.totalGain);
 
   if (!result.steps.length) {
     emptyNote.style.display = "block";
-    emptyNote.textContent = "입력한 은화로는 살 수 있는 스펙업이 없습니다 — 모든 항목이 최고 단계이거나 예산이 부족합니다.";
+    emptyNote.textContent = t("입력한 은화로는 살 수 있는 스펙업이 없습니다 — 모든 항목이 최고 단계이거나 예산이 부족합니다.");
     return;
   }
   emptyNote.style.display = "none";
@@ -90,7 +91,7 @@ function runGainMode() {
   if (targetGain <= 0) {
     summary.style.display = "none";
     emptyNote.style.display = "block";
-    emptyNote.textContent = "먼저 목표 전투력을 입력하세요.";
+    emptyNote.textContent = t("먼저 목표 전투력을 입력하세요.");
     return;
   }
 
@@ -98,20 +99,20 @@ function runGainMode() {
   track("planner_run", { mode: "gain" });
 
   summary.style.display = "flex";
-  document.getElementById("plannerTotalCost").textContent = fmt(result.totalCost) + "은화";
+  document.getElementById("plannerTotalCost").textContent = t(fmt(result.totalCost) + "은화");
   document.getElementById("plannerTotalGain").textContent = "+" + fmt(result.totalGain);
   document.getElementById("plannerRemainingStat").style.display = "";
-  document.getElementById("plannerRemainingStat").querySelector(".label").textContent = "목표 달성 여부";
-  document.getElementById("plannerRemaining").textContent = result.reached ? "달성" : "미달성";
+  document.getElementById("plannerRemainingStat").querySelector(".label").textContent = t("목표 달성 여부");
+  document.getElementById("plannerRemaining").textContent = t(result.reached ? "달성" : "미달성");
 
   if (!result.steps.length) {
     emptyNote.style.display = "block";
-    emptyNote.textContent = "이미 목표 전투력을 달성했거나, 살 수 있는 스펙업이 없습니다.";
+    emptyNote.textContent = t("이미 목표 전투력을 달성했거나, 살 수 있는 스펙업이 없습니다.");
     return;
   }
   emptyNote.style.display = result.reached ? "none" : "block";
   if (!result.reached) {
-    emptyNote.textContent = "이 계산기가 다루는 항목을 전부 최고 단계까지 올려도(아래 표) 목표 전투력에는 못 미칩니다 — 그 이상은 카라자드 제작·확률형 항목 등 이 계산기 범위 밖의 방법이 필요합니다.";
+    emptyNote.textContent = t("이 계산기가 다루는 항목을 전부 최고 단계까지 올려도(아래 표) 목표 전투력에는 못 미칩니다 — 그 이상은 카라자드 제작·확률형 항목 등 이 계산기 범위 밖의 방법이 필요합니다.");
   }
   renderSteps(result.steps);
 }

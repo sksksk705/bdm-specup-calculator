@@ -7,6 +7,7 @@ import { SOUL_ITEMS, SHADOW_GEAR } from "../data/gameData.js";
 import { state, persist } from "../data/userState.js";
 import { applyColorTint } from "./tiles.js";
 import { fmt, soulCumulativeQty, computeEquipRangePlan, validateEquipRangeConfig } from "../logic/calculations.js";
+import { t } from "../i18n.js";
 
 // 밤·달빛 영혼석은 확률·기대값이 완전히 같아(사용자 확인, 2026-07-30) 달빛 영혼석 기준
 // 하나로 통합해 0~15강 전체를 표로 보여줍니다. 카드 색도 달빛 영혼석 색만 남깁니다.
@@ -16,15 +17,15 @@ function renderSoulSection() {
   const moon = SOUL_ITEMS.filter(function (item) { return item.id === "moonsoul"; })[0];
   applyColorTint(document.getElementById("soulCard"), MOON_COLOR, "--ink-2");
   const qtyHeader = document.getElementById("soulQtyHeader");
-  if (qtyHeader) qtyHeader.textContent = moon.material + " 기대 개수";
+  if (qtyHeader) qtyHeader.textContent = t(moon.material + " 기대 개수");
   const body = document.getElementById("soulGrid");
   body.innerHTML = "";
   for (let step = 0; step < 16; step++) {
     const tr = document.createElement("tr");
-    const tdStep = document.createElement("td"); tdStep.className = "name"; tdStep.textContent = step + "강";
+    const tdStep = document.createElement("td"); tdStep.className = "name"; tdStep.textContent = t(step + "강");
     const tdQty = document.createElement("td"); tdQty.className = "num";
     tdQty.style.cssText = "color:" + MOON_COLOR + ";font-weight:800;";
-    tdQty.textContent = fmt(soulCumulativeQty(step)) + "개";
+    tdQty.textContent = t(fmt(soulCumulativeQty(step)) + "개");
     tr.appendChild(tdStep); tr.appendChild(tdQty);
     body.appendChild(tr);
   }
@@ -42,18 +43,18 @@ function buildRangeRow(labelText, config, onChange) {
   checkbox.checked = config.use;
   label.appendChild(checkbox);
   const labelSpan = document.createElement("span");
-  labelSpan.textContent = labelText;
+  labelSpan.textContent = t(labelText);
   label.appendChild(labelSpan);
   row.appendChild(label);
 
   const startInput = document.createElement("input");
   startInput.type = "number"; startInput.min = "1"; startInput.max = "10"; startInput.style.width = "60px";
   startInput.value = config.start;
-  const tilde = document.createElement("span"); tilde.textContent = "강 ~";
+  const tilde = document.createElement("span"); tilde.textContent = t("강 ~");
   const endInput = document.createElement("input");
   endInput.type = "number"; endInput.min = "1"; endInput.max = "10"; endInput.style.width = "60px";
   endInput.value = config.end;
-  const endLabel = document.createElement("span"); endLabel.textContent = "강";
+  const endLabel = document.createElement("span"); endLabel.textContent = t("강");
 
   row.appendChild(startInput); row.appendChild(tilde); row.appendChild(endInput); row.appendChild(endLabel);
 
@@ -89,7 +90,7 @@ function renderShadowRows(plan, onChange) {
     checkbox.checked = plan[s.key];
     label.appendChild(checkbox);
     const labelSpan = document.createElement("span");
-    labelSpan.textContent = SHADOW_GEAR[s.step].label + " 사용 (" + s.step + "→" + (s.step + 1) + "강, 100% 방어)";
+    labelSpan.textContent = t(SHADOW_GEAR[s.step].label + " 사용 (" + s.step + "→" + (s.step + 1) + "강, 100% 방어)");
     label.appendChild(labelSpan);
     checkbox.addEventListener("change", function () {
       plan[s.key] = checkbox.checked;
@@ -133,14 +134,14 @@ function renderEquipPlanSection() {
 
     if (!(plan.from >= 0 && plan.to <= 10 && plan.from < plan.to)) {
       errorEl.style.display = "block";
-      errorEl.textContent = "⚠ 강화 단계 범위가 올바르지 않습니다(0~10강, 시작<끝).";
+      errorEl.textContent = t("⚠ 강화 단계 범위가 올바르지 않습니다(0~10강, 시작<끝).");
       outputBody.innerHTML = "";
       return;
     }
     const err = validateEquipRangeConfig(boostConfig, plan.recovery);
     if (err) {
       errorEl.style.display = "block";
-      errorEl.textContent = "⚠ " + err;
+      errorEl.textContent = "⚠ " + t(err);
       outputBody.innerHTML = "";
       return;
     }
@@ -159,8 +160,8 @@ function renderEquipPlanSection() {
       ["돌파 복구권", result.recoveryTicket, "개"]
     ].forEach(function (row) {
       const tr = document.createElement("tr");
-      const tdName = document.createElement("td"); tdName.className = "name"; tdName.textContent = row[0];
-      const tdVal = document.createElement("td"); tdVal.className = "num"; tdVal.textContent = fmt(row[1]) + row[2];
+      const tdName = document.createElement("td"); tdName.className = "name"; tdName.textContent = t(row[0]);
+      const tdVal = document.createElement("td"); tdVal.className = "num"; tdVal.textContent = t(fmt(row[1]) + row[2]);
       tr.appendChild(tdName); tr.appendChild(tdVal);
       outputBody.appendChild(tr);
     });

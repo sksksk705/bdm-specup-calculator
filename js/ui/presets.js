@@ -8,6 +8,7 @@ import { state, persist } from "../data/userState.js";
 import { renderGearGrid, renderGearExtra } from "./gearGrid.js";
 import { renderSpecTable } from "./specTable.js";
 import { track } from "../analytics.js";
+import { t } from "../i18n.js";
 
 const ACCESSORY_IDS = ["ring1", "necklace", "earring", "belt", "bracelet"];
 const RELIC_IDS = ["relic1", "relic2"];
@@ -65,14 +66,23 @@ function applyPreset(preset) {
   track("preset_apply", { preset_id: preset.id });
 }
 
-export function initPresetSelector() {
+export function refreshPresetOptions() {
   const select = document.getElementById("gearPreset");
+  const prevValue = select.value;
+  select.querySelectorAll("option[data-preset]").forEach(function (o) { o.remove(); });
   GEAR_PRESETS.forEach(function (preset) {
     const o = document.createElement("option");
     o.value = preset.id;
-    o.textContent = preset.name + " — " + preset.desc;
+    o.dataset.preset = "1";
+    o.textContent = t(preset.name) + " — " + t(preset.desc);
     select.appendChild(o);
   });
+  select.value = prevValue;
+}
+
+export function initPresetSelector() {
+  refreshPresetOptions();
+  const select = document.getElementById("gearPreset");
   document.getElementById("applyPresetBtn").addEventListener("click", function () {
     const preset = GEAR_PRESETS.filter(function (p) { return p.id === select.value; })[0];
     if (!preset) return;
