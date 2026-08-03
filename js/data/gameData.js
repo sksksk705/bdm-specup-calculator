@@ -706,9 +706,11 @@ export const FAMILY_ITEMS = [
 
 // ①탭 첫 입력을 쉽게 해주는 프리셋 — 장비(주무기~신발)·장신구(반지~팔찌)·유물(relic이 null이면
 // 그대로 둠)에 더해, 휘장·휘장 장식 5종·전승의 고리·실비아 여신상·균형의 돌·광원석·토템·균열의
-// 토템도 각 구간 스펙에 "대략" 맞춰 함께 채웁니다(extra 필드 — 정확한 공식 수치가 아니라 어림값
-// 이니 필요하면 직접 조정하세요). 조화의 연금석·문양 각인서·카라자드 제작은 건드리지 않습니다.
-// 3·4번(카라자드 준비/최상위 성장 구간)은 장비·장신구 각성도 모두 완료 상태로 설정합니다.
+// 토템·조화의 연금석·문양 각인서·유물 계열돌파도 각 구간 스펙에 "대략" 맞춰 함께 채웁니다(extra
+// 필드 — 정확한 공식 수치가 아니라 어림값이니 필요하면 직접 조정하세요). 카라자드 제작은
+// 건드리지 않습니다. 3·4번(카라자드 준비/최상위 성장 구간)은 장비·장신구 각성도 모두 완료 상태로
+// 설정합니다. 유물 계열돌파(마력각인)는 공허 등급 전용이라 relic 등급이 공허인 topTier에만
+// 0보다 큰 값을 둡니다.
 // 사용자 확인, 2026-07-31 / 2026-08-03.
 export const GEAR_PRESETS = [
   {
@@ -721,7 +723,8 @@ export const GEAR_PRESETS = [
       emblem: { grade: "혼돈", level: 8 }, emblemDecoLevel: 15,
       ring: { grade: "혼돈", step: 2 }, sylvia: 40, balance: 80,
       lightstone: { grade: "태고", level: 8 },
-      totem: { grade: "혼돈", level: 8 }, riftTotemLevel: 2
+      totem: { grade: "혼돈", level: 8 }, riftTotemLevel: 2,
+      alchemy: { grade: "혼돈", level: 10 }, insigniaGrade: "태고", relicSeriesLevel: 0
     }
   },
   {
@@ -734,7 +737,8 @@ export const GEAR_PRESETS = [
       emblem: { grade: "혼돈", level: 20 }, emblemDecoLevel: 40,
       ring: { grade: "혼돈", step: 5 }, sylvia: 120, balance: 250,
       lightstone: { grade: "혼돈", level: 4 },
-      totem: { grade: "혼돈", level: 15 }, riftTotemLevel: 4
+      totem: { grade: "혼돈", level: 15 }, riftTotemLevel: 4,
+      alchemy: { grade: "혼돈", level: 25 }, insigniaGrade: "혼돈", relicSeriesLevel: 0
     }
   },
   {
@@ -747,7 +751,8 @@ export const GEAR_PRESETS = [
       emblem: { grade: "공허", level: 30 }, emblemDecoLevel: 70,
       ring: { grade: "공허", step: 3 }, sylvia: 250, balance: 500,
       lightstone: { grade: "혼돈", level: 10 },
-      totem: { grade: "공허", level: 15 }, riftTotemLevel: 7
+      totem: { grade: "공허", level: 15 }, riftTotemLevel: 7,
+      alchemy: { grade: "공허", level: 15 }, insigniaGrade: "혼돈", relicSeriesLevel: 0
     }
   },
   {
@@ -760,7 +765,8 @@ export const GEAR_PRESETS = [
       emblem: { grade: "공허", level: 45 }, emblemDecoLevel: 110,
       ring: { grade: "공허", step: 6 }, sylvia: 400, balance: 750,
       lightstone: { grade: "혼돈", level: 16 },
-      totem: { grade: "공허", level: 32 }, riftTotemLevel: 9
+      totem: { grade: "공허", level: 32 }, riftTotemLevel: 9,
+      alchemy: { grade: "공허", level: 35 }, insigniaGrade: "혼돈", relicSeriesLevel: 10
     }
   }
 ];

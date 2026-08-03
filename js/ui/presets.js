@@ -1,8 +1,9 @@
 // 프레젠테이션 계층 — ①탭 "장비 & 장신구" 프리셋 드랍다운. 장비(주무기~신발)·장신구(반지~팔찌)·
 // 유물(프리셋에 지정된 경우만)의 등급/단계/각성 여부에 더해, extra 필드가 있으면 휘장·휘장 장식·
-// 전승의 고리·실비아 여신상·균형의 돌·광원석도 대략 맞춰 채웁니다. 그 외 항목은 건드리지 않습니다.
+// 전승의 고리·실비아 여신상·균형의 돌·광원석·토템·균열의 토템·조화의 연금석·문양 각인서·유물
+// 계열돌파까지 대략 맞춰 채웁니다. 카라자드 제작은 건드리지 않습니다.
 
-import { GEAR_PRESETS, PARTS, FAMILY_ITEMS } from "../data/gameData.js";
+import { GEAR_PRESETS, PARTS, FAMILY_ITEMS, INSIGNIA_BOOK_MEDIAN_STAT } from "../data/gameData.js";
 import { state, persist } from "../data/userState.js";
 import { renderGearGrid, renderGearExtra } from "./gearGrid.js";
 import { renderSpecTable } from "./specTable.js";
@@ -46,6 +47,15 @@ function applyPreset(preset) {
     applyGradeLevel(state.family.lightstone, familyItemById("lightstone"), { grade: extra.lightstone.grade, level: extra.lightstone.level, awakened: undefined });
     applyGradeLevel(state.family.totem, familyItemById("totem"), { grade: extra.totem.grade, level: extra.totem.level, awakened: undefined });
     state.family.riftTotem.level = extra.riftTotemLevel;
+    applyGradeLevel(state.family.alchemy, familyItemById("alchemy"), { grade: extra.alchemy.grade, level: extra.alchemy.level, awakened: undefined });
+
+    const insigniaFam = state.family.insigniaBook, insigniaItem = familyItemById("insigniaBook");
+    insigniaFam.grade = extra.insigniaGrade;
+    insigniaFam.atkGain = INSIGNIA_BOOK_MEDIAN_STAT[extra.insigniaGrade].atk;
+    insigniaFam.defGain = INSIGNIA_BOOK_MEDIAN_STAT[extra.insigniaGrade].def;
+    if (insigniaItem.materialByGrade && insigniaItem.materialByGrade[extra.insigniaGrade]) insigniaFam.material = insigniaItem.materialByGrade[extra.insigniaGrade];
+
+    RELIC_IDS.forEach(function (id) { state.family[id].seriesLevel = extra.relicSeriesLevel; });
   }
   persist();
   renderGearGrid();
