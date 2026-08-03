@@ -114,7 +114,12 @@ a { color: var(--accent); }
 .page-head p { margin: 2px 0 0; color: var(--text-dim); font-size: 13.5px; max-width: 66ch; }
 /* 제목·설명이 이미 그래픽에 박혀 있는 메인 배너 — 실제 <h1>은 스크린리더/SEO용으로만 남기고
    화면에서는 숨깁니다(sr-only). */
-.banner { display: block; width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--line-strong); }
+.banner { width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--line-strong); }
+/* 배너는 다크/라이트 두 버전을 각각 그려두고 테마에 맞는 쪽만 보여줍니다(기본 다크). */
+.banner-light { display: none; }
+.banner-dark { display: block; }
+:root[data-theme="light"] .banner-light { display: block; }
+:root[data-theme="light"] .banner-dark { display: none; }
 .sr-only {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden;
   clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
