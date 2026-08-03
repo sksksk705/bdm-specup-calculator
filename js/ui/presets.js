@@ -44,6 +44,8 @@ function applyPreset(preset) {
     state.family.sylvia.level = extra.sylvia;
     state.family.balance.level = extra.balance;
     applyGradeLevel(state.family.lightstone, familyItemById("lightstone"), { grade: extra.lightstone.grade, level: extra.lightstone.level, awakened: undefined });
+    applyGradeLevel(state.family.totem, familyItemById("totem"), { grade: extra.totem.grade, level: extra.totem.level, awakened: undefined });
+    state.family.riftTotem.level = extra.riftTotemLevel;
   }
   persist();
   renderGearGrid();
