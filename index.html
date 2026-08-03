@@ -226,12 +226,24 @@
   <!-- ============ TAB 5: SILVER BUDGET PLANNER ============ -->
   <section class="panel" id="panel-planner">
     <div class="card">
-      <h2>은화 예산으로 살 수 있는 전투력</h2>
-      <div class="desc">보유 은화를 입력하면 ① 현재 상태를 기준으로, 은화 1당 전투력이 가장 좋은 스펙업부터 예산이 바닥날 때까지 순서대로 골라 보여줍니다. 매 순간 가장 좋은 선택 하나만 고르는 방식이라 실제 전역 최적 순서와는 살짝 다를 수 있고, 장비 돌파·밤·달빛 영혼석처럼 확률이 얽힌 항목과 카라자드(신성 등급) 제작 경로는 포함하지 않습니다.</div>
+      <h2>은화 ↔ 전투력 계산기</h2>
+      <div class="desc">① 현재 상태를 기준으로, 은화 1당 전투력이 가장 좋은 스펙업부터 순서대로 골라 보여줍니다. 매 순간 가장 좋은 선택 하나만 고르는 방식이라 실제 전역 최적 순서와는 살짝 다를 수 있고, 장비 돌파·밤·달빛 영혼석처럼 확률이 얽힌 항목과 카라자드(신성 등급) 제작 경로는 포함하지 않습니다.</div>
+      <div class="field-row" style="margin-bottom:10px;">
+        <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;">
+          <input type="radio" name="plannerMode" id="plannerModeSilver" value="silver" checked /> 보유 은화로 계산
+        </label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;">
+          <input type="radio" name="plannerMode" id="plannerModeGain" value="gain" /> 목표 전투력으로 계산
+        </label>
+      </div>
       <div class="field-row">
-        <div>
+        <div id="plannerSilverField">
           <label for="plannerBudget">보유 은화</label><br />
           <input type="number" id="plannerBudget" min="0" step="1" placeholder="예: 1000000000" style="width:220px;" />
+        </div>
+        <div id="plannerGainField" style="display:none;">
+          <label for="plannerTargetGain">목표 전투력</label><br />
+          <input type="number" id="plannerTargetGain" min="0" step="1" placeholder="예: 10000" style="width:220px;" />
         </div>
         <button class="btn" id="plannerRunBtn" type="button">계산하기</button>
       </div>
@@ -244,7 +256,7 @@
           <div class="label">총 증가 전투력</div>
           <div class="value accent" id="plannerTotalGain">–</div>
         </div>
-        <div class="planner-stat">
+        <div class="planner-stat" id="plannerRemainingStat">
           <div class="label">남은 은화</div>
           <div class="value" id="plannerRemaining">–</div>
         </div>

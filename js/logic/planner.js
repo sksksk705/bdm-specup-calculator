@@ -147,27 +147,44 @@ export function collectSpecActions(state) {
   return actions;
 }
 
-// 예산 안에서 매번 "은화 1당 전투력이 가장 좋은" 액션을 하나씩 골라 적용하는 탐욕 시뮬레이션.
+// 매번 "은화 1당 전투력이 가장 좋은" 액션을 하나씩 골라 적용하는 탐욕 시뮬레이션 공통 루프.
 // 매 순간의 최선만 보는 방식이라 전역 최적(더 비싼 선택이 나중에 더 큰 이득을 주는 경우)은
 // 놓칠 수 있지만, ②탭이 원래 "다음 한 스텝 추천"에 쓰는 것과 같은 기준이라 일관적입니다.
-// 반복 상한(5000)은 무한 루프 방지용 안전장치입니다.
+// 반복 상한(5000)은 무한 루프 방지용 안전장치입니다. maxCost가 있으면 그 한도 안에서(예산
+// 모드), targetGain이 있으면 그 전투력에 도달할 때까지(목표 전투력 모드) 반복합니다.
 const MAX_ITERATIONS = 5000;
-export function planSpecBudget(state, budget) {
+function runGreedySim(state, maxCost, targetGain) {
   const sim = JSON.parse(JSON.stringify(state));
-  let remaining = budget;
   let totalCost = 0, totalGain = 0;
   const steps = [];
   for (let i = 0; i < MAX_ITERATIONS; i++) {
-    const actions = collectSpecActions(sim);
-    const affordable = actions.filter(function (a) { return a.cost <= remaining; });
-    if (!affordable.length) break;
-    affordable.sort(function (a, b) { return (a.cost / a.gain) - (b.cost / b.gain); });
-    const pick = affordable[0];
+    if (targetGain !== undefined && totalGain >= targetGain) break;
+    let actions = collectSpecActions(sim);
+    if (maxCost !== undefined) {
+      const remaining = maxCost - totalCost;
+      actions = actions.filter(function (a) { return a.cost <= remaining; });
+    }
+    if (!actions.length) break;
+    actions.sort(function (a, b) { return (a.cost / a.gain) - (b.cost / b.gain); });
+    const pick = actions[0];
     pick.apply();
-    remaining -= pick.cost;
     totalCost += pick.cost;
     totalGain += pick.gain;
     steps.push({ item: pick.item, label: pick.label, cost: pick.cost, gain: pick.gain });
   }
-  return { totalCost: totalCost, totalGain: totalGain, remaining: remaining, steps: steps };
+  return { totalCost: totalCost, totalGain: totalGain, steps: steps };
+}
+
+// 보유 은화로 살 수 있는 만큼 전부 사는 모드.
+export function planSpecBudget(state, budget) {
+  const r = runGreedySim(state, budget, undefined);
+  return { totalCost: r.totalCost, totalGain: r.totalGain, remaining: budget - r.totalCost, steps: r.steps };
+}
+
+// 목표 전투력에 도달할 때까지 가장 싼 조합부터 사는 모드(예산 무제한). 모든 항목을 최고
+// 단계까지 올려도 목표에 못 미치면 reached:false — 이 계산기가 다루는 항목만으로는 그 이상
+// 전투력을 올릴 방법이 없다는 뜻입니다.
+export function planSpecByTargetGain(state, targetGain) {
+  const r = runGreedySim(state, undefined, targetGain);
+  return { totalCost: r.totalCost, totalGain: r.totalGain, reached: r.totalGain >= targetGain, steps: r.steps };
 }
