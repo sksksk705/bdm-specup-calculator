@@ -146,15 +146,15 @@ const EXACT = {
   // ── 재료명 ──
   "아크라드": "Ah'krad", "혼돈의 축": "Chaos Jewel", "공허의 눈": "Voidsent Eye", "혼돈의 핵": "Chaos Nucleus",
   "홍익의 불꽃": "Flame of Hongik", "홍익의 불씨": "Ember of Hongik",
-  "차원의 조각": "Dimensional Fragment", "균열의 열기": "Riftborn Fervor", "공허의 주술핵": "Voidsent Shaman's Core",
+  "차원의 조각": "Dimensional Fragment", "균열의 열기": "Riftborn Fervor", "공허의 주술핵": "Voidhex Core",
   "투스의 숨결": "Tuss's Breath", "주술의 근원": "Root of Sorcery",
   "카프라스": "Caphras", "카라자드 반지": "Karajad Ring",
   "미확인 문양 각인서": "Unidentified Inscribed Glyph", "혼돈 문양각인": "Chaos Glyph Imbuement",
   "태초의 원소": "First Element", "혼돈의 원소": "Chaos Element",
   "혼돈의 결정": "Crystal of Chaos", "타오르는 혼돈의 결정": "Blazing Crystal of Chaos",
   "결정화된 토템": "Crystallized Totem",
-  "피어나는 오기에르의 가호": "Blooming Ogier's Blessing", "구원하는 오기에르의 가호": "Redeeming Ogier's Blessing",
-  "오기에르의 가호": "Ogier's Blessing",
+  "피어나는 오기에르의 가호": "Eidolic Okiara's Blessing", "구원하는 오기에르의 가호": "Nocturnal Okiara's Blessing",
+  "오기에르의 가호": "Okiara's Blessing",
   "조화의 빛": "Harmonious Light", "시간의 고리": "Twisted Time", "영겁의 고리": "Ring of Eternity",
   "영광의 증표": "Badge of Glory", "돌파 복구권": "Breakthrough Recovery Ticket",
   "연금석 강화 재료": "Alchemy Stone Enhancement Material", "계열돌파": "Series Breakthrough",
@@ -171,7 +171,7 @@ const EXACT = {
   "제작": "Craft", "구매": "Buy", "선행조건: ": "Requirement: ", "선행조건:": "Requirement:",
   "부터 시작": " onward", "직접 은화 ": "Silver ", "직접 ": "",
   "이상": "or higher", "보유": "owned", "달성": "reached", "유물": "Relic", "균열": "Rift",
-  "등급": "Grade", "완료": "Complete", "장신구": "Accessory", "찬란한 황금": "Radiant Gold",
+  "등급": "Grade", "완료": "Complete", "장신구": "Accessory", "찬란한 황금 휘장": "Emblem of Glory",
   "고대의 모루 확정까지 최대 ": "up to ",
   "혼돈의 휘장": "Chaos Emblem",
   "카프라스의 반지": "Caphras Ring", "카프라스의 목걸이": "Caphras Necklace", "카프라스의 귀걸이": "Caphras Earrings",
@@ -197,7 +197,7 @@ const EXACT = {
   "실패 시 은화로 복구됩니다(0~4강 45,000, 이후 5단계마다 45,000씩 증가).":
     "On failure, recover with Silver (45,000 for Lv.0~4, +45,000 every 5 levels after).",
   "실패 시 0→1강은 복구 비용 없음, 1~7강은 결정화된 토템, 8·9강은 오기에르의 가호 1개로 100% 복구됩니다.":
-    "On failure: Lv.0→1 costs nothing to recover, Lv.1~7 uses a Crystallized Totem, and Lv.8~9 use 1 Ogier's Blessing — all 100% recovery.",
+    "On failure: Lv.0→1 costs nothing to recover, Lv.1~7 uses a Crystallized Totem, and Lv.8~9 use 1 Okiara's Blessing — all 100% recovery.",
 
   // ── 스펙업 표 하단 안내 ──
   "전승의 고리처럼 공식 문서에 회당 소모량이 정해져 있는 항목은 그 실제 수치를 그대로 계산에 사용합니다.": "For items with an official per-attempt cost (like Charm of Succession), the real figure is used as-is."
