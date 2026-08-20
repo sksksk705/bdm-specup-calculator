@@ -75,7 +75,7 @@ const EXACT = {
   "총 은화": "Total Silver", "전투력 증가": "CP Gain",
   "모든 항목이 최고 단계에 도달했습니다.": "Every item has reached its max level.",
   // 패널 3
-  "밤·달빛 영혼석 — 0강부터 15강까지 필요 재료 기대 개수": "Night/Moonlight Soul Stone — Expected Materials from Lv.0 to Lv.15",
+  "밤·달빛 영혼석 — 0강부터 13강까지 필요 재료 기대 개수": "Night/Moonlight Soul Stone — Expected Materials from Lv.0 to Lv.13",
   "단계": "Level", "재료 기대 개수": "Expected Qty", "기대 개수": "Expected Qty",
   "밤의 영혼석 강화 재료": "Night Soul Stone Enhancement Material",
   "달빛 영혼석 강화 재료": "Moonlight Soul Stone Enhancement Material",

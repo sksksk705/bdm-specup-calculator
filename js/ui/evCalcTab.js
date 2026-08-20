@@ -3,14 +3,14 @@
 // (1) 밤·달빛 영혼석: 구매 불가 재화라 목표 단계까지 재료 기대 개수만.
 // (2) 장비 돌파: 확률 상승권 10%/50%/100%·돌파 복구권을 어느 구간에 쓸지 직접 설정.
 
-import { SOUL_ITEMS, SHADOW_GEAR } from "../data/gameData.js";
+import { SOUL_ITEMS, SOUL_MAX_STEP, SHADOW_GEAR } from "../data/gameData.js";
 import { state, persist } from "../data/userState.js";
 import { applyColorTint } from "./tiles.js";
 import { fmt, soulCumulativeQty, computeEquipRangePlan, validateEquipRangeConfig } from "../logic/calculations.js";
 import { t } from "../i18n.js";
 
 // 밤·달빛 영혼석은 확률·기대값이 완전히 같아(사용자 확인, 2026-07-30) 달빛 영혼석 기준
-// 하나로 통합해 0~15강 전체를 표로 보여줍니다. 카드 색도 달빛 영혼석 색만 남깁니다.
+// 하나로 통합해 0~13강 전체를 표로 보여줍니다. 카드 색도 달빛 영혼석 색만 남깁니다.
 const MOON_COLOR = "#6B90C6";
 
 function renderSoulSection() {
@@ -20,7 +20,7 @@ function renderSoulSection() {
   if (qtyHeader) qtyHeader.textContent = t(moon.material + " 기대 개수");
   const body = document.getElementById("soulGrid");
   body.innerHTML = "";
-  for (let step = 0; step < 16; step++) {
+  for (let step = 0; step <= SOUL_MAX_STEP; step++) {
     const tr = document.createElement("tr");
     const tdStep = document.createElement("td"); tdStep.className = "name"; tdStep.textContent = t(step + "강");
     const tdQty = document.createElement("td"); tdQty.className = "num";
