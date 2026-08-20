@@ -3,7 +3,7 @@
 // (1) 밤·달빛 영혼석: 구매 불가 재화라 목표 단계까지 재료 기대 개수만.
 // (2) 장비 돌파: 확률 상승권 10%/50%/100%·돌파 복구권을 어느 구간에 쓸지 직접 설정.
 
-import { SOUL_ITEMS, SOUL_MAX_STEP, SHADOW_GEAR } from "../data/gameData.js";
+import { SOUL_ITEMS, SOUL_MAX_STEP, SOUL_RECOVERY_COST, SOUL_RECOVERY_POLICY, SHADOW_GEAR } from "../data/gameData.js";
 import { state, persist } from "../data/userState.js";
 import { applyColorTint } from "./tiles.js";
 import { fmt, soulCumulativeQty, computeEquipRangePlan, validateEquipRangeConfig } from "../logic/calculations.js";
@@ -27,6 +27,26 @@ function renderSoulSection() {
     tdQty.style.cssText = "color:" + MOON_COLOR + ";font-weight:800;";
     tdQty.textContent = soulCumulativeQty(step).toLocaleString("ko-KR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + t("개");
     tr.appendChild(tdStep); tr.appendChild(tdQty);
+    body.appendChild(tr);
+  }
+  renderSoulPolicy();
+}
+
+function renderSoulPolicy() {
+  const body = document.getElementById("soulPolicyGrid");
+  if (!body) return;
+  body.innerHTML = "";
+  for (let step = 0; step < SOUL_MAX_STEP; step++) {
+    const tr = document.createElement("tr");
+    const tdRange = document.createElement("td"); tdRange.className = "name";
+    tdRange.textContent = t(step + "강 → " + (step + 1) + "강");
+    const tdCost = document.createElement("td"); tdCost.className = "num";
+    tdCost.textContent = fmt(SOUL_RECOVERY_COST[step]) + t("개");
+    const tdPolicy = document.createElement("td");
+    const isPay = SOUL_RECOVERY_POLICY[step] === "pay";
+    tdPolicy.innerHTML = '<span class="badge ' + (isPay ? "muted" : "good") + '">'
+      + (isPay ? t("결제해도 위험 감수해도 동일(비용 0)") : t("위험 감수")) + "</span>";
+    tr.appendChild(tdRange); tr.appendChild(tdCost); tr.appendChild(tdPolicy);
     body.appendChild(tr);
   }
 }

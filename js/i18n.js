@@ -77,6 +77,8 @@ const EXACT = {
   // 패널 3
   "밤·달빛 영혼석 — 0강부터 13강까지 필요 재료 기대 개수": "Night/Moonlight Soul Stone — Expected Materials from Lv.0 to Lv.13",
   "단계": "Level", "재료 기대 개수": "Expected Qty", "기대 개수": "Expected Qty",
+  "구간": "Range", "확정 복구 비용": "Guaranteed Recovery Cost", "권장 방식": "Recommended Method",
+  "위험 감수": "Risk It", "결제해도 위험 감수해도 동일(비용 0)": "Pay or risk — identical (cost 0)",
   "밤의 영혼석 강화 재료": "Night Soul Stone Enhancement Material",
   "달빛 영혼석 강화 재료": "Moonlight Soul Stone Enhancement Material",
   "밤의 영혼석": "Night Soul Stone", "달빛 영혼석": "Moonlight Soul Stone",
