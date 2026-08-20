@@ -172,7 +172,7 @@ const EXACT = {
   "부터 시작": " onward", "직접 은화 ": "Silver ", "직접 ": "",
   "이상": "or higher", "보유": "owned", "달성": "reached", "유물": "Relic", "균열": "Rift",
   "등급": "Grade", "완료": "Complete", "장신구": "Accessory", "찬란한 황금 휘장": "Emblem of Glory",
-  "고대의 모루 확정까지 최대 ": "up to ",
+  "고대의 모루 확정까지 최대 ": "up to ", "개": " pcs",
   "혼돈의 휘장": "Chaos Emblem",
   "카프라스의 반지": "Caphras Ring", "카프라스의 목걸이": "Caphras Necklace", "카프라스의 귀걸이": "Caphras Earrings",
   "카프라스의 허리띠": "Caphras Belt", "카프라스의 팔찌": "Caphras Bracelet",

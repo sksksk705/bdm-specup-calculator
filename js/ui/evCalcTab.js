@@ -25,7 +25,7 @@ function renderSoulSection() {
     const tdStep = document.createElement("td"); tdStep.className = "name"; tdStep.textContent = t(step + "강");
     const tdQty = document.createElement("td"); tdQty.className = "num";
     tdQty.style.cssText = "color:" + MOON_COLOR + ";font-weight:800;";
-    tdQty.textContent = t(fmt(soulCumulativeQty(step)) + "개");
+    tdQty.textContent = soulCumulativeQty(step).toLocaleString("ko-KR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + t("개");
     tr.appendChild(tdStep); tr.appendChild(tdQty);
     body.appendChild(tr);
   }
