@@ -19,7 +19,37 @@
   document.documentElement.setAttribute("data-theme", saved === "light" ? "light" : "dark");
 })();
 </script>
-<link rel="stylesheet" href="css/style.css" />
+<!-- CSS와 모듈의 배포 버전을 함께 갱신해 새 HTML이 이전 캐시를 사용하지 않도록 합니다. -->
+<link rel="stylesheet" href="css/style.css?v=20261118-2" />
+<script type="importmap">
+{
+  "imports": {
+    "./js/analytics.js": "./js/analytics.js?v=20261118-2",
+    "./js/data/conversionData.js": "./js/data/conversionData.js?v=20261118-2",
+    "./js/data/gameData.js": "./js/data/gameData.js?v=20261118-2",
+    "./js/data/itemPresentation.js": "./js/data/itemPresentation.js?v=20261118-2",
+    "./js/data/priceRepository.js": "./js/data/priceRepository.js?v=20261118-2",
+    "./js/data/userState.js": "./js/data/userState.js?v=20261118-2",
+    "./js/i18n.js": "./js/i18n.js?v=20261118-2",
+    "./js/logic/calculations.js": "./js/logic/calculations.js?v=20261118-2",
+    "./js/logic/conversionValues.js": "./js/logic/conversionValues.js?v=20261118-2",
+    "./js/logic/planner.js": "./js/logic/planner.js?v=20261118-2",
+    "./js/main.js": "./js/main.js?v=20261118-2",
+    "./js/ui/domHelpers.js": "./js/ui/domHelpers.js?v=20261118-2",
+    "./js/ui/evCalcTab.js": "./js/ui/evCalcTab.js?v=20261118-2",
+    "./js/ui/gearGrid.js": "./js/ui/gearGrid.js?v=20261118-2",
+    "./js/ui/onboarding.js": "./js/ui/onboarding.js?v=20261118-2",
+    "./js/ui/plannerTab.js": "./js/ui/plannerTab.js?v=20261118-2",
+    "./js/ui/presets.js": "./js/ui/presets.js?v=20261118-2",
+    "./js/ui/priceTable.js": "./js/ui/priceTable.js?v=20261118-2",
+    "./js/ui/referenceTab.js": "./js/ui/referenceTab.js?v=20261118-2",
+    "./js/ui/specTable.js": "./js/ui/specTable.js?v=20261118-2",
+    "./js/ui/tabs.js": "./js/ui/tabs.js?v=20261118-2",
+    "./js/ui/theme.js": "./js/ui/theme.js?v=20261118-2",
+    "./js/ui/tiles.js": "./js/ui/tiles.js?v=20261118-2"
+  }
+}
+</script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-YG2FMZ5YES"></script>
 <script>
 window.dataLayer = window.dataLayer || [];
@@ -435,6 +465,6 @@ gtag('config', 'G-YG2FMZ5YES');
   </footer>
 </div>
 
-<script type="module" src="js/main.js"></script>
+<script type="module" src="js/main.js?v=20261118-2"></script>
 </body>
 </html>

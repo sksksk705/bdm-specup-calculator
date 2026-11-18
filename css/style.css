@@ -99,7 +99,7 @@ a { color: var(--accent); }
 
 /* ---------- Header ---------- */
 .page-head { display: flex; flex-direction: column; gap: 6px; margin-bottom: 22px; }
-.page-head-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.page-head-top { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px; }
 .eyebrow {
   font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
   color: var(--accent);
