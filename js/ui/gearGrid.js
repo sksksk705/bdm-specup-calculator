@@ -1,141 +1,300 @@
-// 프레젠테이션 계층 — ① 탭 "장비 & 장신구"(인게임 화면과 같은 배치) 그리드와
-// "기타 가문 콘텐츠" 3칸을 그립니다.
-
-import { PARTS, RING_GRADE_ORDER, RING_QTY_PER_STEP, GRADE_ORDER, ANCIENT_ANVIL, INSIGNIA_BOOK_MEDIAN_STAT } from "../data/gameData.js";
+import {
+  GRADE_ORDER, EQUIP_BREAKTHROUGH_CURVE, EQUIP_CP_TABLE, KARAZAD_BASE_STAT,
+  KARAZAD_BREAKTHROUGH_CURVE, RING_GRADE_ORDER, RING_QTY_PER_STEP, RING_STAT_AT_STEP,
+  RELIC_BREAKTHROUGH_CURVE, RELIC_SERIES_BREAKTHROUGH_CURVE, RELIC_SERIES_CP_GAIN,
+  SOUL_CP_GAIN, SOUL_MAX_STEP, SOUL_SUCCESS_RATE, INSIGNIA_BOOK_MEDIAN_STAT, INSIGNIA_BOOK_VOID_STAT_VALUES
+} from "../data/gameData.js";
+import { ITEM_GROUPS, ITEM_VISUALS } from "../data/itemPresentation.js";
 import { state, persist } from "../data/userState.js";
-import { familyGradeOptions, familyMaxLevel, familyItem, emblemDecoRealLevel } from "../logic/calculations.js";
-import { gradeStepTile, stepOnlyTile, levelOnlyTile, levelWithGradeTile, dualStatWithGradeTile } from "./tiles.js";
+import { emblemDecoRealLevel, familyCpGainArray, familyGradeOptions, familyItem, familyMaxLevel, fmt } from "../logic/calculations.js";
+import { t } from "../i18n.js";
 import { renderSpecTable } from "./specTable.js";
 
-export function renderGearGrid() {
-  const side = document.getElementById("gearSide");
-  const main = document.getElementById("gearMain");
-  const triple = document.getElementById("gearTriple");
-  side.innerHTML = ""; main.innerHTML = ""; triple.innerHTML = "";
+const imageRoot = new URL("../../asset/items/", import.meta.url);
+const rateSource = "https://www.blackdesertm.com/Ocean/Wiki?wikiNo=1001004";
+const relicForSeries = { relicSeries1: "relic1", relicSeries2: "relic2" };
+let activeGroup = 0;
+let activeItem = ITEM_GROUPS[0].ids[0];
 
-  // 왼쪽: 휘장, 휘장 장식 5개(용맹/침착/격렬/철벽/투지), 고리(전승의 고리)
-  const emblemItem = familyItem("emblem"), emblemFam = state.family["emblem"];
-  side.appendChild(levelWithGradeTile("휘장", familyGradeOptions(emblemItem), familyMaxLevel(emblemItem, emblemFam.grade), emblemFam,
-    function (v) { emblemFam.level = v; persist(); renderSpecTable(); },
-    function (g) { emblemFam.grade = g; emblemFam.level = 0; persist(); renderGearGrid(); renderSpecTable(); }
-  ));
-  // 철벽/투지는 100단계(=100번째 강화 성공)부터 성공당 실제 단계 번호가 2씩 오릅니다(150번째
-  // 성공 = 200단계). 배지 내부값(fam.level)은 계산용 성공 횟수(0~150)를 그대로 쓰고, 배지에
-  // 보이는 라벨만 실제 단계 번호로 변환합니다(사용자 확인, 2026-07-31).
-  ["emblemDeco1", "emblemDeco2", "emblemDeco3", "emblemDeco4", "emblemDeco5"].forEach(function (id) {
-    const item = familyItem(id), fam = state.family[id];
-    const labelFn = (id === "emblemDeco4" || id === "emblemDeco5") ? emblemDecoRealLevel : undefined;
-    side.appendChild(levelOnlyTile(item.name, item.maxLevel, fam.level, function (fam) {
-      return function (v) { fam.level = v; persist(); renderSpecTable(); };
-    }(fam), labelFn));
-  });
-  side.appendChild(gradeStepTile("고리", RING_GRADE_ORDER, state.ring,
-    function (g) { state.ring.grade = g; state.ring.step = 0; persist(); renderGearGrid(); renderSpecTable(); },
-    function (s) { state.ring.step = s; persist(); renderSpecTable(); },
-    function (g) { return RING_QTY_PER_STEP[g].length; }
-  ));
+function itemState(id) {
+  const equipment = state.status[id];
+  if (equipment) {
+    return {
+      record: equipment, key: "step", grades: GRADE_ORDER, max: EQUIP_BREAKTHROUGH_CURVE.length,
+      gain: EQUIP_CP_TABLE[equipment.grade][id][equipment.step], gainLabel: "포럼 실측 기반",
+      rate: EQUIP_BREAKTHROUGH_CURVE[equipment.step], rateLabel: "계산기 기본 확률"
+    };
+  }
 
-  // 오른쪽 2열: 주무기·보조무기 / 투구·갑옷 / 장갑·신발 / 반지·목걸이 / 허리띠·귀걸이 / 토템·팔찌
-  PARTS.forEach(function (part) {
-    const rec = state.status[part.id];
-    main.appendChild(gradeStepTile(part.name, GRADE_ORDER, rec,
-      function (rec) { return function (g) { rec.grade = g; rec.awakened = false; persist(); renderGearGrid(); renderSpecTable(); }; }(rec),
-      function (rec) { return function (s) { rec.step = s; persist(); renderSpecTable(); }; }(rec),
-      function () { return 10; }
-    ));
-  });
+  if (id === "heritageRing") {
+    const { grade, step } = state.ring;
+    const stats = RING_STAT_AT_STEP[grade];
+    return {
+      record: state.ring, key: "step", grades: RING_GRADE_ORDER, max: RING_QTY_PER_STEP[grade].length,
+      gain: step + 1 < stats.length ? stats[step + 1] - stats[step] : undefined
+    };
+  }
 
-  ["ring1", "necklace", "belt", "earring"].forEach(function (id) {
-    const item = familyItem(id), fam = state.family[id];
-    main.appendChild(levelWithGradeTile(item.name, familyGradeOptions(item), familyMaxLevel(item, fam.grade), fam,
-      function (fam) { return function (v) { fam.level = v; persist(); renderSpecTable(); }; }(fam),
-      function (item, fam) { return function (g) {
-        fam.grade = g; fam.level = 0;
-        if (fam.awakened !== undefined) fam.awakened = false;
-        if (item.materialByGrade && item.materialByGrade[g]) fam.material = item.materialByGrade[g];
-        persist(); renderGearGrid(); renderSpecTable();
-      }; }(item, fam)
-    ));
-  });
+  const soul = state.souls[id];
+  if (soul) {
+    return {
+      record: soul, key: "step", max: SOUL_MAX_STEP, gain: SOUL_CP_GAIN[id][soul.step],
+      rate: SOUL_SUCCESS_RATE * 100, rateLabel: "공식 가이드 기본 확률"
+    };
+  }
 
-  const totemItem = familyItem("totem"), totemFam = state.family["totem"];
-  main.appendChild(levelWithGradeTile("토템", familyGradeOptions(totemItem), familyMaxLevel(totemItem, totemFam.grade), totemFam,
-    function (v) { totemFam.level = v; persist(); renderSpecTable(); },
-    function (g) {
-      totemFam.grade = g; totemFam.level = 0;
-      if (totemItem.materialByGrade && totemItem.materialByGrade[g]) totemFam.material = totemItem.materialByGrade[g];
-      persist(); renderGearGrid(); renderSpecTable();
-    }
-  ));
-  const braceletItem = familyItem("bracelet"), braceletFam = state.family["bracelet"];
-  main.appendChild(levelWithGradeTile("팔찌", familyGradeOptions(braceletItem), familyMaxLevel(braceletItem, braceletFam.grade), braceletFam,
-    function (v) { braceletFam.level = v; persist(); renderSpecTable(); },
-    function (g) {
-      braceletFam.grade = g; braceletFam.level = 0;
-      if (braceletFam.awakened !== undefined) braceletFam.awakened = false;
-      if (braceletItem.materialByGrade && braceletItem.materialByGrade[g]) braceletFam.material = braceletItem.materialByGrade[g];
-      persist(); renderGearGrid(); renderSpecTable();
-    }
-  ));
-  // 균열의 토템 — 등급 구분이 없는 별도 항목이라 토템 바로 아래에 레벨만 입력하는 타일로 둡니다.
-  const riftTotemItem = familyItem("riftTotem"), riftTotemFam = state.family["riftTotem"];
-  main.appendChild(levelOnlyTile(riftTotemItem.name, riftTotemItem.maxLevel, riftTotemFam.level, function (v) {
-    riftTotemFam.level = v; persist(); renderSpecTable();
-  }));
+  const relicId = relicForSeries[id];
+  if (relicId) {
+    const relic = state.family[relicId];
+    return {
+      record: relic, key: "seriesLevel", grade: "공허", max: RELIC_SERIES_CP_GAIN.length,
+      gain: RELIC_SERIES_CP_GAIN[relic.seriesLevel], rate: RELIC_SERIES_BREAKTHROUGH_CURVE[relic.seriesLevel],
+      rateSource, locked: relic.grade !== "공허"
+    };
+  }
 
-  // 마지막 줄 3개: 조화의 연금석, 유물1, 유물2. 유물1/2는 공허 등급 전용 "계열돌파"(마력각인)
-  // 단계도 함께 관리해 바로 아래에 타일을 추가합니다(다른 항목처럼 현재 상태는 ①에서 관리).
-  ["alchemy", "relic1", "relic2"].forEach(function (id) {
-    const item = familyItem(id), fam = state.family[id];
-    triple.appendChild(levelWithGradeTile(item.name, familyGradeOptions(item), familyMaxLevel(item, fam.grade), fam,
-      function (fam) { return function (v) { fam.level = v; persist(); renderSpecTable(); }; }(fam),
-      function (item, fam) { return function (g) {
-        fam.grade = g; fam.level = 0;
-        if (item.materialByGrade && item.materialByGrade[g]) fam.material = item.materialByGrade[g];
-        persist(); renderGearGrid(); renderSpecTable();
-      }; }(item, fam)
-    ));
-    if (item.hasSeries) {
-      triple.appendChild(stepOnlyTile(item.name + " 계열돌파", ANCIENT_ANVIL.relicSeries.length, { step: fam.seriesLevel },
-        function (fam) { return function (v) { fam.seriesLevel = v; persist(); renderSpecTable(); }; }(fam)
-      ));
-    }
-  });
-
-  // 문양 각인서 — 유물 아래에 등급 하나만 골라 현재 보유 중인 실제 감정 결과(공격력/방어력)를
-  // 직접 고르는 항목. 스펙업 액션(다음 등급 교체 구매)은 ②탭에서 계산합니다.
-  const insigniaItem = familyItem("insigniaBook"), insigniaFam = state.family["insigniaBook"];
-  triple.appendChild(dualStatWithGradeTile(insigniaItem.name, familyGradeOptions(insigniaItem), insigniaFam, insigniaItem.statRangeByGrade,
-    function (v) { insigniaFam.atkGain = v; persist(); renderSpecTable(); },
-    function (v) { insigniaFam.defGain = v; persist(); renderSpecTable(); },
-    function (g) {
-      insigniaFam.grade = g;
-      insigniaFam.atkGain = INSIGNIA_BOOK_MEDIAN_STAT[g].atk;
-      insigniaFam.defGain = INSIGNIA_BOOK_MEDIAN_STAT[g].def;
-      if (insigniaItem.materialByGrade && insigniaItem.materialByGrade[g]) insigniaFam.material = insigniaItem.materialByGrade[g];
-      persist(); renderGearGrid(); renderSpecTable();
-    }
-  ));
+  const item = familyItem(id);
+  const record = state.family[id];
+  const { grade, level } = record;
+  const baseStat = grade === "카라자드" ? KARAZAD_BASE_STAT[id] : undefined;
+  const relicRate = item.hasSeries && grade !== "공허" ? RELIC_BREAKTHROUGH_CURVE[level] : undefined;
+  return {
+    record, family: item, key: "level", grades: Object.keys(ITEM_VISUALS[id].grades).length > 1 ? familyGradeOptions(item) : [],
+    max: familyMaxLevel(item, grade),
+    gain: familyCpGainArray(item, grade)?.[level] ?? (item.cpEditable === false ? item.cpPerLevel : undefined),
+    labelLevel: id === "emblemDeco4" || id === "emblemDeco5" ? emblemDecoRealLevel : undefined,
+    isFamilyLevel: id === "sylvia" || id === "balance",
+    range: item.statRangeByGrade, baseStat, rate: baseStat ? KARAZAD_BREAKTHROUGH_CURVE[level] : relicRate, rateSource
+  };
 }
 
-export function renderGearExtra() {
-  const wrap = document.getElementById("gearExtra");
-  wrap.innerHTML = "";
-  ["sylvia", "balance"].forEach(function (id) {
-    const item = familyItem(id), fam = state.family[id];
-    wrap.appendChild(levelOnlyTile(item.name, item.maxLevel, fam.level, function (fam) {
-      return function (v) { fam.level = v; persist(); renderSpecTable(); };
-    }(fam)));
-  });
+function displayStep(view, step) {
+  const value = view.labelLevel ? view.labelLevel(step) : step;
+  return (view.isFamilyLevel ? "Lv. " : "+") + fmt(value);
+}
 
-  // 광원석 — 태고/혼돈 등급이 있어 등급 선택 배지가 함께 필요합니다.
-  const lightstoneItem = familyItem("lightstone"), lightstoneFam = state.family["lightstone"];
-  wrap.appendChild(levelWithGradeTile(lightstoneItem.name, familyGradeOptions(lightstoneItem), familyMaxLevel(lightstoneItem, lightstoneFam.grade), lightstoneFam,
-    function (v) { lightstoneFam.level = v; persist(); renderSpecTable(); },
-    function (g) {
-      lightstoneFam.grade = g; lightstoneFam.level = 0;
-      if (lightstoneItem.materialByGrade && lightstoneItem.materialByGrade[g]) lightstoneFam.material = lightstoneItem.materialByGrade[g];
-      persist(); renderGearExtra(); renderSpecTable();
+function element(tag, className, content) {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (content !== undefined) node.textContent = content;
+  return node;
+}
+
+function image(file, alt = "") {
+  const img = element("img");
+  img.src = new URL(file, imageRoot).href;
+  img.alt = alt;
+  img.decoding = "async";
+  return img;
+}
+
+function setGrade(id, view, grade) {
+  const { record, family } = view;
+  record.grade = grade;
+  if (id === "heritageRing" || family && !view.range) record[view.key] = 0;
+  if (view.range) {
+    const stats = INSIGNIA_BOOK_MEDIAN_STAT[grade];
+    record.atkGain = stats.atk;
+    record.defGain = stats.def;
+  }
+  if (record.awakened !== undefined) record.awakened = false;
+  if (family?.materialByGrade?.[grade]) record.material = family.materialByGrade[grade];
+}
+
+function selectField(id, label, values, current, onChange, format = value => t(String(value))) {
+  const field = element("label", "item-field", t(label));
+  const select = element("select");
+  select.id = id;
+  values.forEach(value => select.add(new Option(format(value), value, false, value === current)));
+  select.addEventListener("change", () => {
+    onChange(select.value);
+    persist();
+    renderGearGrid();
+    renderSpecTable();
+    document.getElementById(id)?.focus({ preventScroll: true });
+  });
+  field.append(select);
+  return field;
+}
+
+function readVisual(id, view) {
+  const item = ITEM_VISUALS[id];
+  const grade = view.grade ?? (view.grades?.length ? view.record.grade : "기본");
+  return { item, grade, pictures: item.grades[grade] };
+}
+
+function selectItem(group, id, focus) {
+  activeGroup = group;
+  activeItem = id;
+  renderGearGrid();
+  focus();
+}
+
+function buildList() {
+  const list = document.getElementById("itemList");
+  const fragment = document.createDocumentFragment();
+  ITEM_GROUPS[activeGroup].ids.forEach(id => {
+    const view = itemState(id);
+    const { item, grade, pictures } = readVisual(id, view);
+    const button = element("button", "item-choice");
+    button.type = "button";
+    button.dataset.item = id;
+    button.dataset.itemGrade = grade;
+    button.setAttribute("aria-pressed", String(id === activeItem));
+    const icon = image(pictures.icon ?? pictures.art);
+    const step = view.range ? t("능력치") : displayStep(view, Math.min(view.record[view.key], view.max));
+    const subtitle = grade === "기본" ? step : t(grade) + " · " + step;
+    const caption = element("span", "item-caption");
+    caption.append(element("strong", "", t(item.name)), element("small", "", subtitle));
+    button.append(icon, caption);
+    button.addEventListener("click", () => {
+      selectItem(activeGroup, id, () => {
+        if (matchMedia("(max-width: 700px)").matches) {
+          document.getElementById("itemDetail").focus({ preventScroll: true });
+          document.getElementById("itemDetail").scrollIntoView({ block: "start" });
+        } else {
+          list.querySelector("[aria-pressed=true]").focus({ preventScroll: true });
+        }
+      });
+    });
+    fragment.append(button);
+  });
+  list.replaceChildren(fragment);
+}
+
+function buildCategories() {
+  const groupBar = document.getElementById("itemGroups");
+  const buttons = ITEM_GROUPS.map(({ label, ids }, index) => {
+    const button = element("button", "item-group", t(label) + " " + ids.length);
+    button.type = "button";
+    button.setAttribute("aria-pressed", String(index === activeGroup));
+    button.addEventListener("click", () => selectItem(index, ids[0], () => groupBar.children[index].focus({ preventScroll: true })));
+    return button;
+  });
+  groupBar.setAttribute("aria-label", t("아이템 종류"));
+  groupBar.replaceChildren(...buttons);
+}
+
+function buildControls(id, view) {
+  const { grades, record, range, max, key } = view;
+  const fields = element("div", "item-fields");
+  if (grades?.length) {
+    fields.append(selectField("itemGrade", "아이템 등급", grades, record.grade, grade => setGrade(id, view, grade)));
+  }
+  if (range && record.grade === "공허") {
+    fields.append(selectField("itemGlyphStat", "공격력·방어력", INSIGNIA_BOOK_VOID_STAT_VALUES, record.atkGain, value => {
+      record.atkGain = Number(value);
+      record.defGain = Number(value);
+    }));
+  } else if (range) {
+    for (const [stat, key, label] of [["atk", "atkGain", "공격력"], ["def", "defGain", "방어력"]]) {
+      const [min, max] = range[stat][record.grade];
+      const values = Array.from({ length: max - min + 1 }, (_, i) => min + i);
+      fields.append(selectField("item" + key, label, values, record[key], value => { record[key] = Number(value); }));
     }
-  ));
+  } else {
+    const values = Array.from({ length: max + 1 }, (_, i) => i);
+    fields.append(selectField("itemStep", "현재 강화 단계", values, Math.min(record[key], max), value => {
+      record[key] = Number(value);
+    }, value => displayStep(view, value)));
+  }
+  if (record.awakened !== undefined && !view.grade) {
+    const label = element("label", "item-awakened");
+    const check = element("input");
+    check.type = "checkbox";
+    check.checked = record.awakened;
+    check.addEventListener("change", () => {
+      record.awakened = check.checked;
+      persist();
+      renderSpecTable();
+    });
+    label.append(check, t("각성완료"));
+    fields.append(label);
+  }
+  return fields;
+}
+
+function buildMetrics(view) {
+  const metrics = element("dl", "item-metrics");
+  function add(label, value, note) {
+    const card = element("div", "item-metric");
+    card.append(element("dt", "", t(label)), element("dd", "", value));
+    if (note) card.append(element("dd", "item-metric-note", t(note)));
+    metrics.append(card);
+  }
+  if (view.range) {
+    add("공격력 범위", view.range.atk[view.record.grade].join("–"));
+    add("방어력 범위", view.range.def[view.record.grade].join("–"));
+    return metrics;
+  }
+
+  const level = view.record[view.key];
+  const maxed = level >= view.max;
+  add("다음 강화", maxed ? t("최대 단계") : displayStep(view, level + 1));
+  if (view.baseStat) {
+    const { atk, def } = view.baseStat;
+    add("기본 능력치", "+" + fmt(atk + def), atk ? "공격력" : "방어력");
+  } else {
+    const gain = view.gain == null ? t("자료 확인 중") : "+" + fmt(view.gain);
+    add("전투력 증가량", maxed ? "—" : gain, maxed ? undefined : view.gainLabel);
+  }
+  if (!maxed && view.rate != null) add("기본 성공 확률", view.rate.toLocaleString("ko-KR") + "%", view.rateLabel ?? "공식 확률 안내");
+  else add("강화 상한", displayStep(view, view.max));
+  return metrics;
+}
+
+function sourceLink(label, url) {
+  const link = element("a", "", t(label));
+  link.href = url;
+  link.target = "_blank";
+  link.rel = "noopener";
+  return link;
+}
+
+function buildDetail() {
+  const detail = document.getElementById("itemDetail");
+  const view = itemState(activeItem);
+  const { item, grade, pictures } = readVisual(activeItem, view);
+  const name = t(pictures.name ?? item.name);
+  detail.dataset.itemGrade = grade;
+
+  const header = element("div", "item-showcase");
+  const art = element("div", pictures.art ? "item-art" : "item-art item-art-fallback");
+  art.append(image(pictures.art ?? pictures.icon, name));
+  const caption = element("div", "item-heading");
+  const imageLabel = pictures.art ? "공식 아이템 이미지" : "아이템 이미지 미확인 · 공식 슬롯 아이콘";
+  const title = element("h3", "", name);
+  title.id = "itemDetailTitle";
+  caption.append(
+    element("p", "item-grade", t(grade === "기본" ? ITEM_GROUPS[activeGroup].label : grade)),
+    title,
+    element("p", "item-image-label", t(imageLabel))
+  );
+  header.append(art, caption);
+
+  const body = element("div", "item-detail-body");
+  body.append(buildControls(activeItem, view), buildMetrics(view));
+  if (item.note) body.append(element("p", "item-detail-note", t(item.note)));
+  if (view.locked) body.append(element("p", "item-detail-note", t("공허 등급 유물에 적용됩니다.")));
+
+  const sources = element("div", "item-sources");
+  sources.append(sourceLink("이미지 출처", pictures.source));
+  if (pictures.imageSource) sources.append(sourceLink("원본 보기", pictures.imageSource));
+  if (pictures.statsSource) sources.append(sourceLink("강화 수치 출처", pictures.statsSource));
+  if (view.rate != null && view.rateSource && view.record[view.key] < view.max) {
+    sources.append(sourceLink("성공 확률 출처", view.rateSource));
+  }
+  body.append(sources);
+
+  const back = element("button", "btn ghost item-back", t("아이템 목록으로"));
+  back.type = "button";
+  back.addEventListener("click", () => document.querySelector("#itemList [aria-pressed=true]").focus());
+  body.append(back);
+  detail.replaceChildren(header, body);
+}
+
+export function renderGearGrid() {
+  buildCategories();
+  buildList();
+  buildDetail();
 }

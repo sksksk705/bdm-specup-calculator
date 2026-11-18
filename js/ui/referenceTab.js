@@ -160,7 +160,7 @@ function renderAlchemySection(root) {
 
 function renderEmblemSection(root) {
   const card = buildCard("휘장 — 잠재력 돌파",
-    "태고 등급은 30단계, 혼돈·공허 등급은 50단계까지 원자료가 공개돼 있습니다(그 이상은 미공개). 공격력=방어력 동일 수치라 2배 근사했습니다.");
+    "휘장 본체는 최대 50강입니다. 등급별 상한은 태고 30강, 혼돈·공허 50강입니다. 공격력=방어력 동일 수치라 2배 근사했습니다.");
   const columns = [{ label: "태고", key: "태고" }, { label: "혼돈", key: "혼돈" }, { label: "공허", key: "공허" }];
   card.appendChild(buildTable("단계", columns, stepRows(50), function (r, c) {
     const arr = EMBLEM_CP_TABLE[c.key];
@@ -206,20 +206,20 @@ function renderRingSection(root) {
   root.appendChild(card);
 }
 
-const INSIGNIA_GRADE_ORDER = ["심연", "태고", "혼돈"];
+const INSIGNIA_GRADE_ORDER = Object.keys(INSIGNIA_BOOK_ATK_RANGE);
 
 function renderInsigniaSection(root) {
   const card = buildCard("문양 각인서",
-    "①탭에서 현재 보유 중인 등급의 실제 감정 결과(공격력/방어력)를 직접 고릅니다. 감정 결과는 공격력·방어력이 등급별 구간 내에서 함께(그룹으로 짝지어) 무작위로 정해집니다. ②탭 스펙업 액션은 \"다음 등급 책으로 교체 구매\"이고, 전투력 상승량은 다음 등급 중앙값(공격력+방어력)에서 현재 보유 값을 뺀 값입니다 — 혼돈은 다음 등급이 없어 표시하지 않습니다.");
+    "①탭에서 현재 보유 중인 등급의 실제 감정 결과(공격력/방어력)를 직접 고릅니다. 감정 결과는 공격력·방어력이 등급별 구간 내에서 함께(그룹으로 짝지어) 무작위로 정해집니다. ②탭 스펙업 액션은 \"다음 등급 책으로 교체 구매\"이고, 전투력 상승량은 다음 등급 중앙값(공격력+방어력)에서 현재 보유 값을 뺀 값입니다. 공허 등급은 전용 제작·감정 방식입니다.");
   card.appendChild(buildTable("등급",
     [{ label: "공격력 하한", key: "atkMin" }, { label: "공격력 상한", key: "atkMax" },
       { label: "방어력 하한", key: "defMin" }, { label: "방어력 상한", key: "defMax" },
       { label: "다음 등급 중앙값 기대 상승량", key: "delta" }],
-    [{ label: "심연", key: "심연" }, { label: "태고", key: "태고" }, { label: "혼돈", key: "혼돈" }],
+    INSIGNIA_GRADE_ORDER.map(grade => ({ label: grade, key: grade })),
     function (r, c) {
       if (c.key === "delta") {
         const next = INSIGNIA_GRADE_ORDER[INSIGNIA_GRADE_ORDER.indexOf(r.key) + 1];
-        if (!next) return null;
+        if (!next || next === "공허") return null;
         const cur = INSIGNIA_BOOK_MEDIAN_STAT[r.key], tgt = INSIGNIA_BOOK_MEDIAN_STAT[next];
         return (tgt.atk + tgt.def) - (cur.atk + cur.def);
       }

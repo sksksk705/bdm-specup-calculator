@@ -417,7 +417,7 @@ export const ACCESSORY_AWAKEN = {
 };
 
 // 휘장: 원자료가 "공격력=방어력"이라고 명시해 두 스탯 몫으로 값을 2배 했습니다.
-// 태고 등급은 +30단계가 상한(그 이상은 원자료에 자료 없음, "●"), 혼돈·공허는 +50단계까지.
+// 휘장 본체의 전체 상한은 +50이며, 태고는 +30, 혼돈·공허는 +50까지 강화할 수 있습니다.
 export const EMBLEM_CP_TABLE = {
   "태고": [10, 10, 10, 12, 12, 12, 12, 14, 14, 14, 14, 16, 16, 16, 16, 16, 16, 16, 18, 18, 18, 18, 18, 18, 18, 18, 20, 20, 20, 20],
   "혼돈": [10, 10, 10, 12, 12, 12, 12, 14, 14, 14, 14, 16, 16, 16, 16, 16, 16, 16, 18, 18, 18, 18, 18, 18, 18, 18, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20],
@@ -487,18 +487,24 @@ export const LIGHTSTONE_QTY_PER_ATTEMPT_CHAOS = [
 const RELIC_CP_TABLE_VALUES = [28, 28, 32, 36, 40, 60, 66, 74, 86, 100];
 export const RELIC_CP_TABLE = { "태고": RELIC_CP_TABLE_VALUES, "혼돈": RELIC_CP_TABLE_VALUES, "공허": RELIC_CP_TABLE_VALUES };
 
+// 공식 확률 안내(wikiNo=1001004)에서 공개한 등급·구간만 표시합니다.
+export const RELIC_BREAKTHROUGH_CURVE = [50, 30, 10, 10, 10, 8, 5, 3, 1, 0.5]; // 태고·혼돈
+export const RELIC_SERIES_BREAKTHROUGH_CURVE = [10, 5, 3, 3, 2, 2, 1, 1, 0.5, 0.5]; // 0~9강에서 다음 단계
+
 // 문양 각인서 — 현재 보유 중인 등급의 실제 감정 결과(공격력·방어력)를 ①탭에서 직접 고르고,
 // ②탭에서는 "한 단계 위 등급 책으로 교체 구매"를 스펙업 액션으로 계산합니다(강화 반복이 아니라
 // 등급업 1회 구매). 감정 결과는 공격력·방어력이 그룹별로 함께 정해집니다(그룹마다 "모험가에게
 // 주는 피해량"도 나오지만 단위가 달라 전투력 근사에서 제외). 출처: 공식 확률 정보
 // (wikiNo=1001013, 2026-07-31 확인).
-export const INSIGNIA_BOOK_ATK_RANGE = { "심연": [54, 67], "태고": [68, 93], "혼돈": [94, 133] };
-export const INSIGNIA_BOOK_DEF_RANGE = { "심연": [27, 33], "태고": [33, 47], "혼돈": [48, 71] };
-// 중앙값 쌍(공격력/방어력) — 각 등급 그룹 목록(11/21/27개, 모두 홀수개)의 가운데 그룹 실수치.
+export const INSIGNIA_BOOK_VOID_STAT_VALUES = Array.from({ length: 16 }, (_, i) => 150 + i * 2);
+const VOID_GLYPH_STAT_RANGE = [INSIGNIA_BOOK_VOID_STAT_VALUES[0], INSIGNIA_BOOK_VOID_STAT_VALUES.at(-1)];
+export const INSIGNIA_BOOK_ATK_RANGE = { "심연": [54, 67], "태고": [68, 93], "혼돈": [94, 133], "공허": VOID_GLYPH_STAT_RANGE };
+export const INSIGNIA_BOOK_DEF_RANGE = { "심연": [27, 33], "태고": [33, 47], "혼돈": [48, 71], "공허": VOID_GLYPH_STAT_RANGE };
+// 공허는 결과가 16종이라 중앙에 가까운 실제 감정 결과(166/166)를 기본값으로 씁니다.
 // ①탭 공격력/방어력 입력칸의 기본값(자기 등급 중앙값)이자, ②탭 "다음 등급 교체" 전투력
 // 상승량 계산의 목표값(다음 등급 중앙값)으로 함께 씁니다 — 사용자 확인, 2026-07-31.
 export const INSIGNIA_BOOK_MEDIAN_STAT = {
-  "심연": { atk: 60, def: 30 }, "태고": { atk: 80, def: 40 }, "혼돈": { atk: 114, def: 59 }
+  "심연": { atk: 60, def: 30 }, "태고": { atk: 80, def: 40 }, "혼돈": { atk: 114, def: 59 }, "공허": { atk: 166, def: 166 }
 };
 
 // 유물 잠재력 돌파(신화급 이상 = 태고/혼돈/공허 공통) 실패 시 복구 비용. 4강부터 고정.
@@ -578,6 +584,12 @@ export const SOUL_ITEMS = [
 export const SOUL_RECOVERY_COST = [0, 1, 3, 6, 11, 19, 34, 59, 102, 175, 301, 518, 890];
 export const SOUL_SUCCESS_RATE = 0.51;
 export const SOUL_MAX_STEP = 13;
+
+// 공식 영혼석 가이드(wikiNo=10111)의 단계별 공격력·방어력 증가분 합계.
+export const SOUL_CP_GAIN = {
+  nightsoul: [6, 6, 20, 14, 14, 14, 60, 30, 30, 30, 100, 60, 60],
+  moonsoul: [30, 30, 100, 70, 70, 70, 300, 150, 150, 150, 500, 300, 300]
+};
 
 // 위 두 선택지를 매 실패마다 최적으로 골랐을 때(값 반복/벨만 방정식으로 오프라인 계산,
 // scripts/soul_solver.mjs 참고 — 상태공간이 커서(목표 13강 기준 8,192가지 복구재료 보유
@@ -715,11 +727,11 @@ export const FAMILY_ITEMS = [
   // 문양 각인서 — 강화 반복이 아니라 "다음 등급 책으로 교체 구매"가 스펙업 액션입니다(아래
   // computeInsigniaGradeUp 참고). statRangeByGrade는 ①탭에서 현재 보유 감정 결과(공격력/방어력)를
   // 직접 고르는 드랍다운 범위입니다.
-  { id: "insigniaBook", name: "문양 각인서", gradeOptions: ["심연", "태고", "혼돈"],
+  { id: "insigniaBook", name: "문양 각인서", gradeOptions: ["심연", "태고", "혼돈", "공허"],
     statRangeByGrade: { atk: INSIGNIA_BOOK_ATK_RANGE, def: INSIGNIA_BOOK_DEF_RANGE },
-    materialOptions: ["심연 미확인 문양 각인서", "태고 미확인 문양 각인서", "혼돈 미확인 문양 각인서"],
+    materialOptions: ["심연 미확인 문양 각인서", "태고 미확인 문양 각인서", "혼돈 미확인 문양 각인서", "공허 미확인 문양 각인서"],
     defaultMaterial: "심연 미확인 문양 각인서",
-    materialByGrade: { "심연": "심연 미확인 문양 각인서", "태고": "태고 미확인 문양 각인서", "혼돈": "혼돈 미확인 문양 각인서" } }
+    materialByGrade: { "심연": "심연 미확인 문양 각인서", "태고": "태고 미확인 문양 각인서", "혼돈": "혼돈 미확인 문양 각인서", "공허": "공허 미확인 문양 각인서" } }
 ];
 
 // ①탭 첫 입력을 쉽게 해주는 프리셋 — 장비(주무기~신발)·장신구(반지~팔찌)·유물(relic이 null이면

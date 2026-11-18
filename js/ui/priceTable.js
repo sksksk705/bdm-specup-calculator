@@ -5,12 +5,64 @@
 
 import { state, persist } from "../data/userState.js";
 import { PAID_MATERIALS } from "../data/gameData.js";
+import {
+  calculateAdventureTokenSilverValue,
+  calculateBossRushKnowledgeConversion,
+  calculatePearlConversion,
+  calculateShadowKnotSilverValue
+} from "../logic/conversionValues.js";
 import { renderSpecTable } from "./specTable.js";
-import { t } from "../i18n.js";
+import { renderSoulSection } from "./evCalcTab.js";
+import { t, state as languageState } from "../i18n.js";
 
 let materialList = [];
 let priceTableBody = null;
 let recoveryTicketInput = null;
+const conversionNumber = new Intl.NumberFormat("ko-KR", { maximumFractionDigits: 2 });
+const conversionPreciseNumber = new Intl.NumberFormat("ko-KR", { maximumFractionDigits: 4 });
+
+function krwSuffix() { return languageState.lang === "en" ? " KRW" : "원"; }
+
+function renderPearlConversion() {
+  const result = calculatePearlConversion(state.prices);
+  const bossRush = calculateBossRushKnowledgeConversion(result.silverPerPearl);
+  const adventureTokenValue = calculateAdventureTokenSilverValue(result.silverPerPearl);
+  const shadowKnotValue = calculateShadowKnotSilverValue(result.silverPerPearl);
+  const referenceEl = document.getElementById("pearlReferenceValue");
+  if (!referenceEl) return;
+
+  if (!result.hasValue) {
+    referenceEl.textContent = t("시세 입력 필요");
+    document.getElementById("pearlSilverValue").textContent = "–";
+    document.getElementById("pearlKrwValue").textContent = conversionNumber.format(result.krwPerPearl) + krwSuffix();
+    document.getElementById("generalKnowledgeValue").textContent = result.generalKnowledgePearlsPerCp + " " + t("펄")
+      + " · – " + t("은화") + " · " + conversionNumber.format(result.generalKnowledgeKrwPerCp) + krwSuffix();
+    document.getElementById("pearlSilverPerKrwValue").textContent = "–";
+    document.getElementById("pearlPackageSilverValue").textContent = "–";
+    document.getElementById("bossRushSampleValue").textContent = "–";
+    document.getElementById("bossRushSilverPerCpValue").textContent = "–";
+    document.getElementById("adventureTokenSilverValue").textContent = "–";
+    document.getElementById("shadowKnotSilverValue").textContent = "–";
+    return;
+  }
+
+  referenceEl.textContent = t(result.referenceMaterial) + " — "
+    + result.referenceSilver.toLocaleString("ko-KR") + " " + t("은화");
+  document.getElementById("pearlSilverValue").textContent = conversionNumber.format(result.silverPerPearl) + " " + t("은화");
+  document.getElementById("pearlKrwValue").textContent = conversionNumber.format(result.krwPerPearl) + krwSuffix();
+  document.getElementById("generalKnowledgeValue").textContent = result.generalKnowledgePearlsPerCp + " " + t("펄")
+    + " · " + conversionNumber.format(result.generalKnowledgeSilverPerCp) + " " + t("은화")
+    + " · " + conversionNumber.format(result.generalKnowledgeKrwPerCp) + krwSuffix();
+  document.getElementById("pearlSilverPerKrwValue").textContent = conversionNumber.format(result.silverPerKrw) + " " + t("은화");
+  document.getElementById("pearlPackageSilverValue").textContent = result.packageSilver.toLocaleString("ko-KR", { maximumFractionDigits: 0 }) + " " + t("은화");
+  document.getElementById("bossRushSampleValue").textContent = t(bossRush.runs + "회") + " · +"
+    + conversionPreciseNumber.format(bossRush.cpGain) + " "
+    + (languageState.lang === "en" ? "CP" : "전투력") + " · "
+    + Math.round(bossRush.netSilverCost).toLocaleString("ko-KR") + " " + t("은화");
+  document.getElementById("bossRushSilverPerCpValue").textContent = Math.round(bossRush.netSilverPerCp).toLocaleString("ko-KR") + " " + t("은화");
+  document.getElementById("adventureTokenSilverValue").textContent = conversionPreciseNumber.format(adventureTokenValue.silverPerToken) + " " + t("은화");
+  document.getElementById("shadowKnotSilverValue").textContent = Math.round(shadowKnotValue).toLocaleString("ko-KR") + " " + t("은화");
+}
 
 // 유료 재화 — 체크하면(기본) 이 재료를 쓰는 스펙업 방식을 표에 그대로 보여주고(은화 비용 0,
 // 프리미엄으로 얻을 계획), 체크를 풀면 그 스펙업 방식 자체를 표에서 제외합니다(구매 불가 재료라
@@ -65,7 +117,9 @@ export function renderPriceTable(filter) {
       state.prices[m.name] = parseFloat(input.value) || 0;
       persist();
       if (m.name === "돌파 복구권") syncRecoveryTicketInput();
+      renderPearlConversion();
       renderSpecTable();
+      if (m.name === "홍익의 불씨" || m.name === "공허의 눈") renderSoulSection();
     });
     tdPrice.appendChild(input);
     tr.appendChild(tdPrice);
@@ -91,6 +145,7 @@ export function renderPriceTable(filter) {
 
     priceTableBody.appendChild(tr);
   });
+  renderPearlConversion();
 }
 
 export function syncRecoveryTicketInput() {

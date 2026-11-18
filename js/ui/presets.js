@@ -5,7 +5,7 @@
 
 import { GEAR_PRESETS, PARTS, FAMILY_ITEMS, INSIGNIA_BOOK_MEDIAN_STAT } from "../data/gameData.js";
 import { state, persist } from "../data/userState.js";
-import { renderGearGrid, renderGearExtra } from "./gearGrid.js";
+import { renderGearGrid } from "./gearGrid.js";
 import { renderSpecTable } from "./specTable.js";
 import { track } from "../analytics.js";
 import { t } from "../i18n.js";
@@ -61,7 +61,6 @@ function applyPreset(preset) {
   }
   persist();
   renderGearGrid();
-  renderGearExtra();
   renderSpecTable();
   track("preset_apply", { preset_id: preset.id });
 }

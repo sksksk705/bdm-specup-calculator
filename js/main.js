@@ -5,7 +5,7 @@ import { loadDefaultPrices } from "./data/priceRepository.js";
 import { initState } from "./data/userState.js";
 import { initTabs } from "./ui/tabs.js";
 import { initPriceTable, renderPriceTable, syncRecoveryTicketInput, renderPaidMaterials } from "./ui/priceTable.js";
-import { renderGearGrid, renderGearExtra } from "./ui/gearGrid.js";
+import { renderGearGrid } from "./ui/gearGrid.js";
 import { initPresetSelector } from "./ui/presets.js";
 import { renderSpecTable } from "./ui/specTable.js";
 import { renderEvCalcTab } from "./ui/evCalcTab.js";
@@ -40,7 +40,6 @@ async function boot() {
   syncRecoveryTicketInput();
   renderPaidMaterials();
   renderGearGrid();
-  renderGearExtra();
   initPresetSelector();
   renderSpecTable();
   renderEvCalcTab();
@@ -51,7 +50,6 @@ async function boot() {
     renderPriceTable(document.getElementById("priceSearch").value);
     renderPaidMaterials();
     renderGearGrid();
-    renderGearExtra();
     refreshPresetOptions();
     renderSpecTable();
     renderEvCalcTab();

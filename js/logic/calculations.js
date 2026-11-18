@@ -426,11 +426,11 @@ export function computeLightstoneGradeUp(fam, prices) {
 
 // 문양 각인서 — 강화가 아니라 "다음 등급 책으로 교체 구매"가 스펙업 액션입니다. 전투력
 // 상승량은 다음 등급 중앙값(공격력+방어력)에서 ①탭에서 고른 현재 실제 감정 결과를 뺀 값입니다
-// (사용자 확인, 2026-07-31). 이미 최고 등급(혼돈)이면 더 살 게 없어 null.
+// 공허 진급은 전용 제작·감정 방식이라 교체 구매 비용 계산 범위에서 제외합니다.
 export function computeInsigniaGradeUp(item, fam, prices) {
   const grades = item.gradeOptions;
   const next = grades[grades.indexOf(fam.grade) + 1];
-  if (!next) return null;
+  if (!next || next === "공허") return null;
   const material = item.materialByGrade[next];
   const target = INSIGNIA_BOOK_MEDIAN_STAT[next];
   const current = (fam.atkGain || 0) + (fam.defGain || 0);

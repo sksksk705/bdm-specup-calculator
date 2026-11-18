@@ -7,26 +7,35 @@ import { SOUL_ITEMS, SOUL_MAX_STEP, SOUL_RECOVERY_COST, SOUL_RECOVERY_POLICY, SH
 import { state, persist } from "../data/userState.js";
 import { applyColorTint } from "./tiles.js";
 import { fmt, soulCumulativeQty, computeEquipRangePlan, validateEquipRangeConfig } from "../logic/calculations.js";
+import { calculateMoonlightSoulstoneCost, calculatePearlConversion } from "../logic/conversionValues.js";
 import { t } from "../i18n.js";
 
 // 밤·달빛 영혼석은 확률·기대값이 완전히 같아(사용자 확인, 2026-07-30) 달빛 영혼석 기준
 // 하나로 통합해 0~13강 전체를 표로 보여줍니다. 카드 색도 달빛 영혼석 색만 남깁니다.
 const MOON_COLOR = "#6B90C6";
 
-function renderSoulSection() {
+export function renderSoulSection() {
   const moon = SOUL_ITEMS.filter(function (item) { return item.id === "moonsoul"; })[0];
   applyColorTint(document.getElementById("soulCard"), MOON_COLOR, "--ink-2");
   const qtyHeader = document.getElementById("soulQtyHeader");
   if (qtyHeader) qtyHeader.textContent = t(moon.material + " 기대 개수");
   const body = document.getElementById("soulGrid");
   body.innerHTML = "";
+  const pearlValue = calculatePearlConversion(state.prices);
   for (let step = 0; step <= SOUL_MAX_STEP; step++) {
     const tr = document.createElement("tr");
     const tdStep = document.createElement("td"); tdStep.className = "name"; tdStep.textContent = t(step + "강");
     const tdQty = document.createElement("td"); tdQty.className = "num";
     tdQty.style.cssText = "color:" + MOON_COLOR + ";font-weight:800;";
     tdQty.textContent = soulCumulativeQty(step).toLocaleString("ko-KR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + t("개");
-    tr.appendChild(tdStep); tr.appendChild(tdQty);
+    const soulCost = calculateMoonlightSoulstoneCost(soulCumulativeQty(step), pearlValue.silverPerPearl);
+    const tdBlackPearls = document.createElement("td"); tdBlackPearls.className = "num";
+    tdBlackPearls.textContent = soulCost.blackPearls.toLocaleString("ko-KR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " " + t("블랙펄");
+    const tdSilver = document.createElement("td"); tdSilver.className = "num";
+    tdSilver.textContent = pearlValue.hasValue
+      ? Math.round(soulCost.silver).toLocaleString("ko-KR") + " " + t("은화")
+      : "–";
+    tr.appendChild(tdStep); tr.appendChild(tdQty); tr.appendChild(tdBlackPearls); tr.appendChild(tdSilver);
     body.appendChild(tr);
   }
   renderSoulPolicy();

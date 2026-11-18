@@ -3,7 +3,7 @@
 // data/prices.json이 아니라 로컬 저장소에 둡니다.
 
 import {
-  PARTS, GRADE_ORDER, RING_GRADE_ORDER, FAMILY_ITEMS, ACCESSORY_AWAKEN, PAID_MATERIALS, INSIGNIA_BOOK_MEDIAN_STAT
+  PARTS, GRADE_ORDER, RING_GRADE_ORDER, FAMILY_ITEMS, ACCESSORY_AWAKEN, PAID_MATERIALS, SOUL_ITEMS, SOUL_MAX_STEP, INSIGNIA_BOOK_MEDIAN_STAT
 } from "./gameData.js";
 import { familyGradeOptions } from "../logic/calculations.js";
 
@@ -32,6 +32,7 @@ export const state = {
   prices: {},   // name -> price
   status: {},   // partId -> { grade, step, material, qtyPerAttempt, cpGain }
   ring: null,   // { grade, step }
+  souls: {},  // soulId -> { step }
   family: {},   // itemId -> { level, material, qtyPerLevel, cpPerLevel }
   equipPlan: null, // ③ 탭 "강화 기대값 계산기"의 장비 돌파 설정(구간/확률 상승권/돌파 복구권)
   paidMaterials: {} // 재료명 -> { use, silverRate } — 유료 재화를 실제로 쓸지, 은화로 환산할지
@@ -64,6 +65,11 @@ export function initState(defaultPrices) {
     if (typeof rec.awakened !== "boolean") rec.awakened = false;
     state.status[p.id] = rec;
   });
+
+  state.souls = Object.fromEntries(SOUL_ITEMS.map(({ id }) => {
+    const step = saved?.souls?.[id]?.step;
+    return [id, { step: Number.isInteger(step) && step >= 0 && step <= SOUL_MAX_STEP ? step : 0 }];
+  }));
 
   state.ring = (saved && saved.ring) || { grade: "혼돈", step: 0 };
   if (RING_GRADE_ORDER.indexOf(state.ring.grade) === -1) state.ring = { grade: "혼돈", step: 0 };
@@ -119,7 +125,7 @@ export function initState(defaultPrices) {
 export function persist() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      prices: state.prices, status: state.status, ring: state.ring, family: state.family,
+      prices: state.prices, status: state.status, ring: state.ring, souls: state.souls, family: state.family,
       equipPlan: state.equipPlan, paidMaterials: state.paidMaterials
     }));
   } catch (e) {}
