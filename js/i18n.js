@@ -32,7 +32,11 @@ const EXACT = {
   // 아이템 목록과 상세 강화 UI
   "장비": "Gear",
   "가문 · 특수": "Family & Special",
-  "아이템 종류": "Item Categories",
+  "가문 장비": "Family Gear",
+  "특수 장비": "Special Gear",
+  "가문 성장": "Family Progression",
+  "휘장 장식": "Emblem Decorations",
+  "공격력 {atk} · 방어력 {def}": "Attack {atk} · Defense {def}",
   "선택한 아이템": "Selected Item",
   "아이템을 골라 현재 등급과 강화 단계를 입력하세요.": "Select an item to set its current grade and enhancement level.",
   "— 장비·장신구의 등급·단계와 재료 시세를 입력하세요.": "— Enter item grades, enhancement levels, and material prices.",

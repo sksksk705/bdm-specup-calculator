@@ -1,9 +1,12 @@
 // 공식 모험가 가이드·패치노트 이미지 매핑. 강화 단계와 전투력은 gameData.js와 사용자 상태를 사용합니다.
-export const ITEM_GROUPS = [
-  { label: "장비", ids: ["mainhand","offhand","helmet","armor","gloves","shoes"] },
-  { label: "장신구", ids: ["ring1","necklace","belt","earring","bracelet"] },
-  { label: "가문 · 특수", ids: ["emblem","heritageRing","totem","riftTotem","alchemy","relic1","relic2","relicSeries1","relicSeries2","insigniaBook","nightsoul","moonsoul","lightstone","sylvia","balance","emblemDeco1","emblemDeco2","emblemDeco3","emblemDeco4","emblemDeco5"] },
-];
+export const ITEM_SLOT_LAYOUT = {
+  itemFamilyGear: ["emblem", "heritageRing"],
+  itemEquipment: ["mainhand", "offhand", "helmet", "armor", "gloves", "shoes"],
+  itemAccessories: ["ring1", "necklace", "belt", "earring", "totem", "bracelet"],
+  itemSpecialGear: ["riftTotem", "alchemy", "relic1", "relic2", "insigniaBook"],
+  itemFamilyGrowth: ["relicSeries1", "relicSeries2", "nightsoul", "moonsoul", "lightstone", "sylvia", "balance"],
+  itemEmblemDecorations: ["emblemDeco1", "emblemDeco2", "emblemDeco3", "emblemDeco4", "emblemDeco5"]
+};
 
 export const ITEM_VISUALS = {
   mainhand: { name: "주무기", note: "직업별 외형 중 대표 무기 이미지입니다.", grades: {

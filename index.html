@@ -20,33 +20,33 @@
 })();
 </script>
 <!-- CSS와 모듈의 배포 버전을 함께 갱신해 새 HTML이 이전 캐시를 사용하지 않도록 합니다. -->
-<link rel="stylesheet" href="css/style.css?v=20261118-2" />
+<link rel="stylesheet" href="css/style.css?v=20261118-3" />
 <script type="importmap">
 {
   "imports": {
-    "./js/analytics.js": "./js/analytics.js?v=20261118-2",
-    "./js/data/conversionData.js": "./js/data/conversionData.js?v=20261118-2",
-    "./js/data/gameData.js": "./js/data/gameData.js?v=20261118-2",
-    "./js/data/itemPresentation.js": "./js/data/itemPresentation.js?v=20261118-2",
-    "./js/data/priceRepository.js": "./js/data/priceRepository.js?v=20261118-2",
-    "./js/data/userState.js": "./js/data/userState.js?v=20261118-2",
-    "./js/i18n.js": "./js/i18n.js?v=20261118-2",
-    "./js/logic/calculations.js": "./js/logic/calculations.js?v=20261118-2",
-    "./js/logic/conversionValues.js": "./js/logic/conversionValues.js?v=20261118-2",
-    "./js/logic/planner.js": "./js/logic/planner.js?v=20261118-2",
-    "./js/main.js": "./js/main.js?v=20261118-2",
-    "./js/ui/domHelpers.js": "./js/ui/domHelpers.js?v=20261118-2",
-    "./js/ui/evCalcTab.js": "./js/ui/evCalcTab.js?v=20261118-2",
-    "./js/ui/gearGrid.js": "./js/ui/gearGrid.js?v=20261118-2",
-    "./js/ui/onboarding.js": "./js/ui/onboarding.js?v=20261118-2",
-    "./js/ui/plannerTab.js": "./js/ui/plannerTab.js?v=20261118-2",
-    "./js/ui/presets.js": "./js/ui/presets.js?v=20261118-2",
-    "./js/ui/priceTable.js": "./js/ui/priceTable.js?v=20261118-2",
-    "./js/ui/referenceTab.js": "./js/ui/referenceTab.js?v=20261118-2",
-    "./js/ui/specTable.js": "./js/ui/specTable.js?v=20261118-2",
-    "./js/ui/tabs.js": "./js/ui/tabs.js?v=20261118-2",
-    "./js/ui/theme.js": "./js/ui/theme.js?v=20261118-2",
-    "./js/ui/tiles.js": "./js/ui/tiles.js?v=20261118-2"
+    "./js/analytics.js": "./js/analytics.js?v=20261118-3",
+    "./js/data/conversionData.js": "./js/data/conversionData.js?v=20261118-3",
+    "./js/data/gameData.js": "./js/data/gameData.js?v=20261118-3",
+    "./js/data/itemPresentation.js": "./js/data/itemPresentation.js?v=20261118-3",
+    "./js/data/priceRepository.js": "./js/data/priceRepository.js?v=20261118-3",
+    "./js/data/userState.js": "./js/data/userState.js?v=20261118-3",
+    "./js/i18n.js": "./js/i18n.js?v=20261118-3",
+    "./js/logic/calculations.js": "./js/logic/calculations.js?v=20261118-3",
+    "./js/logic/conversionValues.js": "./js/logic/conversionValues.js?v=20261118-3",
+    "./js/logic/planner.js": "./js/logic/planner.js?v=20261118-3",
+    "./js/main.js": "./js/main.js?v=20261118-3",
+    "./js/ui/domHelpers.js": "./js/ui/domHelpers.js?v=20261118-3",
+    "./js/ui/evCalcTab.js": "./js/ui/evCalcTab.js?v=20261118-3",
+    "./js/ui/gearGrid.js": "./js/ui/gearGrid.js?v=20261118-3",
+    "./js/ui/onboarding.js": "./js/ui/onboarding.js?v=20261118-3",
+    "./js/ui/plannerTab.js": "./js/ui/plannerTab.js?v=20261118-3",
+    "./js/ui/presets.js": "./js/ui/presets.js?v=20261118-3",
+    "./js/ui/priceTable.js": "./js/ui/priceTable.js?v=20261118-3",
+    "./js/ui/referenceTab.js": "./js/ui/referenceTab.js?v=20261118-3",
+    "./js/ui/specTable.js": "./js/ui/specTable.js?v=20261118-3",
+    "./js/ui/tabs.js": "./js/ui/tabs.js?v=20261118-3",
+    "./js/ui/theme.js": "./js/ui/theme.js?v=20261118-3",
+    "./js/ui/tiles.js": "./js/ui/tiles.js?v=20261118-3"
   }
 }
 </script>
@@ -139,10 +139,34 @@ gtag('config', 'G-YG2FMZ5YES');
         </div>
         <button class="btn" id="applyPresetBtn" type="button" data-i18n="프리셋 적용">프리셋 적용</button>
       </div>
-      <div class="item-browser">
-        <div class="item-sidebar">
-          <div id="itemGroups" class="item-groups" role="group" aria-label="아이템 종류"></div>
-          <div id="itemList" class="item-choice-list"></div>
+      <div class="item-browser" id="itemBoard">
+        <section class="item-rail item-family-gear" aria-labelledby="itemFamilyGearTitle">
+          <h3 class="item-section-title" id="itemFamilyGearTitle" data-i18n="가문 장비">가문 장비</h3>
+          <div class="item-slot-list item-family-gear-list" id="itemFamilyGear"></div>
+        </section>
+        <div class="item-rail item-equipped">
+          <section aria-labelledby="itemEquipmentTitle">
+            <h3 class="item-section-title" id="itemEquipmentTitle" data-i18n="장비">장비</h3>
+            <div class="item-slot-list" id="itemEquipment"></div>
+          </section>
+          <section aria-labelledby="itemAccessoriesTitle">
+            <h3 class="item-section-title" id="itemAccessoriesTitle" data-i18n="장신구">장신구</h3>
+            <div class="item-slot-list" id="itemAccessories"></div>
+          </section>
+          <section aria-labelledby="itemSpecialGearTitle">
+            <h3 class="item-section-title" id="itemSpecialGearTitle" data-i18n="특수 장비">특수 장비</h3>
+            <div class="item-slot-list item-special-list" id="itemSpecialGear"></div>
+          </section>
+        </div>
+        <div class="item-rail item-extras">
+          <section aria-labelledby="itemFamilyGrowthTitle">
+            <h3 class="item-section-title" id="itemFamilyGrowthTitle" data-i18n="가문 성장">가문 성장</h3>
+            <div class="item-slot-list item-extra-list" id="itemFamilyGrowth"></div>
+          </section>
+          <section aria-labelledby="itemEmblemDecorationsTitle">
+            <h3 class="item-section-title" id="itemEmblemDecorationsTitle" data-i18n="휘장 장식">휘장 장식</h3>
+            <div class="item-slot-list item-extra-list" id="itemEmblemDecorations"></div>
+          </section>
         </div>
         <section id="itemDetail" class="item-detail" tabindex="-1" aria-labelledby="itemDetailTitle"></section>
       </div>
@@ -465,6 +489,6 @@ gtag('config', 'G-YG2FMZ5YES');
   </footer>
 </div>
 
-<script type="module" src="js/main.js?v=20261118-2"></script>
+<script type="module" src="js/main.js?v=20261118-3"></script>
 </body>
 </html>

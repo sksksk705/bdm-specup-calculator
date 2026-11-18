@@ -4,7 +4,7 @@ import {
   RELIC_BREAKTHROUGH_CURVE, RELIC_SERIES_BREAKTHROUGH_CURVE, RELIC_SERIES_CP_GAIN,
   SOUL_CP_GAIN, SOUL_MAX_STEP, SOUL_SUCCESS_RATE, INSIGNIA_BOOK_MEDIAN_STAT, INSIGNIA_BOOK_VOID_STAT_VALUES
 } from "../data/gameData.js";
-import { ITEM_GROUPS, ITEM_VISUALS } from "../data/itemPresentation.js";
+import { ITEM_SLOT_LAYOUT, ITEM_VISUALS } from "../data/itemPresentation.js";
 import { state, persist } from "../data/userState.js";
 import { emblemDecoRealLevel, familyCpGainArray, familyGradeOptions, familyItem, familyMaxLevel, fmt } from "../logic/calculations.js";
 import { t } from "../i18n.js";
@@ -13,8 +13,7 @@ import { renderSpecTable } from "./specTable.js";
 const imageRoot = new URL("../../asset/items/", import.meta.url);
 const rateSource = "https://www.blackdesertm.com/Ocean/Wiki?wikiNo=1001004";
 const relicForSeries = { relicSeries1: "relic1", relicSeries2: "relic2" };
-let activeGroup = 0;
-let activeItem = ITEM_GROUPS[0].ids[0];
+let activeItem = ITEM_SLOT_LAYOUT.itemEquipment[0];
 
 function itemState(id) {
   const equipment = state.status[id];
@@ -123,56 +122,57 @@ function readVisual(id, view) {
   return { item, grade, pictures: item.grades[grade] };
 }
 
-function selectItem(group, id, focus) {
-  activeGroup = group;
-  activeItem = id;
-  renderGearGrid();
-  focus();
+function selectItem(button) {
+  const previous = document.querySelector(".item-choice[aria-pressed=true]");
+  previous?.setAttribute("aria-pressed", "false");
+  activeItem = button.dataset.item;
+  button.setAttribute("aria-pressed", "true");
+  buildDetail();
+
+  const detail = document.getElementById("itemDetail");
+  if (matchMedia("(max-width: 820px)").matches) {
+    detail.focus({ preventScroll: true });
+    detail.scrollIntoView({ block: "start" });
+  } else {
+    detail.scrollIntoView({ block: "nearest" });
+  }
 }
 
-function buildList() {
-  const list = document.getElementById("itemList");
-  const fragment = document.createDocumentFragment();
-  ITEM_GROUPS[activeGroup].ids.forEach(id => {
-    const view = itemState(id);
-    const { item, grade, pictures } = readVisual(id, view);
-    const button = element("button", "item-choice");
-    button.type = "button";
-    button.dataset.item = id;
-    button.dataset.itemGrade = grade;
-    button.setAttribute("aria-pressed", String(id === activeItem));
-    const icon = image(pictures.icon ?? pictures.art);
-    const step = view.range ? t("능력치") : displayStep(view, Math.min(view.record[view.key], view.max));
-    const subtitle = grade === "기본" ? step : t(grade) + " · " + step;
-    const caption = element("span", "item-caption");
-    caption.append(element("strong", "", t(item.name)), element("small", "", subtitle));
-    button.append(icon, caption);
-    button.addEventListener("click", () => {
-      selectItem(activeGroup, id, () => {
-        if (matchMedia("(max-width: 700px)").matches) {
-          document.getElementById("itemDetail").focus({ preventScroll: true });
-          document.getElementById("itemDetail").scrollIntoView({ block: "start" });
-        } else {
-          list.querySelector("[aria-pressed=true]").focus({ preventScroll: true });
-        }
-      });
-    });
-    fragment.append(button);
-  });
-  list.replaceChildren(fragment);
+function buildSlot(id) {
+  const view = itemState(id);
+  const { item, grade, pictures } = readVisual(id, view);
+  const button = element("button", "item-choice");
+  button.type = "button";
+  button.dataset.item = id;
+  button.dataset.itemGrade = grade;
+  button.setAttribute("aria-pressed", String(id === activeItem));
+  button.setAttribute("aria-controls", "itemDetail");
+
+  const frame = element("span", "item-slot-icon");
+  frame.append(image(pictures.art ?? pictures.icon));
+  const caption = element("span", "item-caption");
+  caption.append(element("strong", "", t(item.name)));
+  if (grade !== "기본") caption.append(element("small", "item-slot-grade", t(grade)));
+
+  if (view.range) {
+    const atk = fmt(view.record.atkGain);
+    const def = fmt(view.record.defGain);
+    const stats = element("small", "item-slot-stats", atk + " / " + def);
+    stats.title = t("공격력 {atk} · 방어력 {def}").replace("{atk}", atk).replace("{def}", def);
+    caption.append(stats);
+  } else {
+    const step = displayStep(view, Math.min(view.record[view.key], view.max));
+    frame.append(element("span", "item-slot-step", step));
+  }
+  button.append(frame, caption);
+  button.addEventListener("click", () => selectItem(button));
+  return button;
 }
 
-function buildCategories() {
-  const groupBar = document.getElementById("itemGroups");
-  const buttons = ITEM_GROUPS.map(({ label, ids }, index) => {
-    const button = element("button", "item-group", t(label) + " " + ids.length);
-    button.type = "button";
-    button.setAttribute("aria-pressed", String(index === activeGroup));
-    button.addEventListener("click", () => selectItem(index, ids[0], () => groupBar.children[index].focus({ preventScroll: true })));
-    return button;
-  });
-  groupBar.setAttribute("aria-label", t("아이템 종류"));
-  groupBar.replaceChildren(...buttons);
+function buildSlots() {
+  for (const [containerId, ids] of Object.entries(ITEM_SLOT_LAYOUT)) {
+    document.getElementById(containerId).replaceChildren(...ids.map(buildSlot));
+  }
 }
 
 function buildControls(id, view) {
@@ -266,7 +266,7 @@ function buildDetail() {
   const title = element("h3", "", name);
   title.id = "itemDetailTitle";
   caption.append(
-    element("p", "item-grade", t(grade === "기본" ? ITEM_GROUPS[activeGroup].label : grade)),
+    element("p", "item-grade", t(grade === "기본" ? "가문 · 특수" : grade)),
     title,
     element("p", "item-image-label", t(imageLabel))
   );
@@ -288,13 +288,12 @@ function buildDetail() {
 
   const back = element("button", "btn ghost item-back", t("아이템 목록으로"));
   back.type = "button";
-  back.addEventListener("click", () => document.querySelector("#itemList [aria-pressed=true]").focus());
+  back.addEventListener("click", () => document.querySelector(".item-choice[aria-pressed=true]").focus());
   body.append(back);
   detail.replaceChildren(header, body);
 }
 
 export function renderGearGrid() {
-  buildCategories();
-  buildList();
+  buildSlots();
   buildDetail();
 }
